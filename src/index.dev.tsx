@@ -8,12 +8,12 @@ import {createLogger} from 'redux-logger';
 import {AppContainer} from 'react-hot-loader';
 
 import './global.scss';
-import {State} from './types';
-import {actionCreators} from './actions';
-import {reducer, initialState} from './store';
-import App from './App';
 import {startRouter} from './router';
-import routes from './routes';
+
+import {actionCreators} from './wiring/actions';
+import {State, reducer, initialState} from './wiring/store';
+import routes from './wiring/routes';
+import Root from './wiring/Root';
 
 const hot = (module as any).hot;
 const app : any = (window as any).app = {};
@@ -51,43 +51,43 @@ function start () {
   }
   /* eslint-enable no-underscore-dangle */
 
-  // Apply Middleware & Compose Enhancers
+  // Rootly Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(...middleware));
   const enhancer = composeEnhancers(...enhancers);
 
   // Create Store
   const store = createStore(reducer, initialState, enhancer);
-  const rootTask = sagaMiddleware.run(module.require('./sagas')['default']);
+  const rootTask = sagaMiddleware.run(module.require('./wiring/sagas')['default']);
 
   if (hot) {
-    hot.accept('./src/actions.ts', function () {
+    hot.accept('./src/wiring/actions.ts', function () {
       console.log("HOT actions");
-      app.actionCreators = module.require('./actions')['actionCreators'];
+      app.actionCreators = module.require('./wiring/actions')['actionCreators'];
     });
-    hot.accept('./src/store.ts', function () {
+    hot.accept('./src/wiring/store.ts', function () {
       console.log("HOT store");
-      const reducer = module.require('./store')['reducer'];
+      const reducer = module.require('./wiring/store')['reducer'];
       store.replaceReducer(reducer);
       store.dispatch(actionCreators.clearError());
     });
-    hot.accept('./src/routes.ts', function () {
+    hot.accept('./src/wiring/routes.ts', function () {
       console.log("HOT routes");
-      const routes = module.require('./routes')['default'];
+      const routes = module.require('./wiring/routes')['default'];
       const {startRouter} = module.require('./router');
       startRouter(store.dispatch, routes);
     });
-    hot.accept('./src/sagas.js', function () {
+    hot.accept('./src/wiring/sagas.js', function () {
       console.log("HOT sagas");
-      const rootSaga = module.require('./sagas')['default'];
+      const rootSaga = module.require('./wiring/sagas')['default'];
       app.rootTask.cancel();
       store.dispatch(actionCreators.clearError());
       app.rootTask = sagaMiddleware.run(rootSaga);
       /* XXX Restart the current route's saga. */
     });
-    hot.accept('./src/App.tsx', function () {
+    hot.accept('./src/wiring/Root.tsx', function () {
       console.log("HOT views");
-      const App = module.require('./App')['default'];
-      renderApp(App, store);
+      const Root = module.require('./wiring/Root')['default'];
+      renderRoot(Root, store);
     });
   }
 
@@ -95,14 +95,14 @@ function start () {
   startRouter(store.dispatch, routes);
 
   Object.assign(app, {actionCreators, store, rootTask});
-  renderApp(App, store);
+  renderRoot(Root, store);
 }
 
-function renderApp (App : React.ComponentClass, store : Store<State>) {
+function renderRoot (Root : React.ComponentClass, store : Store<State>) {
   render(
     <AppContainer>
       <Provider store={store}>
-        <App />
+        <Root />
       </Provider>
     </AppContainer>,
     document.getElementById('root')

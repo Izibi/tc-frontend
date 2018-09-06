@@ -1,6 +1,6 @@
 
-import {Actions, ActionTypes} from './app';
-import {createAction} from './utils';
+import {Actions, ActionTypes} from '../app';
+import {createAction} from '../utils';
 
 export type State = {
   lastError: null | {

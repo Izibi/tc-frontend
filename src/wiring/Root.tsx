@@ -4,11 +4,10 @@ import {Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import {Dialog} from '@blueprintjs/core';
 
-import {State} from './types';
-import {actionCreators} from './actions';
-import {Router} from './router/Router';
+import {State, actionCreators} from '../app';
+import {Router} from '../router/Router';
 
-type OwnProps = {
+type StoreProps = {
   lastError: null | {
     source: string,
     error: Error | null,
@@ -17,9 +16,9 @@ type OwnProps = {
     },
   },
 };
-type Props = OwnProps & {dispatch: Dispatch};
+type Props = StoreProps & {dispatch: Dispatch};
 
-class App extends React.PureComponent<Props> {
+class Root extends React.PureComponent<Props> {
   render () {
     const {lastError} = this.props;
     let dialog : JSX.Element | null = null;
@@ -41,7 +40,7 @@ class App extends React.PureComponent<Props> {
     return (
       <>
         {(!lastError || lastError.source !== 'react') &&
-          <div className="App__container">
+          <div className="Root__container">
             <Router/>
           </div>}
         {dialog}
@@ -59,9 +58,9 @@ class App extends React.PureComponent<Props> {
   };
 }
 
-function mapStateToProps (state : State) : OwnProps {
+function mapStateToProps (state : State) : StoreProps {
   const {lastError} = state;
   return {lastError};
 }
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps)(Root);

@@ -1,11 +1,6 @@
 
 import {Moment} from 'moment';
 
-import {State as ErrorState} from './errors';
-import {State as RouterState} from './router/types';
-import {State as LandingState} from './Landing';
-import {State as TaskState} from './Task';
-
 export type AnyAction = {
   type: string,
   payload: object,
@@ -80,6 +75,3 @@ export type Chain = {
   interface: string,
   implementation: string,
 }
-
-export type State =
-  ErrorState & RouterState & LandingState & TaskState
