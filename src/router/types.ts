@@ -23,7 +23,7 @@ export type LinkProps = {
   children: React.ReactNode,
 }
 
-export type State = {
+export type RouterState = {
   path: string,
   route: Route | null,
 };

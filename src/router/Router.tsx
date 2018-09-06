@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {Route, State} from './types';
+import {Route, RouterState} from './types';
 
 type RouterProps = {
   path: string,
@@ -18,7 +18,7 @@ function BareRouter (props: RouterProps) {
   }
 }
 
-export const Router = connect(function (state: State) : RouterProps {
+export const Router = connect(function (state: RouterState) : RouterProps {
   const {path, route} = state;
   return {path, route};
 })(BareRouter);

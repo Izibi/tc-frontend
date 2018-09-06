@@ -3,8 +3,7 @@ import {Dispatch, AnyAction} from 'redux';
 import PathParser from 'path-parser'
 import {all, call, cancelled, takeLatest} from 'redux-saga/effects';
 
-import {ActionTypes} from '../app';
-import {createAction} from '../utils';
+import {ActionTypes, createAction} from '../app';
 
 import {Rule, Route} from './types';
 
@@ -57,7 +56,7 @@ export function navigate (ruleName: string, params: object = {}) {
     // TODO: dispatch router error
     throw new Error(`router has no rule named ${ruleName}`);
   }
-  const pathname = matcher.parser.build(params);
+  const pathname = addPrefix(matcher.parser.build(params));
   const route = buildRoute(matcher.rule, pathname, params);
   window.history.pushState(null, "", pathname);
   dispatch(actionCreators.routeChanged(route));
@@ -103,13 +102,15 @@ export function startRouter (newDispatch: Dispatch<AnyAction>, rules: Rule[]) {
 }
 
 
-export default function* () {
+export function* saga () {
+  console.log('router saga');
   yield all([
     takeLatest(ActionTypes.ROUTE_CHANGED, routeChangedSaga),
   ]);
 };
 
 export function* routeChangedSaga (action: any) {
+  console.log('took', action);
   const {route} = action.payload;
   if (route.saga) {
     try {

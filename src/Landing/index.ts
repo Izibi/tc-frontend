@@ -1,9 +1,9 @@
 
 import {Rule} from '../router';
 
-export {State} from './types';
-
 import UnauthenticatedUserPage from './UnauthenticatedUser';
+
+export {LandingState} from './types';
 
 export const routes : Rule[] = [
   {

@@ -57,6 +57,12 @@ export type Task = {
   title: string,
 }
 
+export type TaskResource = {
+  title: string,
+  description: string,
+  url: string,
+}
+
 export type Game = {
   key: string,
   started_at: null | Moment,

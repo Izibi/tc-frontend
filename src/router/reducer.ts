@@ -1,8 +1,8 @@
 
-import {Actions, ActionTypes} from '../app';
-import {State} from './types';
+import {Actions, State} from '../app';
+import * as ActionTypes from './action_types';
 
-export function reducer (state: State, action: Actions) {
+export function routerReducer (state: State, action: Actions) {
   switch (action.type) {
     case ActionTypes.ROUTE_CHANGED: {
       const {route} = action.payload;

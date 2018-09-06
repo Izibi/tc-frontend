@@ -7,6 +7,6 @@ type AuthenticatedUserLandingState = {
   filter: "current" | "past",
 }
 
-export type State = {
+export type LandingState = {
   authenticated_user_landing_page: AuthenticatedUserLandingState,
 }

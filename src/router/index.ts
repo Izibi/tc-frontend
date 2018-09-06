@@ -1,5 +1,5 @@
 
-export {Rule, Route} from './types';
-export {reducer} from './reducer';
-export {startRouter, navigate, linkTo} from './core';
+export {RouterState, Rule, Route} from './types';
+export {routerReducer} from './reducer';
+export {actionCreators, startRouter, navigate, linkTo, saga} from './core';
 export {Link} from './Link';

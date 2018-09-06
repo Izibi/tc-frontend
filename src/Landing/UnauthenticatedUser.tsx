@@ -1,10 +1,12 @@
 
 import * as React from 'react';
+import {Button} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
+import {AppToaster, Link} from '../app';
 import Dev from '../components/Dev';
-import {Link} from '../router';
-import {State} from './types';
+
+import {LandingState} from './types';
 
 type RouteProps = {}
 
@@ -18,15 +20,19 @@ class UnauthenticatedUserPage extends React.PureComponent<Props> {
       <div>
         <div className="landingTitle">{"Tezos Contests"}</div>
         <Dev>
-           <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"test"}</Link>
+          <Button onClick={this.toast}>{"Toast"}</Button>
+          <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"test"}</Link>
         </Dev>
         <p>{"UnauthenticatedUser Landing Page"}</p>
       </div>
     );
   }
+  toast = () => {
+    AppToaster.show({message: "Toasty!"});
+  };
 }
 
-function mapStateToProps (_state: State, _props: RouteProps): StoreProps {
+function mapStateToProps (_state: LandingState, _props: RouteProps): StoreProps {
   return {};
 }
 

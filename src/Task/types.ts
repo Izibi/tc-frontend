@@ -1,19 +1,13 @@
 
-import {Task} from '../types';
+import {Task, TaskResource} from '../types';
 
-export type TaskResource = {
-  title: string,
-  description: string,
-  url: string,
-}
-
-export type TaskResourcesState = {
+type TaskResourcesState = {
   loaded: boolean,
   currentIndex: number,
   resources: TaskResource[],
 }
 
-export type State = {
+export type TaskState = {
   task: null | Task,
   task_resources_page: TaskResourcesState
 }

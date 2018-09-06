@@ -1,14 +1,8 @@
 
-import {Actions, ActionTypes} from '../app';
-import {createAction} from '../utils';
+import {Actions, createAction, State} from '../app';
+import * as ActionTypes from './action_types';
 
-export type State = {
-  lastError: null | {
-    source: string,
-    error: Error | null,
-    info?: {componentStack: any}
-  }
-}
+export {ErrorsState, AppError} from './types';
 
 export const actionCreators = {
   reactError: (error: Error | null, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
@@ -16,7 +10,7 @@ export const actionCreators = {
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
 }
 
-export function reducer (state: State, action: Actions): State {
+export function errorsReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.REACT_ERROR: {
       const {error, info} = action.payload;
@@ -51,3 +45,5 @@ export function reducer (state: State, action: Actions): State {
   }
   return state;
 }
+
+export {default as ErrorReport} from './Report';

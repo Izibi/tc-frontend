@@ -2,7 +2,8 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {State, TaskResource} from './types';
+import {TaskResource} from '../types';
+import {TaskState} from './types';
 
 type RouteProps = {
   contestId: string,
@@ -18,7 +19,7 @@ type StoreProps = {
 
 type Props = RouteProps & StoreProps
 
-function mapStateToProps (state: State, _props: RouteProps): StoreProps {
+function mapStateToProps (state: TaskState, _props: RouteProps): StoreProps {
   const {loaded, resources, currentIndex} = state.task_resources_page;
   let currentResource;
   if (loaded) {
