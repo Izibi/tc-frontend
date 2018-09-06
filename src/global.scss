@@ -10,7 +10,7 @@ html, body {
   box-sizing: border-box;
 }
 body {
-  background-color: #eff5f8; 
+  background-color: #eff5f8;
   font-family: "DejaVu Sans", "sans";
   font-size: 12px;
   line-height: 1.2rem;
@@ -31,27 +31,4 @@ body {
   max-width: 1300px;
 }
 
-/*********************************
-  LANDING
-*********************************/
-.landingTitle {
-  font-size:23px;
-  color:#006989;
-  text-transform: uppercase;
-  background-color: #fff;
-  width: 160px;
-  padding: 60px 23px 55px 13px;
-  position: relative;
-}
-.landingTitle::after {
-  content: "";
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 20px 160px 0 0;
-  border-color: transparent #eff5f8 transparent transparent;
-  transform: scale(1.0001);
-  position: absolute;
-  left: 0;
-  bottom: 0;
-}
+@import "./Landing/landing.scss";
