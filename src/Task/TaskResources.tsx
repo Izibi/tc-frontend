@@ -10,7 +10,6 @@ import {Link} from '../router';
 import {TaskState, TaskResourcesParams} from './types';
 
 type StoreProps = {
-  loaded: boolean,
   resources: TaskResource[],
   currentResource: undefined | TaskResource,
 }
@@ -18,27 +17,20 @@ type StoreProps = {
 type Props = TaskResourcesParams & StoreProps & DispatchProp
 
 function mapStateToProps (state: TaskState, props: TaskResourcesParams): StoreProps {
-  let loaded = false;
   let resources: TaskResource[] = [];
   const page = state.task_resources_page;
+  let currentResource: undefined | TaskResource;
   const {resourceIndex} = props;
   if (page) {
-    loaded = page.loaded;
     resources = page.resources;
-  }
-  let currentResource : undefined | TaskResource;
-  if (loaded) {
     currentResource = resources[parseInt(resourceIndex)];
   }
-  return {loaded, resources, currentResource};
+  return {resources, currentResource};
 }
 
 class TaskResourcesPage extends React.PureComponent<Props> {
   render () {
-    const {loaded, contestId} = this.props;
-    if (!loaded) {
-      return <p>{"Not loaded"}</p>;
-    }
+    const {contestId} = this.props;
     const {resources, currentResource} = this.props;
     const resourceOptions = resources.map((resource, index) =>
       <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
