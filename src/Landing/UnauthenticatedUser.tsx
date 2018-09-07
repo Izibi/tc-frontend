@@ -8,6 +8,7 @@ import Dev from '../components/Dev';
 import {User} from '../types';
 
 import {LandingState} from './types';
+import Header from './Header';
 
 type RouteProps = {}
 
@@ -24,7 +25,7 @@ class UnauthenticatedUserPage extends React.PureComponent<Props> {
   render () {
     return (
       <div>
-        <div className="landingTitle">{"Tezos Contests"}</div>
+        <Header />
         <Dev>
           <Button onClick={this.handleLogin} data-username="alice">{"I am Alice"}</Button>
           <Button onClick={this.handleLogin} data-username="bob">{"I am Bob"}</Button>

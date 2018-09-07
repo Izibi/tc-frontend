@@ -4,7 +4,9 @@ import {connect} from 'react-redux';
 
 import {Spinner} from '../components';
 import {User} from '../types';
+
 import {LandingState} from './types';
+import Header from './Header';
 
 type RouteProps = {}
 
@@ -25,7 +27,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
     if (!user) return <Spinner/>;
     return (
       <div>
-        <p>{"Hello, "}{user.firstname}{" "}{user.lastname}</p>
+        <Header user={user} />
         <p>{"AuthenticatedUser Landing Page"}</p>
       </div>
     );
