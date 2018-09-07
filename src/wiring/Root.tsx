@@ -35,10 +35,11 @@ class Root extends React.PureComponent<Props> {
             <Router/>
             <hr/>
             <Dev>
+              <Button onClick={this.handleLogout} >{"I am no one"}</Button>
               <Button onClick={this.handleLogin} data-username="alice">{"I am Alice"}</Button>
               <Button onClick={this.handleLogin} data-username="bob">{"I am Bob"}</Button>
               <Button onClick={this.toast}>{"Toast"}</Button>
-              <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"test"}</Link>
+              <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"task resources"}</Link>
             </Dev>
           </div>}
         {dialog}
@@ -48,6 +49,9 @@ class Root extends React.PureComponent<Props> {
   componentDidCatch (error: Error, info: {componentStack: any}) {
     this.props.dispatch(actionCreators.reactError(error, info));
   }
+  handleLogout = (event: React.MouseEvent<HTMLElement>) => {
+    this.props.dispatch(actionCreators.userLoggedOut());
+  };
   handleLogin = (event: React.MouseEvent<HTMLElement>) => {
     const username = event.currentTarget.getAttribute('data-username');
     const user = devUsers.find(user => user.username === username);

@@ -1,11 +1,10 @@
 
 import {Effect} from 'redux-saga';
-import {call, put, select, takeEvery} from 'redux-saga/effects';
-import {delay} from 'redux-saga';
+import {call, select, takeEvery} from 'redux-saga/effects';
 
-import {Actions, actionCreators, ActionTypes, State} from '../app';
+import {Actions, ActionTypes, State} from '../app';
 import {Rule, navigate} from '../router';
-import {loadContests} from '../Backend';
+import {monitorBackendTask, loadContests} from '../Backend';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';
@@ -33,6 +32,12 @@ export function landingReducer (state: State, action: Actions): State {
       const {user} = action.payload;
       return {...state, user};
     }
+    case ActionTypes.USER_LOGGED_OUT: {
+      return {...state,
+        user: undefined,
+        contest: undefined, task: undefined, task_resources: undefined
+      };
+    }
     case ActionTypes.CONTEST_LIST_LOADED: {
       const {contests} = action.payload;
       return {...state, contests};
@@ -47,7 +52,6 @@ function* unauthenticatedUserSaga () : IterableIterator<Effect> {
     yield call(redirectToAuthenticatedUserLanding);
   } else {
     yield takeEvery(ActionTypes.USER_LOGGED_IN, userLoggedInSaga);
-    console.log('wait for user to log in');
   }
 }
 
@@ -60,8 +64,7 @@ function* redirectToAuthenticatedUserLanding () : IterableIterator<Effect> {
 }
 
 function* authenticatedUserSaga () : IterableIterator<Effect> {
-  // TODO: load contests available to user
-  yield call(delay, 500);
-  const contests = yield call(loadContests);
-  yield put(actionCreators.contestListLoaded(contests));
+  yield call(monitorBackendTask, function* () {
+    yield call(loadContests);
+  });
 }

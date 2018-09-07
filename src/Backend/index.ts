@@ -90,16 +90,26 @@ export function* monitorBackendTask (saga: any): IterableIterator<Effect> {
 }
 
 export function* loadContests (): IterableIterator<Effect> {
-  // TODO
-  yield call(delay, 500);
-  return testContests;
+  let contests: Contest[] = yield select((state: State) => state.contests);
+  if (!contests) {
+    yield call(delay, 500);
+    contests = testContests;
+    yield put(actionCreators.contestListLoaded(contests));
+  }
+  return contests;
 }
 
 export function* loadContest (contestId: string) : IterableIterator<Effect> {
   let contest: Contest | undefined = yield select((state: State) => state.contest);
   if (!contest || contest.id !== contestId) {
-    yield call(delay, 500);
-    contest = testContests.find(contest => contest.id === contestId);
+    const contests: Contest[] | undefined = yield select((state: State) => state.contests);
+    if (contests) {
+      contest = contests.find(contest => contest.id === contestId);
+    }
+    if (!contest) {
+      yield call(delay, 500);
+      contest = testContests.find(contest => contest.id === contestId);
+    }
     if (!contest) throw new Error("contest failed to load");
     yield put(actionCreators.contestLoaded(contest));
   }

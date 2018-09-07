@@ -32,6 +32,7 @@ export const actionCreators = {
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
 
   // login
+  userLoggedOut: () => createAction(ActionTypes.USER_LOGGED_OUT, {}),
   userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
 
   contestListLoaded: (contests: Contest[]) => createAction(ActionTypes.CONTEST_LIST_LOADED, {contests}),

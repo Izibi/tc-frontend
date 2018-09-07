@@ -12,6 +12,7 @@ export const BACKEND_TASK_FAILED = "[backend] task failed";
 export const BACKEND_TASK_STARTED = "[backend] task started";
 export const BACKEND_TASKS_CLEARED = "[backend] tasks cleared";
 
+export const USER_LOGGED_OUT = "[login] user logged out";
 export const USER_LOGGED_IN = "[login] user logged in";
 
 export const CONTEST_LIST_LOADED = "[model] contest list loaded";
