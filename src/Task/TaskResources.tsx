@@ -7,29 +7,30 @@ import {TaskResource} from '../types';
 import {Header as ContestHeader} from '../Contest';
 import {Link} from '../router';
 
-import {TaskState} from './types';
-
-type RouteProps = {
-  contestId: string,
-  resourceIndex: string,
-}
+import {TaskState, TaskResourcesParams} from './types';
 
 type StoreProps = {
   loaded: boolean,
   resources: TaskResource[],
-  currentIndex: number,
   currentResource: undefined | TaskResource,
 }
 
-type Props = RouteProps & StoreProps & DispatchProp
+type Props = TaskResourcesParams & StoreProps & DispatchProp
 
-function mapStateToProps (state: TaskState, _props: RouteProps): StoreProps {
-  const {loaded, resources, currentIndex} = state.task_resources_page;
+function mapStateToProps (state: TaskState, props: TaskResourcesParams): StoreProps {
+  let loaded = false;
+  let resources: TaskResource[] = [];
+  const page = state.task_resources_page;
+  const {resourceIndex} = props;
+  if (page) {
+    loaded = page.loaded;
+    resources = page.resources;
+  }
   let currentResource : undefined | TaskResource;
   if (loaded) {
-    currentResource = resources[currentIndex];
+    currentResource = resources[parseInt(resourceIndex)];
   }
-  return {loaded, resources, currentIndex, currentResource};
+  return {loaded, resources, currentResource};
 }
 
 class TaskResourcesPage extends React.PureComponent<Props> {

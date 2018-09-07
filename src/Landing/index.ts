@@ -1,12 +1,11 @@
 
-import * as moment from 'moment';
 import {Effect} from 'redux-saga';
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import {delay} from 'redux-saga';
 
 import {Actions, actionCreators, ActionTypes, State} from '../app';
 import {Rule, navigate} from '../router';
-import {Contest} from '../types';
+import {loadContests} from '../Contest';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';
@@ -39,12 +38,9 @@ export function landingReducer (state: State, action: Actions): State {
       return {...state, authenticated_user_landing_page: {
         ...state.authenticated_user_landing_page,
         loaded: true,
+        filter: "current",
         contests,
       }};
-    }
-    case ActionTypes.CONTEST_SELECTED: {
-      const {contest} = action.payload;
-      return {...state, contest};
     }
   }
   return state;
@@ -71,28 +67,6 @@ function* redirectToAuthenticatedUserLanding () : IterableIterator<Effect> {
 function* authenticatedUserSaga () : IterableIterator<Effect> {
   // TODO: load contests available to user
   yield call(delay, 500);
-  const contests : Contest[] = [
-    {
-      id: "1",
-      title: "Contest name",
-      description: "Lorem ipsum blah blah",
-      logo_url: null,
-      registration_open: true,
-      registration_closes_at: moment('2018-09-05'),
-      starts_at: moment('2018-09-05'),
-      ends_at: moment('2018-09-10'),
-      task: {
-        id: "1",
-        title: "task 1",
-      },
-    }
-  ];
+  const contests = yield call(loadContests);
   yield put(actionCreators.contestListLoaded(contests));
-  yield takeEvery(ActionTypes.CONTEST_SELECTED, contestSelectedSaga);
-}
-
-function* contestSelectedSaga (action: any) : IterableIterator<Effect> {
-  const contestId = action.payload.contest.id;
-  const resourceIndex = 0;
-  yield call(navigate, "TaskResources", {contestId, resourceIndex}, true);
 }

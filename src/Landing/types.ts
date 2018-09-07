@@ -9,5 +9,5 @@ type AuthenticatedUserLandingState = {
 
 export type LandingState = {
   user: null | User,
-  authenticated_user_landing_page: AuthenticatedUserLandingState,
+  authenticated_user_landing_page: null | AuthenticatedUserLandingState,
 }

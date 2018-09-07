@@ -113,7 +113,7 @@ export function* routeChangedSaga (action: any) {
   const {route} = action.payload;
   if (route.saga) {
     try {
-      yield call(route.saga, route.props);
+      yield call(route.saga, route.params);
     } catch (ex) {
       if (yield cancelled()) {
         console.log('route saga cancelled');

@@ -2,8 +2,9 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {actionCreators, DispatchProp} from '../app';
+import {DispatchProp} from '../app';
 import {Spinner} from '../components';
+import {Link} from '../router';
 import {User, Contest} from '../types';
 
 import {LandingState} from './types';
@@ -21,7 +22,13 @@ type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
   const {user} = state;
-  const {loaded, contests} = state.authenticated_user_landing_page;
+  let loaded = false;
+  let contests: Contest[] = [];
+  const page = state.authenticated_user_landing_page;
+  if (page && page.contests) {
+    loaded = page.loaded;
+    contests = page.contests;
+  }
   return {user, loaded, contests};
 }
 
@@ -34,7 +41,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
       contestList =
         <ul>
           {contests.map((contest, index) =>
-            <ContestItem key={contest.id} contest={contest} onSelect={this.handleContestSelected} />)}
+            <ContestItem key={contest.id} contest={contest} />)}
         </ul>
     }
     return (
@@ -49,28 +56,21 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
       </div>
     );
   }
-  handleContestSelected = (contest: Contest) => {
-    this.props.dispatch(actionCreators.contestSelected(contest));
-  };
 }
 
 export default connect(mapStateToProps)(AuthenticatedUserPage);
 
 type ContestItemProps = {
   contest: Contest,
-  onSelect: (contest: Contest) => void,
 }
 
-class ContestItem extends React.PureComponent<ContestItemProps> {
-  render () {
-    const {contest} = this.props;
-    return (
-      <li key={contest.id} onClick={this.handleClick} >
+const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
+  const {contest} = props;
+  return (
+    <div key={contest.id}>
+      <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
         {contest.title}
-      </li>
-    );
-  }
-  handleClick = () => {
-    this.props.onSelect(this.props.contest);
-  };
+      </Link>
+    </div>
+  );
 }

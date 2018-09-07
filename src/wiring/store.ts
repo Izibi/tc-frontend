@@ -3,9 +3,9 @@ import {Actions} from '../app';
 
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
+import {ContestState, contestReducer} from '../Contest';
 import {LandingState, landingReducer} from '../Landing';
 import {TaskState, taskReducer} from '../Task';
-import {ContestState} from '../Contest';
 
 export type State =
   ErrorsState & RouterState & LandingState & TaskState & ContestState
@@ -24,11 +24,7 @@ export const initialState : State = {
     contests: [],
     filter: "current",
   },
-  task_resources_page: {
-    loaded: false,
-    currentIndex: 0,
-    resources: [],
-  },
+  task_resources_page: null,
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {
@@ -36,6 +32,7 @@ export function reducer (state: State | undefined, action: Actions) : State {
   try {
     newState = errorsReducer(newState, action);
     newState = routerReducer(newState, action);
+    newState = contestReducer(newState, action);
     newState = landingReducer(newState, action);
     newState = taskReducer(newState, action);
     return newState;
