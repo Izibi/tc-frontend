@@ -5,10 +5,10 @@
 
 .platformLogo {
   flex: 0 0 62px;
-  background-color: #fff;
+  background-color: $secondaryBgColor;
   font-size:37px;
   letter-spacing: -10px;
-  color: #006989;
+  color: $themeColorDark;
   position: relative;
   padding: 16px 10px;
   line-height: 1;
@@ -17,7 +17,7 @@
     position: relative;
   }
   span:nth-child(2) {
-    color: #2ab7ca;
+    color: $themeColorLight;
     z-index: 0;
   }
 }
@@ -27,7 +27,7 @@
   height: 0;
   border-style: solid;
   border-width: 10px 62px 0 0;
-  border-color: transparent #eff5f8 transparent transparent;
+  border-color: transparent $mainBgColor transparent transparent;
   transform: scale(1.0001);
   position: absolute;
   left: 0;
@@ -36,6 +36,6 @@
 
 .contestTitle {
   font-size:20px;
-  color:#006989;
+  color:$themeColorDark;
   margin-left: 20px;
 }
