@@ -3,18 +3,13 @@ import {Dispatch, AnyAction} from 'redux';
 import PathParser from 'path-parser'
 import {all, call, cancelled, takeLatest} from 'redux-saga/effects';
 
-import {ActionTypes, createAction} from '../app';
-
+import {ActionTypes, actionCreators} from '../app';
 import {Rule, Route} from './types';
 
 export type Matcher = {
   rule: Rule,
   parser: PathParser,
 }
-
-export const actionCreators = {
-  routeChanged: (route: Route) => createAction(ActionTypes.ROUTE_CHANGED, {route}),
-};
 
 /* private state */
 const prefix : string = process.env.MOUNT_PATH || "";

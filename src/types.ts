@@ -6,11 +6,6 @@ export type AnyAction = {
   payload: object,
 }
 
-export interface Action<T extends string, P> {
-  type: T,
-  payload: P,
-}
-
 export type User = {
   id: string,
   username: string,

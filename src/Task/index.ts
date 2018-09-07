@@ -2,18 +2,12 @@
 import {Effect} from 'redux-saga';
 import {call, put, select} from 'redux-saga/effects';
 
-import {State, Actions, createAction} from '../app';
+import {State, Actions, ActionTypes, actionCreators} from '../app';
 import {Rule} from '../router';
-import * as ActionTypes from './action_types';
-import {TaskResource} from '../types';
 
 import TaskResourcesPage from './TaskResources';
 
 export {TaskState} from './types';
-
-export const actionCreators = {
-  taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
-}
 
 export function taskReducer (state: State, action: Actions): State {
   switch (action.type) {

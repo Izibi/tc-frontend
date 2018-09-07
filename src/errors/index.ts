@@ -1,14 +1,7 @@
 
-import {Actions, createAction, State} from '../app';
-import * as ActionTypes from './action_types';
+import {Actions, State, ActionTypes} from '../app';
 
 export {ErrorsState, AppError} from './types';
-
-export const actionCreators = {
-  reactError: (error: Error | null, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
-  sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
-  clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
-}
 
 export function errorsReducer (state: State, action: Actions): State {
   switch (action.type) {

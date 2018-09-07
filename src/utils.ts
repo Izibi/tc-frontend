@@ -1,12 +1,6 @@
 
 import {eventChannel, END, Channel} from 'redux-saga';
 
-import {Action} from './types';
-
-export function createAction<T extends string, P>(type: T, payload: P) : Action<T, P> {
-  return {type, payload};
-}
-
 export async function jsonGet (path: string) : Promise<object> {
   const response = await fetch(
     `${process.env.MOUNT_PATH}${path}`,

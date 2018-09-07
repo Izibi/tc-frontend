@@ -1,6 +1,5 @@
 
-import {Actions, State} from '../app';
-import * as ActionTypes from './action_types';
+import {Actions, ActionTypes, State} from '../app';
 
 export function routerReducer (state: State, action: Actions) {
   switch (action.type) {

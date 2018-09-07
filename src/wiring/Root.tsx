@@ -32,9 +32,6 @@ class Root extends React.PureComponent<Props> {
   componentDidCatch (error: Error | null, info: {componentStack: any}) {
     this.props.dispatch(actionCreators.reactError(error, info));
   }
-  handleTeamTabChange = (newTabId: number) => {
-    this.props.dispatch(actionCreators.activeTeamChanged(newTabId));
-  };
 }
 
 function mapStateToProps (state : State) : StoreProps {

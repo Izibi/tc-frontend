@@ -1,14 +1,33 @@
 
-import {createAction} from '../utils';
+import {Route} from '../router';
+import {TaskResource} from '../types';
 
 import * as ActionTypes from './action_types';
+
+export interface Action<T extends string, P> {
+  type: T,
+  payload: P,
+}
+
+export function createAction<T extends string, P>(type: T, payload: P) : Action<T, P> {
+  return {type, payload};
+}
 
 export const actionCreators = {
 
   init: () => createAction(ActionTypes.INIT, {}),
 
-  ...require("../router").actionCreators,
-  ...require("../errors").actionCreators,
+  // router
+  routeChanged: (route: Route) => createAction(ActionTypes.ROUTE_CHANGED, {route}),
+
+  // errors
+  reactError: (error: Error | null, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
+  sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
+  clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
+
+  // Task
+  taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
+  taskResourceSelected: (index: number) => createAction(ActionTypes.TASK_RESOURCE_SELECTED, {index}),
 
 };
 
