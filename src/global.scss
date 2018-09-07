@@ -30,6 +30,57 @@ body {
   padding: 0 33px 23px;
   max-width: 1300px;
 }
+.tabLayout {
+  display: flex;
+  align-items: flex-start;
+}
+.tabSelector {
+  flex: 0 1 20%;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-right: -1px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+
+  & > div {
+    position: relative;
+    margin-top: -6px;
+
+    &:last-child { /*the order is reversed */
+      margin-top: 0;
+    }
+    a {
+      line-height: 5em;
+      background-color: $inactiveSecondaryBgColor;
+      color: $mainTextColor;
+      padding-left: 20%;
+      display: block;
+      border: $tabsBorders;
+      border-radius: 0 0 0 $radius;
+    }
+    &.selected a {
+      background-color: $secondaryBgColor;
+      border-right: 1px solid $secondaryBgColor;
+      color: $accentTextColor;
+      box-shadow: $boxShadow;
+      position: relative;
+      z-index: 1;
+    }
+  }
+}
+.tabContent {
+  background-color: $secondaryBgColor;
+  position: relative;
+  border-radius: 0 $radius $radius $radius;
+  flex: 1 0 auto;
+  border: $tabsBorders;
+  min-height: 500px;
+
+  iframe{
+    border: none;
+  }
+}
 
 @import "./Landing/landing.scss";
 @import "./Contest/header.scss";

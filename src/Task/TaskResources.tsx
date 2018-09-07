@@ -35,12 +35,14 @@ class TaskResourcesPage extends React.PureComponent<Props> {
     return (
       <div>
         <ContestHeader/>
-        <div>
-          {resourceOptions}
-        </div>
-        <div>
-          {currentResource && currentResource.url && <iframe src={currentResource.url} />}
-          {currentResource && currentResource.html && <iframe srcDoc={currentResource.html}/>}
+        <div className="tabLayout">
+          <div className="tabSelector">
+            {resourceOptions}
+          </div>
+          <div className="tabContent">
+            {currentResource && currentResource.url && <iframe src={currentResource.url} />}
+            {currentResource && currentResource.html && <iframe srcDoc={currentResource.html}/>}
+          </div>
         </div>
       </div>
     );
