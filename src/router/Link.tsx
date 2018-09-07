@@ -9,11 +9,15 @@ export class Link extends React.PureComponent<LinkProps> {
     params: {}
   };
   render () {
-    const {to, params, children} = this.props;
-    return <a href={linkTo(to, params)} onClick={this.handleClick}>{children}</a>;
+    const {to, params, text, children, className} = this.props;
+    if (text && childrenEmpty(children)) {
+      return <a href={linkTo(to, params)} onClick={this.handleClick} className={className}>{text}</a>;
+    } else {
+      let Component = this.props.component || "div";
+      return <Component onClick={this.handleClick} className={className} style={{cursor: 'pointer'}}>{children}</Component>;
+    }
   }
   handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    console.log('handleClick');
     if (this.props.onClick) this.props.onClick(event);
     if (
       !event.defaultPrevented && // onClick prevented default
@@ -30,4 +34,11 @@ export class Link extends React.PureComponent<LinkProps> {
 
 function isModifiedEvent (event: React.MouseEvent<HTMLElement>) : boolean {
   return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+}
+
+function childrenEmpty (children: React.ReactNode): boolean {
+  return !children || (
+    typeof children === 'object' &&
+    'length' in children &&
+    children.length === 0);
 }

@@ -39,7 +39,7 @@ class Root extends React.PureComponent<Props> {
               <Button onClick={this.handleLogin} data-username="alice">{"I am Alice"}</Button>
               <Button onClick={this.handleLogin} data-username="bob">{"I am Bob"}</Button>
               <Button onClick={this.toast}>{"Toast"}</Button>
-              <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"task resources"}</Link>
+              <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}} text="task resources" />
             </Dev>
           </div>}
         {dialog}

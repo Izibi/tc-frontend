@@ -30,8 +30,12 @@ class TaskResourcesPage extends React.PureComponent<Props> {
   render () {
     const {contestId} = this.props;
     const {resources, currentResource} = this.props;
-    const resourceOptions = resources && resources.map((resource, index) =>
-      <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
+    let resourceOptions : JSX.Element[] | undefined;
+    if (resources) {
+      resourceOptions = resources.map((resource, index) =>
+        <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
+      resourceOptions.reverse(); // Shoot your graphist.
+    }
     return (
       <div>
         <ContestHeader/>
@@ -59,9 +63,7 @@ const TaskResourceOption : React.StatelessComponent<TaskResourceOptionProps> = (
   const {index, contestId, selected, resource} = props;
   return (
     <div className={selected ? "selected" : ""} title={resource.description}>
-      <Link to="TaskResources" params={{contestId: contestId, resourceIndex: index}}>
-        {resource.title}
-      </Link>
+      <Link to="TaskResources" params={{contestId: contestId, resourceIndex: index}} text={resource.title} />
     </div>
   );
 };

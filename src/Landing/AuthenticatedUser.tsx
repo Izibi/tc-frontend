@@ -56,7 +56,7 @@ const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
   const {contest} = props;
   const range = contest.starts_at.twix(contest.ends_at, {allDay: true});
   return (
-    <li key={contest.id}>
+    <Link component="li" to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}} key={contest.id}>
       <div className="contestImage">
         {contest.logo_url && <img src="{contest.logo_url}" />}
       </div>
@@ -64,10 +64,7 @@ const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
         <div className="contestTitle">{contest.title}</div>
         <div className="contestDates">{range.format()}</div>
         <div className="contestDescription">{contest.description}</div>
-        <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
-          {contest.title}
-        </Link>
       </div>
-    </li>
+    </Link>
   );
 }

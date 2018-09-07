@@ -21,7 +21,10 @@ export type LinkProps = {
   params: object,
   target?: string,
   onClick?: ((event: React.MouseEvent<HTMLElement>) => void),
-  children: React.ReactNode,
+  text?: string,
+  component?: React.ReactType,
+  children?: React.ReactNode,
+  className?: string,
 }
 
 export type RouterState = {
