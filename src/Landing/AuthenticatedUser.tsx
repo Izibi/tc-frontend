@@ -39,7 +39,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
     let contestList : JSX.Element = <Spinner/>;
     if (contests) {
       contestList =
-        <ul>
+        <ul className="contestList">
           {contests.map((contest, index) =>
             <ContestItem key={contest.id} contest={contest} />)}
         </ul>
@@ -48,7 +48,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
       <div>
         <Header user={user} />
         {loaded
-          ? <div>
+          ? <div className="landingContent">
               <p>{"AuthenticatedUser Landing Page"}</p>
               {contestList}
             </div>
@@ -67,10 +67,18 @@ type ContestItemProps = {
 const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
   const {contest} = props;
   return (
-    <div key={contest.id}>
-      <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
-        {contest.title}
-      </Link>
-    </div>
+    <li key={contest.id}>
+      <div className="contestImage">
+        {contest.logo_url && <img src="{contest.logo_url}" />}
+      </div>
+      <div className="contestInfos">
+        <div className="contestTitle">{contest.title}</div>
+        <div className="contestDates">{"Sep 05 to 10 2018"}</div>
+        <div className="contestDescription">{contest.description}</div>
+        <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
+          {contest.title}
+        </Link>
+      </div>
+    </li>
   );
 }
