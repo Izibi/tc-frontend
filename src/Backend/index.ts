@@ -6,7 +6,7 @@ import * as moment from 'moment';
 
 import {without} from '../utils';
 import {actionCreators, Actions, ActionTypes, State} from '../app';
-import {Contest, Task} from '../types';
+import {Contest, Task, TaskResource} from '../types';
 
 export {BackendState} from './types';
 
@@ -27,6 +27,18 @@ const testTasks: Task[] = [
   {
     id: "1",
     title: "task 1",
+  }
+];
+const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
+  {
+    task_id: "1",
+    resources: [
+      {title: "Task description", description: "This section describes the task", url: "about:blank#0"},
+      {title: "Commands", description: "", url: "about:blank#1"},
+      {title: "API", description: "", url: "about:blank#2"},
+      {title: "Examples", description: "", url: "about:blank#3"},
+      {title: "OCaml basics", description: "", url: "about:blank#4"},
+    ]
   }
 ];
 
@@ -103,14 +115,18 @@ export function* loadTask (taskId: string) : IterableIterator<Effect> {
   return task;
 }
 
-export function* loadTaskResources (taskId: string) : IterableIterator<Effect> {
-  // TODO
-  yield call(delay, 500);
-  return [
-    {title: "Task description", description: "This section describes the task", url: "about:blank#0"},
-    {title: "Commands", description: "", url: "about:blank#1"},
-    {title: "API", description: "", url: "about:blank#2"},
-    {title: "Examples", description: "", url: "about:blank#3"},
-    {title: "OCaml basics", description: "", url: "about:blank#4"},
-  ];
+export function* loadTaskResources () : IterableIterator<Effect> {
+  let taskResources: TaskResource[] | undefined = yield select((state: State) => state.task_resources);
+  if (!taskResources) {
+    const taskId: string = yield select((state: State) => {
+      if (state.contest) return state.contest.task_id;
+      if (state.task) return state.task.id;
+      throw new Error("cannot determine what task resources to load");
+    });
+    yield call(delay, 500);
+    const item = testTaskResources.find(item => item.task_id === taskId);
+    if (!item) throw new Error("task resources failed to load");
+    yield put(actionCreators.taskResourcesLoaded(item.resources));
+  }
+  return taskResources;
 }
