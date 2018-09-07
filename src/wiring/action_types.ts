@@ -9,6 +9,9 @@ export const REACT_ERROR = "[errors] react";
 export const SAGA_ERROR = "[errors] saga";
 export const CLEAR_ERROR = "[errors] clear";
 
+// login?
+export const USER_LOGGED_IN = "[login] user logged in";
+
 // Landing
 
 // Task

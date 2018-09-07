@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {TaskResource} from '../types';
+import {TaskResource, User} from '../types';
 
 import * as ActionTypes from './action_types';
 
@@ -24,6 +24,9 @@ export const actionCreators = {
   reactError: (error: Error | null, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
   sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
+
+  // login
+  userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
 
   // Task
   taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
