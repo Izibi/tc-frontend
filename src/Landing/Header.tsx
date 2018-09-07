@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import {Button} from "@blueprintjs/core";
 import {User} from '../types';
 
 type Props = {
@@ -7,14 +8,14 @@ type Props = {
 }
 
 const Header : React.StatelessComponent<Props> = ({user}) =>
-  <div>
+  <div className="landingHeader">
     <div className="landingTitle">
       {"Tezos Contests"}
     </div>
     {user &&
-       <p>
+       <Button>
          {"Hello, "}{user.firstname}{" "}{user.lastname}
-       </p>}
+       </Button>}
   </div>;
 
 export default Header;
