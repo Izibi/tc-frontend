@@ -3,7 +3,7 @@ import {Actions} from '../app';
 
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
-import {LandingState} from '../Landing';
+import {LandingState, landingReducer} from '../Landing';
 import {TaskState, taskReducer} from '../Task';
 
 export type State =
@@ -24,6 +24,7 @@ export const initialState : State = {
     currentIndex: 0,
     resources: [],
   },
+  user: null,
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {
@@ -31,6 +32,7 @@ export function reducer (state: State | undefined, action: Actions) : State {
   try {
     newState = errorsReducer(newState, action);
     newState = routerReducer(newState, action);
+    newState = landingReducer(newState, action);
     newState = taskReducer(newState, action);
     return newState;
   } catch (ex) {

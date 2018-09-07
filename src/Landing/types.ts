@@ -1,5 +1,5 @@
 
-import {Contest} from '../types';
+import {User, Contest} from '../types';
 
 type AuthenticatedUserLandingState = {
   loaded: boolean,
@@ -8,5 +8,6 @@ type AuthenticatedUserLandingState = {
 }
 
 export type LandingState = {
+  user: null | User,
   authenticated_user_landing_page: AuthenticatedUserLandingState,
 }
