@@ -5,10 +5,11 @@ import {delay} from 'redux-saga';
 import * as moment from 'moment';
 
 import {without} from '../utils';
-import {actionCreators, Actions, ActionTypes, State} from '../app';
+import {actionCreators, Actions, ActionTypes, AppToaster, State} from '../app';
 import {Contest, Task, TaskResource} from '../types';
 
 export {BackendState} from './types';
+export {default as BackendFeedback} from './Feedback';
 
 const testContests : Contest[] = [
   {
@@ -82,6 +83,7 @@ export function* monitorBackendTask (saga: any): IterableIterator<Effect> {
     });
   } catch (ex) {
     if (!(yield cancelled())) {
+      AppToaster.show({message: ex.toString()});
       yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
     }
   }

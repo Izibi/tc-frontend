@@ -4,7 +4,6 @@ import {connect} from 'react-redux';
 
 import {Contest} from '../types';
 import {ContestState} from './types';
-import {Spinner} from '../components';
 
 type IProps = {}
 
@@ -22,7 +21,7 @@ function mapStateToProps (state: ContestState, _props: IProps): StoreProps {
 class Header_ extends React.PureComponent<Props> {
   render() {
     const {contest} = this.props;
-    if (!contest) return <Spinner/>;
+    if (!contest) return false;
     return (
       <div className="platformHeader">
         <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>

@@ -6,8 +6,9 @@ import {Button} from "@blueprintjs/core";
 import {State, actionCreators, AppToaster, DispatchProp} from '../app';
 import {Link, Router} from '../router';
 import {AppError, ErrorReport} from '../errors';
-import Dev from '../components/Dev';
+import {Dev} from '../components';
 import {User} from '../types';
+import {BackendFeedback} from '../Backend';
 
 const devUsers : User[] = [
   {id: "1", username: "alice", firstname: "Alice", lastname: "Doe"},
@@ -30,6 +31,7 @@ class Root extends React.PureComponent<Props> {
       <>
         {(!lastError || lastError.source !== 'react') &&
           <div className="Root__container">
+            <BackendFeedback/>
             <Router/>
             <hr/>
             <Dev>

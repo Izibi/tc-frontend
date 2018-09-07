@@ -3,7 +3,6 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 
 import {DispatchProp} from '../app';
-import {Spinner} from '../components';
 import {Link} from '../router';
 import {User, Contest} from '../types';
 
@@ -32,8 +31,8 @@ function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
 class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
     const {user, contests} = this.props;
-    if (!user) return <Spinner/>;
-    let contestList : JSX.Element = <Spinner/>;
+    if (!user) return false;
+    let contestList : JSX.Element | undefined;
     if (contests) {
       contestList =
         <ul className="contestList">
