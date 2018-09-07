@@ -1,16 +1,23 @@
 
 import * as React from 'react';
-import {Dispatch} from 'redux';
 import {connect} from 'react-redux';
+import {Button} from "@blueprintjs/core";
 
-import {State, actionCreators} from '../app';
-import {Router} from '../router/Router';
+import {State, actionCreators, AppToaster, DispatchProp} from '../app';
+import {Link, Router} from '../router';
 import {AppError, ErrorReport} from '../errors';
+import Dev from '../components/Dev';
+import {User} from '../types';
+
+const devUsers : User[] = [
+  {id: "1", username: "alice", firstname: "Alice", lastname: "Doe"},
+  {id: "2", username: "bob", firstname: "Bob", lastname: "Smith"},
+];
 
 type StoreProps = {
   lastError: null | AppError,
 };
-type Props = StoreProps & {dispatch: Dispatch};
+type Props = StoreProps & DispatchProp;
 
 class Root extends React.PureComponent<Props> {
   render () {
@@ -24,6 +31,13 @@ class Root extends React.PureComponent<Props> {
         {(!lastError || lastError.source !== 'react') &&
           <div className="Root__container">
             <Router/>
+            <hr/>
+            <Dev>
+              <Button onClick={this.handleLogin} data-username="alice">{"I am Alice"}</Button>
+              <Button onClick={this.handleLogin} data-username="bob">{"I am Bob"}</Button>
+              <Button onClick={this.toast}>{"Toast"}</Button>
+              <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}}>{"test"}</Link>
+            </Dev>
           </div>}
         {dialog}
       </>
@@ -32,6 +46,16 @@ class Root extends React.PureComponent<Props> {
   componentDidCatch (error: Error | null, info: {componentStack: any}) {
     this.props.dispatch(actionCreators.reactError(error, info));
   }
+  handleLogin = (event: React.MouseEvent<HTMLElement>) => {
+    const username = event.currentTarget.getAttribute('data-username');
+    const user = devUsers.find(user => user.username === username);
+    if (user) {
+      this.props.dispatch(actionCreators.userLoggedIn(user));
+    }
+  };
+  toast = () => {
+    AppToaster.show({message: "Toasty!"});
+  };
 }
 
 function mapStateToProps (state : State) : StoreProps {
