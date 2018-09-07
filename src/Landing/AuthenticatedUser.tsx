@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {DispatchProp, moment} from '../app';
+import {DispatchProp} from '../app';
 import {Link} from '../router';
 import {User, Contest} from '../types';
 
@@ -19,19 +19,13 @@ type StoreProps = {
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
-  const {user} = state;
-  let contests: Contest[] | undefined;
-  const page = state.authenticated_user_landing_page;
-  if (page && page.contests) {
-    contests = page.contests;
-  }
+  const {user, contests} = state;
   return {user, contests};
 }
 
 class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
     const {user, contests} = this.props;
-    if (!user) return false;
     let contestList : JSX.Element | undefined;
     if (contests) {
       contestList =
@@ -60,7 +54,7 @@ type ContestItemProps = {
 
 const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
   const {contest} = props;
-  const range = moment.range(contest.starts_at, contest.ends_at);
+  const range = contest.starts_at.twix(contest.ends_at, {allDay: true});
   return (
     <li key={contest.id}>
       <div className="contestImage">
@@ -68,7 +62,7 @@ const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
       </div>
       <div className="contestInfos">
         <div className="contestTitle">{contest.title}</div>
-        <div className="contestDates">{range.toString()}</div>
+        <div className="contestDates">{range.format()}</div>
         <div className="contestDescription">{contest.description}</div>
         <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
           {contest.title}

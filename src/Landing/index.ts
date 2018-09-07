@@ -35,12 +35,7 @@ export function landingReducer (state: State, action: Actions): State {
     }
     case ActionTypes.CONTEST_LIST_LOADED: {
       const {contests} = action.payload;
-      return {...state, authenticated_user_landing_page: {
-        ...state.authenticated_user_landing_page,
-        loaded: true,
-        filter: "current",
-        contests,
-      }};
+      return {...state, contests};
     }
   }
   return state;

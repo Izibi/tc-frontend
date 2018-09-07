@@ -20,6 +20,7 @@ export const initialState : State = {
   path: '/',
   route: undefined,
   lastError: undefined,
+  contests: undefined,
   contest: undefined,
   contestPeriod: undefined,
   mainChain: undefined,
@@ -29,11 +30,6 @@ export const initialState : State = {
   backend: {
     tasks: [],
     lastError: undefined,
-  },
-  authenticated_user_landing_page: {
-    loaded: false,
-    contests: [],
-    filter: "current",
   },
 };
 
