@@ -45,7 +45,7 @@ export function linkTo (ruleName: string, params: object | undefined): string {
     : `no_rule_for:${ruleName}`;
 }
 
-export function navigate (ruleName: string, params: object = {}) {
+export function navigate (ruleName: string, params: object = {}, replace: boolean = false) {
   const matcher = getMatcherByName(ruleName);
   if (!matcher) {
     // TODO: dispatch router error
@@ -53,7 +53,11 @@ export function navigate (ruleName: string, params: object = {}) {
   }
   const pathname = addPrefix(matcher.parser.build(params));
   const route = buildRoute(matcher.rule, pathname, params);
-  window.history.pushState(null, "", pathname);
+  if (replace) {
+    window.history.replaceState(null, "", pathname);
+  } else {
+    window.history.pushState(null, "", pathname);
+  }
   dispatch(actionCreators.routeChanged(route));
 }
 
