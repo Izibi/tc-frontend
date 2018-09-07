@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import {DispatchProp, actionCreators} from '../app';
 import {TaskResource} from '../types';
 import {TaskState} from './types';
+import {Header as ContestHeader} from '../Contest';
 
 type RouteProps = {
   contestId: string,
@@ -40,6 +41,7 @@ class TaskResourcesPage extends React.PureComponent<Props> {
       <TaskResourceOption key={index} resource={resource} index={index} onSelect={this.handleResourceSelected} />);
     return (
       <div>
+        <ContestHeader/>
         <div>
           {resourceOptions}
         </div>
