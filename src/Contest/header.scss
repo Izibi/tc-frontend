@@ -1,0 +1,41 @@
+.platformHeader {
+  display: flex;
+  align-items: center;
+}
+
+.platformLogo {
+  flex: 0 0 62px;
+  background-color: #fff;
+  font-size:37px;
+  letter-spacing: -10px;
+  color: #006989;
+  position: relative;
+  padding: 16px 10px;
+  line-height: 1;
+
+  span:nth-child(1) {
+    position: relative;
+  }
+  span:nth-child(2) {
+    color: #2ab7ca;
+    z-index: 0;
+  }
+}
+.platformLogo::after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 10px 62px 0 0;
+  border-color: transparent #eff5f8 transparent transparent;
+  transform: scale(1.0001);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.contestTitle {
+  font-size:20px;
+  color:#006989;
+  margin-left: 20px;
+}

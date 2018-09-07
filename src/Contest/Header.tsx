@@ -24,9 +24,9 @@ class Header_ extends React.PureComponent<Props> {
     const {contest} = this.props;
     if (!contest) return <Spinner/>;
     return (
-      <div>
-        <p>{"TODO: platform logo"}</p>
-        <p>{contest.title}</p>
+      <div className="platformHeader">
+        <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
+        <div className="contestTitle">{contest.title}</div>
       </div>
     );
   }
