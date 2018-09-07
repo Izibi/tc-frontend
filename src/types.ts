@@ -55,7 +55,8 @@ export type Task = {
 export type TaskResource = {
   title: string,
   description: string,
-  url: string,
+  url?: string,
+  html?: string,
 }
 
 export type Game = {

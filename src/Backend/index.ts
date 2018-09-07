@@ -34,8 +34,8 @@ const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
   {
     task_id: "1",
     resources: [
-      {title: "Task description", description: "This section describes the task", url: "about:blank#0"},
-      {title: "Commands", description: "", url: "about:blank#1"},
+      {title: "Task description", description: "This section describes the task", html: "Task description goes <p>here</p>..."},
+      {title: "Commands", description: "", html: "Commands description goes here…"},
       {title: "API", description: "", url: "about:blank#2"},
       {title: "Examples", description: "", url: "about:blank#3"},
       {title: "OCaml basics", description: "", url: "about:blank#4"},

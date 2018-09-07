@@ -39,7 +39,8 @@ class TaskResourcesPage extends React.PureComponent<Props> {
           {resourceOptions}
         </div>
         <div>
-          {currentResource && <iframe src={currentResource.url} />}
+          {currentResource && currentResource.url && <iframe src={currentResource.url} />}
+          {currentResource && currentResource.html && <iframe srcDoc={currentResource.html}/>}
         </div>
       </div>
     );
