@@ -13,11 +13,18 @@ export function taskReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.TASK_RESOURCES_LOADED: {
       const {resources} = action.payload;
-      return ({...state, task_resources_page: {
+      return {...state, task_resources_page: {
         ...state.task_resources_page,
         loaded: true,
         resources
-      }});
+      }};
+    }
+    case ActionTypes.TASK_RESOURCE_SELECTED: {
+      const {index} = action.payload;
+      return {...state, task_resources_page: {
+        ...state.task_resources_page,
+        currentIndex: index
+      }};
     }
   }
   return state;
@@ -31,7 +38,13 @@ function* taskResourcesSaga () : IterableIterator<Effect> {
   yield call(function () {
     console.log("Yay!");
   });
-  yield put(actionCreators.taskResourcesLoaded([]));
+  yield put(actionCreators.taskResourcesLoaded([
+    {title: "Task description", description: "", url: "about:blank#0"},
+    {title: "Commands", description: "", url: "about:blank#1"},
+    {title: "API", description: "", url: "about:blank#2"},
+    {title: "Examples", description: "", url: "about:blank#3"},
+    {title: "OCaml basics", description: "", url: "about:blank#4"},
+  ]));
 }
 
 export const routes : Rule[] = [

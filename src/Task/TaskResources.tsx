@@ -2,6 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
+import {DispatchProp, actionCreators} from '../app';
 import {TaskResource} from '../types';
 import {TaskState} from './types';
 
@@ -17,11 +18,11 @@ type StoreProps = {
   currentResource: undefined | TaskResource,
 }
 
-type Props = RouteProps & StoreProps
+type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: TaskState, _props: RouteProps): StoreProps {
   const {loaded, resources, currentIndex} = state.task_resources_page;
-  let currentResource;
+  let currentResource : undefined | TaskResource;
   if (loaded) {
     currentResource = resources[currentIndex];
   }
@@ -35,13 +36,12 @@ class TaskResourcesPage extends React.PureComponent<Props> {
       return <p>{"Not loaded"}</p>;
     }
     const {resources, currentResource} = this.props;
+    const resourceOptions = resources.map((resource, index) =>
+      <TaskResourceOption key={index} resource={resource} index={index} onSelect={this.handleResourceSelected} />);
     return (
       <div>
         <div>
-          {resources.map((resource, i) =>
-            <div key={i} title={resource.description}>
-              {resource.title}
-            </div>)}
+          {resourceOptions}
         </div>
         <div>
           {currentResource && <iframe src={currentResource.url} />}
@@ -49,6 +49,28 @@ class TaskResourcesPage extends React.PureComponent<Props> {
       </div>
     );
   }
+  handleResourceSelected = (index: number) => {
+    this.props.dispatch(actionCreators.taskResourceSelected(index));
+  };
+}
+
+type TaskResourceOptionProps = {
+  index: number,
+  resource: TaskResource,
+  onSelect: (index: number) => void
+}
+class TaskResourceOption extends React.PureComponent<TaskResourceOptionProps> {
+  render () {
+    const {resource} = this.props;
+    return (
+      <div title={resource.description} onClick={this.handleSelect}>
+        {resource.title}
+      </div>
+    );
+  }
+  handleSelect = () => {
+    this.props.onSelect(this.props.index);
+  };
 }
 
 export default connect(mapStateToProps)(TaskResourcesPage);
