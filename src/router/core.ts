@@ -31,7 +31,7 @@ function getMatcherByName (ruleName: string) : Matcher | null {
 
 function buildRoute (rule: Rule, pathname: string, params: object) {
   const {component} = rule;
-  const route: Route = {pathname: addPrefix(pathname), component, params};
+  const route: Route = {ruleName: rule.name, pathname: addPrefix(pathname), component, params};
   if ('saga' in rule) {
     route.saga = rule.saga;
   }

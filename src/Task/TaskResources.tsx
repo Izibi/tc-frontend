@@ -2,10 +2,12 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {DispatchProp, actionCreators} from '../app';
+import {DispatchProp} from '../app';
 import {TaskResource} from '../types';
-import {TaskState} from './types';
 import {Header as ContestHeader} from '../Contest';
+import {Link} from '../router';
+
+import {TaskState} from './types';
 
 type RouteProps = {
   contestId: string,
@@ -32,13 +34,13 @@ function mapStateToProps (state: TaskState, _props: RouteProps): StoreProps {
 
 class TaskResourcesPage extends React.PureComponent<Props> {
   render () {
-    const {loaded} = this.props;
+    const {loaded, contestId} = this.props;
     if (!loaded) {
       return <p>{"Not loaded"}</p>;
     }
     const {resources, currentResource} = this.props;
     const resourceOptions = resources.map((resource, index) =>
-      <TaskResourceOption key={index} resource={resource} index={index} onSelect={this.handleResourceSelected} />);
+      <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
     return (
       <div>
         <ContestHeader/>
@@ -51,28 +53,23 @@ class TaskResourcesPage extends React.PureComponent<Props> {
       </div>
     );
   }
-  handleResourceSelected = (index: number) => {
-    this.props.dispatch(actionCreators.taskResourceSelected(index));
-  };
 }
 
 type TaskResourceOptionProps = {
   index: number,
+  contestId: string,
+  selected: boolean,
   resource: TaskResource,
-  onSelect: (index: number) => void
 }
-class TaskResourceOption extends React.PureComponent<TaskResourceOptionProps> {
-  render () {
-    const {resource} = this.props;
-    return (
-      <div title={resource.description} onClick={this.handleSelect}>
+const TaskResourceOption : React.StatelessComponent<TaskResourceOptionProps> = (props) => {
+  const {index, contestId, selected, resource} = props;
+  return (
+    <div className={selected ? "selected" : ""} title={resource.description}>
+      <Link to="TaskResources" params={{contestId: contestId, resourceIndex: index}}>
         {resource.title}
-      </div>
-    );
-  }
-  handleSelect = () => {
-    this.props.onSelect(this.props.index);
-  };
-}
+      </Link>
+    </div>
+  );
+};
 
 export default connect(mapStateToProps)(TaskResourcesPage);

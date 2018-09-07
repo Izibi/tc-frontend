@@ -2,11 +2,11 @@
 import * as React from 'react';
 import {User} from '../types';
 
-type IProps = {
+type Props = {
   user?: User
 }
 
-const Header : React.StatelessComponent<IProps> = ({user}) =>
+const Header : React.StatelessComponent<Props> = ({user}) =>
   <div>
     <div className="landingTitle">
       {"Tezos Contests"}

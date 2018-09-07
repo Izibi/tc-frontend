@@ -1,6 +1,6 @@
 
 import {Effect} from 'redux-saga';
-import {call, put, select} from 'redux-saga/effects';
+import {put, select} from 'redux-saga/effects';
 
 import {State, Actions, ActionTypes, actionCreators} from '../app';
 import {Rule} from '../router';
@@ -19,32 +19,22 @@ export function taskReducer (state: State, action: Actions): State {
         resources
       }};
     }
-    case ActionTypes.TASK_RESOURCE_SELECTED: {
-      const {index} = action.payload;
-      return {...state, task_resources_page: {
-        ...state.task_resources_page,
-        currentIndex: index
-      }};
-    }
   }
   return state;
 }
 
 function* taskResourcesSaga () : IterableIterator<Effect> {
-  if (yield select((state: State) => state.task_resources_page.loaded)) {
-    return;
+  // TODO: ensure the right contest is loaded
+  if (!(yield select((state: State) => state.task_resources_page.loaded))) {
+    console.log('TODO: load task resources');
+    yield put(actionCreators.taskResourcesLoaded([
+      {title: "Task description", description: "This section describes the task", url: "about:blank#0"},
+      {title: "Commands", description: "", url: "about:blank#1"},
+      {title: "API", description: "", url: "about:blank#2"},
+      {title: "Examples", description: "", url: "about:blank#3"},
+      {title: "OCaml basics", description: "", url: "about:blank#4"},
+    ]));
   }
-  console.log('load task resources');
-  yield call(function () {
-    console.log("Yay!");
-  });
-  yield put(actionCreators.taskResourcesLoaded([
-    {title: "Task description", description: "", url: "about:blank#0"},
-    {title: "Commands", description: "", url: "about:blank#1"},
-    {title: "API", description: "", url: "about:blank#2"},
-    {title: "Examples", description: "", url: "about:blank#3"},
-    {title: "OCaml basics", description: "", url: "about:blank#4"},
-  ]));
 }
 
 export const routes : Rule[] = [

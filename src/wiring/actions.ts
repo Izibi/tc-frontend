@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {TaskResource, User} from '../types';
+import {Contest, TaskResource, User} from '../types';
 
 import * as ActionTypes from './action_types';
 
@@ -28,9 +28,11 @@ export const actionCreators = {
   // login
   userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
 
+  contestListLoaded: (contests: Contest[]) => createAction(ActionTypes.CONTEST_LIST_LOADED, {contests}),
+  contestSelected: (contest: Contest) => createAction(ActionTypes.CONTEST_SELECTED, {contest}),
+
   // Task
   taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
-  taskResourceSelected: (index: number) => createAction(ActionTypes.TASK_RESOURCE_SELECTED, {index}),
 
 };
 
@@ -38,3 +40,5 @@ type FunctionType = (...args: any[]) => any;
 type ActionCreatorMapObject = {[actionCreator: string]: FunctionType};
 type ActionsUnion<A extends ActionCreatorMapObject> = ReturnType<A[keyof A]>;
 export type Actions = ActionsUnion<typeof actionCreators>;
+
+// export type GetAction<T: string> = {}

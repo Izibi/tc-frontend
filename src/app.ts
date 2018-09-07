@@ -1,8 +1,6 @@
 
 export {State} from './wiring/store';
 export {Actions, actionCreators} from './wiring/actions';
-export {Rule, navigate} from './router';
-export {Link} from './router/Link';
 
 import * as _ActionTypes from './wiring/action_types';
 export const ActionTypes = _ActionTypes;

@@ -5,26 +5,30 @@ import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
 import {LandingState, landingReducer} from '../Landing';
 import {TaskState, taskReducer} from '../Task';
+import {ContestState} from '../Contest';
 
 export type State =
-  ErrorsState & RouterState & LandingState & TaskState
+  ErrorsState & RouterState & LandingState & TaskState & ContestState
 
 export const initialState : State = {
   path: '/',
   route: null,
   lastError: null,
+  contest: null,
+  contestPeriod: null,
+  mainChain: null,
+  task: null,
+  user: null,
   authenticated_user_landing_page: {
     loaded: false,
     contests: [],
     filter: "current",
   },
-  task: null,
   task_resources_page: {
     loaded: false,
     currentIndex: 0,
     resources: [],
   },
-  user: null,
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {

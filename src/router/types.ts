@@ -9,6 +9,7 @@ export type Rule = {
 }
 
 export type Route = {
+  ruleName: string,
   pathname: string,
   params: object,
   component: Component,

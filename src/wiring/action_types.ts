@@ -13,7 +13,8 @@ export const CLEAR_ERROR = "[errors] clear";
 export const USER_LOGGED_IN = "[login] user logged in";
 
 // Landing
+export const CONTEST_LIST_LOADED = "[Landing] contests list loaded";
+export const CONTEST_SELECTED = "[Landing] contest selected";
 
 // Task
 export const TASK_RESOURCES_LOADED = "[Task] resources loaded";
-export const TASK_RESOURCE_SELECTED = "[Task] resource selected";

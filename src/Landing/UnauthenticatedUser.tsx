@@ -3,7 +3,8 @@ import * as React from 'react';
 import {Button} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
-import {actionCreators, AppToaster, DispatchProp, Link} from '../app';
+import {actionCreators, AppToaster, DispatchProp} from '../app';
+import {Link} from '../router';
 import Dev from '../components/Dev';
 import {User} from '../types';
 

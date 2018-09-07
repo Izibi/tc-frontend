@@ -30,7 +30,7 @@ export type Contest = {
   id: string,
   title: string,
   description: string,
-  logo_url: string,
+  logo_url: null | string,
   registration_open: boolean,
   registration_closes_at: Moment,
   starts_at: Moment,
