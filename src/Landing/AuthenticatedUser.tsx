@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {DispatchProp} from '../app';
+import {DispatchProp, moment} from '../app';
 import {Link} from '../router';
 import {User, Contest} from '../types';
 
@@ -60,6 +60,7 @@ type ContestItemProps = {
 
 const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
   const {contest} = props;
+  const range = moment.range(contest.starts_at, contest.ends_at);
   return (
     <li key={contest.id}>
       <div className="contestImage">
@@ -67,7 +68,7 @@ const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
       </div>
       <div className="contestInfos">
         <div className="contestTitle">{contest.title}</div>
-        <div className="contestDates">{"Sep 05 to 10 2018"}</div>
+        <div className="contestDates">{range.toString()}</div>
         <div className="contestDescription">{contest.description}</div>
         <Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}}>
           {contest.title}

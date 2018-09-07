@@ -14,3 +14,5 @@ export const AppToaster = Toaster.create({
 import {DispatchProp as DispatchProp_} from 'react-redux';
 import {Actions} from './wiring/actions';
 export type DispatchProp = DispatchProp_<Actions>;
+
+import 'twix';

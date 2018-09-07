@@ -43,6 +43,7 @@
     "@blueprintjs/core": "^3.0.1",
     "@blueprintjs/datetime": "^3.0.0",
     "@types/isomorphic-fetch": "^0.0.34",
+    "@types/twix": "^0.6.37",
     "@types/webpack-env": "^1.13.6",
     "can-ndjson-stream": "^1.0.0",
     "core-js": "^2.5.7",
@@ -58,6 +59,7 @@
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
-    "redux-saga": "^0.16.0"
+    "redux-saga": "^0.16.0",
+    "twix": "^1.2.1"
   }
 }
