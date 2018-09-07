@@ -49,5 +49,5 @@ function* userLoggedInSaga (action: any) : IterableIterator<Effect> {
 }
 
 function* redirectToAuthenticatedUserLanding () : IterableIterator<Effect> {
-  yield call(navigate, "AuthenticatedUserLanding");
+  yield call(navigate, "AuthenticatedUserLanding", {}, true);
 }
