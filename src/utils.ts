@@ -1,6 +1,15 @@
 
 import {eventChannel, END, Channel} from 'redux-saga';
 
+export function without<T> (items: T[], item: T) {
+  const index = items.indexOf(item);
+  if (index !== -1) {
+    items = items.slice();
+    items.splice(index, 1);
+  }
+  return items;
+}
+
 export async function jsonGet (path: string) : Promise<object> {
   const response = await fetch(
     `${process.env.MOUNT_PATH}${path}`,

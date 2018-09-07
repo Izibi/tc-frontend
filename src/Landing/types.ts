@@ -3,11 +3,11 @@ import {User, Contest} from '../types';
 
 type AuthenticatedUserLandingState = {
   loaded: boolean,
-  contests: null | Contest[],
+  contests: Contest[] | undefined,
   filter: "current" | "past",
 }
 
 export type LandingState = {
-  user: null | User,
-  authenticated_user_landing_page: null | AuthenticatedUserLandingState,
+  user: User | undefined,
+  authenticated_user_landing_page: AuthenticatedUserLandingState | undefined,
 }

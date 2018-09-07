@@ -13,28 +13,25 @@ import Header from './Header';
 type RouteProps = {}
 
 type StoreProps = {
-  user: null | User,
-  loaded: boolean,
-  contests: null | Contest[],
+  user: User | undefined,
+  contests: Contest[] | undefined,
 }
 
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
   const {user} = state;
-  let loaded = false;
-  let contests: Contest[] = [];
+  let contests: Contest[] | undefined;
   const page = state.authenticated_user_landing_page;
   if (page && page.contests) {
-    loaded = page.loaded;
     contests = page.contests;
   }
-  return {user, loaded, contests};
+  return {user, contests};
 }
 
 class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
-    const {user, loaded, contests} = this.props;
+    const {user, contests} = this.props;
     if (!user) return <Spinner/>;
     let contestList : JSX.Element = <Spinner/>;
     if (contests) {
@@ -47,12 +44,10 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
     return (
       <div>
         <Header user={user} />
-        {loaded
-          ? <div className="landingContent">
-              <p>{"AuthenticatedUser Landing Page"}</p>
-              {contestList}
-            </div>
-          : <Spinner/>}
+        <div className="landingContent">
+          <p>{"AuthenticatedUser Landing Page"}</p>
+          {contestList}
+        </div>
       </div>
     );
   }

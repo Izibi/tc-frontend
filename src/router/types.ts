@@ -26,5 +26,5 @@ export type LinkProps = {
 
 export type RouterState = {
   path: string,
-  route: Route | null,
+  route: Route | undefined,
 };

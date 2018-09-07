@@ -9,7 +9,7 @@ import {Spinner} from '../components';
 type IProps = {}
 
 type StoreProps = {
-  contest: null | Contest
+  contest: Contest | undefined
 }
 
 type Props = StoreProps

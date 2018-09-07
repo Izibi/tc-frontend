@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {Contest, TaskResource, User} from '../types';
+import {Contest, Task, TaskResource, User} from '../types';
 
 import * as ActionTypes from './action_types';
 
@@ -21,17 +21,22 @@ export const actionCreators = {
   routeChanged: (route: Route) => createAction(ActionTypes.ROUTE_CHANGED, {route}),
 
   // errors
-  reactError: (error: Error | null, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
+  reactError: (error: Error | undefined, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
   sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
+
+  // backend
+  backendTasksCleared: () => createAction(ActionTypes.BACKEND_TASKS_CLEARED, {}),
+  backendTaskStarted: (task: object) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task}),
+  backendTaskFailed: (task: object, error: string) => createAction(ActionTypes.BACKEND_TASK_FAILED, {task, error}),
+  backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
 
   // login
   userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
 
   contestListLoaded: (contests: Contest[]) => createAction(ActionTypes.CONTEST_LIST_LOADED, {contests}),
-  contestSelected: (contest: Contest) => createAction(ActionTypes.CONTEST_SELECTED, {contest}),
-
-  // Task
+  contestLoaded: (contest: Contest) => createAction(ActionTypes.CONTEST_LOADED, {contest}),
+  taskLoaded: (task: Task) => createAction(ActionTypes.TASK_LOADED, {task}),
   taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
 
 };

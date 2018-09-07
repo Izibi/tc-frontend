@@ -6,12 +6,7 @@ export type TaskResourcesParams = {
   resourceIndex: string,
 }
 
-type TaskResourcesState = {
-  loaded: boolean,
-  resources: TaskResource[],
-}
-
 export type TaskState = {
-  task: null | Task,
-  task_resources_page: null | TaskResourcesState
+  task: Task | undefined,
+  task_resources: TaskResource[] | undefined,
 }

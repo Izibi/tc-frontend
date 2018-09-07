@@ -5,7 +5,7 @@ import {delay} from 'redux-saga';
 
 import {Actions, actionCreators, ActionTypes, State} from '../app';
 import {Rule, navigate} from '../router';
-import {loadContests} from '../Contest';
+import {loadContests} from '../Backend';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';

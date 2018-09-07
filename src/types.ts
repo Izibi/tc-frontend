@@ -35,7 +35,7 @@ export type Contest = {
   registration_closes_at: Moment,
   starts_at: Moment,
   ends_at: Moment,
-  task: Task,
+  task_id: string,
 }
 
 export type ContestPeriod = {

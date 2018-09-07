@@ -33,7 +33,7 @@ export function errorsReducer (state: State, action: Actions): State {
       }});
     }
     case ActionTypes.CLEAR_ERROR: {
-      return {...state, lastError: null};
+      return {...state, lastError: undefined};
     }
   }
   return state;

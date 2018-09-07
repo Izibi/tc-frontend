@@ -1,10 +1,10 @@
 
 export type AppError = {
   source: "react" | "saga" | "reducer",
-  error: Error | null,
+  error: Error | undefined,
   info?: {componentStack: any}
 }
 
 export type ErrorsState = {
-  lastError: null | AppError
+  lastError: AppError | undefined
 }

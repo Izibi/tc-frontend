@@ -15,14 +15,14 @@ const devUsers : User[] = [
 ];
 
 type StoreProps = {
-  lastError: null | AppError,
+  lastError: AppError | undefined,
 };
 type Props = StoreProps & DispatchProp;
 
 class Root extends React.PureComponent<Props> {
   render () {
     const {lastError} = this.props;
-    let dialog : JSX.Element | null = null;
+    let dialog : JSX.Element | undefined;
     if (lastError) {
       dialog = <ErrorReport error={lastError}/>;
     }
@@ -43,7 +43,7 @@ class Root extends React.PureComponent<Props> {
       </>
     );
   }
-  componentDidCatch (error: Error | null, info: {componentStack: any}) {
+  componentDidCatch (error: Error, info: {componentStack: any}) {
     this.props.dispatch(actionCreators.reactError(error, info));
   }
   handleLogin = (event: React.MouseEvent<HTMLElement>) => {
