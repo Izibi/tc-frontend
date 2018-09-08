@@ -5,49 +5,77 @@
 .platformHeader {
   display: flex;
   align-items: center;
-
-  /*********************************
-    PLATFORM LOGO
-  *********************************/
-  .platformLogo {
-    flex: 0 0 62px;
-    background-color: $secondaryBgColor;
-    font-size:37px;
-    letter-spacing: -10px;
-    color: $themeColorDark;
-    position: relative;
-    padding: 16px 10px;
-    line-height: 1;
-
-    span:nth-child(1) {
+  .contestHead {
+    flex: 1 1 50%;
+    display: flex;
+    align-items: center;
+    /*********************************
+      PLATFORM LOGO
+    *********************************/
+    .platformLogo {
+      flex: 0 0 62px;
       position: relative;
-    }
-    span:nth-child(2) {
-      color: $themeColorLight;
-      z-index: 0;
-    }
-  }
-  .platformLogo::after {
-    content: "";
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 10px 62px 0 0;
-    border-color: transparent $mainBgColor transparent transparent;
-    transform: scale(1.0001);
-    position: absolute;
-    left: 0;
-    bottom: 0;
-  }
+      font-size:37px;
+      line-height: 1;
+      letter-spacing: -10px;
+      padding: 16px 10px;
+      background-color: $secondaryBgColor;
+      color: $themeColorDark;
 
-  /*********************************
-    CONTEST TITLE
-  *********************************/
-  .contestTitle {
-    font-size:20px;
-    color:$themeColorDark;
-    margin-left: 20px;
-    font-weight: 600;
+      span:nth-child(1) {
+        position: relative;
+      }
+      span:nth-child(2) {
+        color: $themeColorLight;
+        z-index: 0;
+      }
+    }
+    .platformLogo::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 10px 62px 0 0;
+      border-color: transparent $mainBgColor transparent transparent;
+      transform: scale(1.0001);
+    }
+
+    /*********************************
+      CONTEST TITLE
+    *********************************/
+    .contestTitle {
+      font-size:20px;
+      font-weight: 600;
+      color:$themeColorDark;
+      margin-left: 20px;
+    }
+  }
+  .chainHead {
+    flex: 1 1 50%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .contestPeriod {
+      flex: 0 0 51px;
+      font-size: 12px;
+      line-height: 20px;
+      text-align: center;
+      text-transform: uppercase;
+      color: #2ab7ca;
+      padding: 6px 0 5px;
+      background-color: #ffffff;
+      border-radius: 7px;
+
+      .dayNumber {
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+      }
+    }
   }
 }
 
