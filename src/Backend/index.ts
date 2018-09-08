@@ -6,10 +6,12 @@ import * as moment from 'moment';
 
 import {without} from '../utils';
 import {actionCreators, Actions, ActionTypes, AppToaster, State} from '../app';
-import {Contest, Task, TaskResource} from '../types';
+import {Contest, Task, TaskResource, Team} from '../types';
 
 export {BackendState} from './types';
 export {default as BackendFeedback} from './Feedback';
+
+type Saga = IterableIterator<Effect>
 
 const testContests : Contest[] = [
   {
@@ -42,6 +44,15 @@ const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
     ]
   }
 ];
+const team1 : Team = {
+  name: "CodersPlanet",
+  access_code: "ab824XbsI9",
+  is_open: true,
+  is_locked: false,
+};
+const testTeams = [
+  {contest_id: "1", user_id: "1", team: team1}
+];
 
 export function backendReducer (state: State, action: Actions): State {
   switch (action.type) {
@@ -67,6 +78,37 @@ export function backendReducer (state: State, action: Actions): State {
       let tasks = without(backend.tasks, task);
       return {...state, backend: {...backend, tasks}};
     }
+
+    case ActionTypes.CONTEST_LIST_LOADED: {
+      const {contests} = action.payload;
+      return {...state, contests};
+    }
+    case ActionTypes.CONTEST_LOADED: {
+      const {contest, contestPeriod} = action.payload;
+      /* Clear task and task_resources if the task changes. */
+      let team = undefined;
+      let task = state.task;
+      let task_resources = state.task_resources;
+      if (task && task.id !== contest.task_id) {
+        task = undefined;
+        task_resources = undefined;
+      }
+      return {...state, contest, contestPeriod, task, task_resources, team};
+    }
+    case ActionTypes.TASK_LOADED: {
+      let {task} = action.payload;
+      /* Clear task_resources if the task changes. */
+      let task_resources = state.task_resources;
+      if (state.task && task.id !== state.task.id) {
+        task_resources = undefined;
+      }
+      return {...state, task, task_resources};
+    }
+    case ActionTypes.TASK_RESOURCES_LOADED: {
+      const {resources} = action.payload;
+      return {...state, task_resources: resources};
+    }
+
   }
   return state;
 }
@@ -89,7 +131,7 @@ export function* monitorBackendTask (saga: any): Saga {
   });
 }
 
-export function* loadContests (): IterableIterator<Effect> {
+export function* loadContests (): Saga {
   let contests: Contest[] = yield select((state: State) => state.contests);
   if (!contests) {
     yield call(delay, 500);
@@ -99,7 +141,7 @@ export function* loadContests (): IterableIterator<Effect> {
   return contests;
 }
 
-export function* loadContest (contestId: string) : IterableIterator<Effect> {
+export function* loadContest (contestId: string) : Saga {
   let contest: Contest | undefined = yield select((state: State) => state.contest);
   if (!contest || contest.id !== contestId) {
     const contests: Contest[] | undefined = yield select((state: State) => state.contests);
@@ -115,7 +157,7 @@ export function* loadContest (contestId: string) : IterableIterator<Effect> {
     const contestPeriod = {
       id: '1',
       title: 'day 1',
-      number: 1,
+      day_number: 1,
       chain_election_at: moment(),
       main_game_id: '1',
       main_game_starts_at: moment().add(1, 'hour'),
@@ -125,7 +167,7 @@ export function* loadContest (contestId: string) : IterableIterator<Effect> {
   return contest;
 }
 
-export function* loadTask (taskId: string) : IterableIterator<Effect> {
+export function* loadTask (taskId: string) : Saga {
   let task: Task | undefined = yield select((state: State) => state.task);
   if (!task || task.id !== taskId) {
     yield call(delay, 500);
@@ -136,7 +178,7 @@ export function* loadTask (taskId: string) : IterableIterator<Effect> {
   return task;
 }
 
-export function* loadTaskResources () : IterableIterator<Effect> {
+export function* loadTaskResources () : Saga {
   let taskResources: TaskResource[] | undefined = yield select((state: State) => state.task_resources);
   if (!taskResources) {
     const taskId: string = yield select((state: State) => {

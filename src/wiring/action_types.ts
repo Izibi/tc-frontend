@@ -16,6 +16,6 @@ export const USER_LOGGED_OUT = "[login] user logged out";
 export const USER_LOGGED_IN = "[login] user logged in";
 
 export const CONTEST_LIST_LOADED = "[model] contest list loaded";
-export const CONTEST_LOADED = "[model] contest changed";
+export const CONTEST_LOADED = "[model] contest loaded";
 export const TASK_RESOURCES_LOADED = "[model] task resources loaded";
-export const TASK_LOADED = "[model] task changed";
+export const TASK_LOADED = "[model] task loaded";

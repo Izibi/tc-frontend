@@ -38,10 +38,6 @@ export function landingReducer (state: State, action: Actions): State {
         contest: undefined, task: undefined, task_resources: undefined
       };
     }
-    case ActionTypes.CONTEST_LIST_LOADED: {
-      const {contests} = action.payload;
-      return {...state, contests};
-    }
   }
   return state;
 }
