@@ -49,6 +49,12 @@ body {
   max-width: 1300px;
 }
 
+.bp3-control.bp3-switch input:checked ~ .bp3-control-indicator {
+  background: $themeColorLight;
+}
+.bp3-control.bp3-switch:hover input:checked ~ .bp3-control-indicator {
+  background: $themeColorDark;
+}
 /*********************************
   LOGOUT BUTTON
 *********************************/
