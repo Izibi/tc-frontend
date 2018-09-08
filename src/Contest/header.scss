@@ -1,41 +1,78 @@
+
+/*********************************
+  PLATFORM HEADER
+*********************************/
 .platformHeader {
   display: flex;
   align-items: center;
-}
 
-.platformLogo {
-  flex: 0 0 62px;
-  background-color: $secondaryBgColor;
-  font-size:37px;
-  letter-spacing: -10px;
-  color: $themeColorDark;
-  position: relative;
-  padding: 16px 10px;
-  line-height: 1;
-
-  span:nth-child(1) {
+  /*********************************
+    PLATFORM LOGO
+  *********************************/
+  .platformLogo {
+    flex: 0 0 62px;
+    background-color: $secondaryBgColor;
+    font-size:37px;
+    letter-spacing: -10px;
+    color: $themeColorDark;
     position: relative;
+    padding: 16px 10px;
+    line-height: 1;
+
+    span:nth-child(1) {
+      position: relative;
+    }
+    span:nth-child(2) {
+      color: $themeColorLight;
+      z-index: 0;
+    }
   }
-  span:nth-child(2) {
-    color: $themeColorLight;
-    z-index: 0;
+  .platformLogo::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 62px 0 0;
+    border-color: transparent $mainBgColor transparent transparent;
+    transform: scale(1.0001);
+    position: absolute;
+    left: 0;
+    bottom: 0;
   }
-}
-.platformLogo::after {
-  content: "";
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 10px 62px 0 0;
-  border-color: transparent $mainBgColor transparent transparent;
-  transform: scale(1.0001);
-  position: absolute;
-  left: 0;
-  bottom: 0;
+
+  /*********************************
+    CONTEST TITLE
+  *********************************/
+  .contestTitle {
+    font-size:20px;
+    color:$themeColorDark;
+    margin-left: 20px;
+    font-weight: 600;
+  }
 }
 
-.contestTitle {
-  font-size:20px;
-  color:$themeColorDark;
-  margin-left: 20px;
+
+/*********************************
+  CONTEST STATUS
+*********************************/
+.roundCount,
+.roundDuration {
+  color: $themeColorLight;
+  font-size: 16px;
+}
+.roundProgressWrapper {
+  background-color: #e4e4e4;
+  width: 170px;
+  height: 10px;
+  border-radius:100px;
+  margin-top: 10px;
+}
+.roundProgressBar {
+  background-color: $themeColorLight;
+  height: 100%;
+  border-radius:100px;
+  max-width: 100% !important;
+}
+.roundDuration {
+  align-self: flex-end;
 }

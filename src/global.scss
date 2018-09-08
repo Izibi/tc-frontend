@@ -63,7 +63,7 @@ body {
 
   & > div {
     position: relative;
-    margin-top: -6px;
+    margin-top: -7px;
 
     &:last-child { /*the order is reversed */
       margin-top: 0;
@@ -76,6 +76,7 @@ body {
       display: block;
       border: $tabsBorders;
       border-radius: 0 0 0 $radius;
+      transition: background-color 125ms, color 500ms;
     }
     &.selected a {
       background-color: $secondaryBgColor;
@@ -83,7 +84,7 @@ body {
       color: $accentTextColor;
       box-shadow: $boxShadow;
       position: relative;
-      z-index: 1;
+      transition: background-color 250ms;
     }
   }
 }
@@ -94,6 +95,7 @@ body {
   flex: 1 0 auto;
   border: $tabsBorders;
   min-height: 500px;
+  padding: 2em 3%;
 
   iframe{
     border: none;
