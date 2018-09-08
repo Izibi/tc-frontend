@@ -47,6 +47,10 @@
       padding: 18px 0;
       display: flex;
       margin-bottom: 18px;
+      transition: all 100ms;
+    }
+    &:hover {
+      transform: scale(1.03);
     }
     .contestImage {
       display: block;
