@@ -71,22 +71,22 @@ export function backendReducer (state: State, action: Actions): State {
   return state;
 }
 
-export function* monitorBackendTask (saga: any): IterableIterator<Effect> {
+export function* monitorBackendTask (saga: any): Saga {
   const taskRef = {
     task: undefined,
   };
-  try {
-    yield put(actionCreators.backendTaskStarted(taskRef));
-    taskRef.task = yield fork(function* () {
+  yield put(actionCreators.backendTaskStarted(taskRef));
+  taskRef.task = yield fork(function* () {
+    try {
       yield call(saga);
-      yield put(actionCreators.backendTaskDone(taskRef));
-    });
-  } catch (ex) {
-    if (!(yield cancelled())) {
-      AppToaster.show({message: ex.toString()});
-      yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
+    } catch (ex) {
+      if (!(yield cancelled())) {
+        AppToaster.show({message: ex.toString()});
+        yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
+      }
     }
-  }
+    yield put(actionCreators.backendTaskDone(taskRef));
+  });
 }
 
 export function* loadContests (): IterableIterator<Effect> {
