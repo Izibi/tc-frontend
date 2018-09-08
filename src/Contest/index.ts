@@ -1,7 +1,7 @@
 
 import {Actions, ActionTypes, State} from '../app';
 
-export {Header} from './Header';
+export {default as Header} from './Header';
 export {ContestState} from './types';
 
 export function contestReducer (state: State, action: Actions): State {
