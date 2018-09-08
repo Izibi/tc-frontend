@@ -33,7 +33,7 @@ class Header extends React.PureComponent<Props> {
         <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
         <div className="contestTitle">{contest.title}</div>
         {user &&
-           <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} icon='log-out' />}
+           <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
         <Json value={contestPeriod || {}} />
       </div>
     );

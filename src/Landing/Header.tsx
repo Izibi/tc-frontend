@@ -31,7 +31,7 @@ class Header extends React.PureComponent<Props> {
           {"Tezos Contests"}
         </div>
         {user &&
-           <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} />}
+           <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
       </div>
     );
   }

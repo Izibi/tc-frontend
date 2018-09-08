@@ -29,18 +29,6 @@
       bottom: 0;
     }
   }
-  button.bp3-button {
-    font-size: 16px;
-    font-weight: bold;
-    padding: 10px 22px;
-    background: $themeColorDark;
-    color: $lighterTextColor;
-    border-radius: 7px;
-
-    &:hover, &:focus {
-      background: $themeColorLight;
-    }
-  }
 }
 
 .landingContent {
