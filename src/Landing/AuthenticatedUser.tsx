@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 
 import {DispatchProp} from '../app';
 import {Link} from '../router';
-import {User, Contest} from '../types';
+import {Contest} from '../types';
 
 import {LandingState} from './types';
 import Header from './Header';
@@ -12,20 +12,19 @@ import Header from './Header';
 type RouteProps = {}
 
 type StoreProps = {
-  user: User | undefined,
   contests: Contest[] | undefined,
 }
 
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
-  const {user, contests} = state;
-  return {user, contests};
+  const {contests} = state;
+  return {contests};
 }
 
 class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
-    const {user, contests} = this.props;
+    const {contests} = this.props;
     let contestList : JSX.Element | undefined;
     if (contests) {
       contestList =
@@ -36,7 +35,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
     }
     return (
       <div>
-        <Header user={user} />
+        <Header/>
         <div className="landingContent">
           <p>{"AuthenticatedUser Landing Page"}</p>
           {contestList}
