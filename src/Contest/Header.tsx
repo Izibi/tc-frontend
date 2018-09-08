@@ -35,7 +35,7 @@ class Header extends React.PureComponent<Props> {
         </div>
         <div className="chainHead">
           {contestPeriod &&
-            <div className="contestPeriod">{"Day"}<span className="dayNumber">{contestPeriod.number}</span></div>}
+            <div className="contestPeriod">{"Day"}<span className="dayNumber">{contestPeriod.day_number}</span></div>}
           {user &&
              <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
         </div>

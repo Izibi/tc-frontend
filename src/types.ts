@@ -41,7 +41,7 @@ export type Contest = {
 export type ContestPeriod = {
   id: string,
   title: string,
-  number: number,
+  day_number: number,
   chain_election_at: Moment,
   main_game_id: string,
   main_game_starts_at: Moment,
