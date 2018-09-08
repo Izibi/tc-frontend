@@ -1,0 +1,79 @@
+.teamDetails {
+  .teamName {
+    font-size: 24px;
+    line-height: 30px;
+    color: $accentTextColor;
+  }
+  .sectionTitle {
+    font-size: 16px;
+    text-transform: uppercase;
+    margin-top: 2em;
+  }
+  .teamMembersSection {
+    flex: 3 0 0;
+    padding-right: 50px;
+    border-right: 1px solid #ebebeb;
+
+    th {
+      font-weight: normal;
+      text-transform: uppercase;
+      color: $lightTextColor;
+    }
+  }
+  .teamCodeSection {
+    flex: 2 0 0;
+    padding: 0 50px;
+    border-right: 1px solid #ebebeb;
+
+    .teamCodeFrame {
+      position: relative;
+      text-align: center;
+      margin: 50px 0;
+      padding: 31px 0;
+      border: 1px solid $themeColorLight;
+      border-radius: $radius;
+
+      .teamCode {
+        font-size: 30px;
+        color: $accentTextColor;
+      }
+      button {
+        position: absolute;
+        background: $themeColorLight;
+        color: $lighterTextColor;
+        border: none;
+        border-radius: 1.75em;
+        box-shadow: none;
+        transform: translate(-50%, 50%);
+      }
+    }
+  }
+  .teamExitSection {
+    flex: 1 0 0;
+    padding: 0 20px 0 30px;
+
+    button.teamExit {
+      display: block;
+      width: 80px;
+      height: 60px;
+      margin: 72px auto 0;
+      font-size: 24px;
+      text-align: center;
+      background: #e15554;
+      border: none;
+      border-radius: $radius;
+      box-shadow: none;
+      vertical-align: middle;
+
+      .bp3-icon {
+        color: $lighterTextColor;
+      }
+    }
+  }
+  .teamStatus .bp3-control.bp3-large {
+    font-size: inherit;
+    font-weight: normal;
+    text-transform: uppercase;
+    color: $lightTextColor;
+  }
+}
