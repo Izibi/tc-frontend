@@ -6,6 +6,7 @@ import {RouterState, routerReducer} from '../router';
 import {BackendState, backendReducer} from '../Backend';
 import {ContestState, contestReducer} from '../Contest';
 import {LandingState, landingReducer} from '../Landing';
+import {TeamState, teamReducer} from '../Team';
 import {TaskState, taskReducer} from '../Task';
 
 export type State =
@@ -13,6 +14,7 @@ export type State =
   RouterState &
   BackendState &
   LandingState &
+  TeamState &
   TaskState &
   ContestState
 
@@ -26,6 +28,7 @@ export const initialState : State = {
   mainChain: undefined,
   task: undefined,
   task_resources: undefined,
+  team: undefined,
   user: undefined,
   backend: {
     tasks: [],
@@ -41,6 +44,7 @@ export function reducer (state: State | undefined, action: Actions) : State {
     newState = backendReducer(newState, action);
     newState = contestReducer(newState, action);
     newState = landingReducer(newState, action);
+    newState = teamReducer(newState, action);
     newState = taskReducer(newState, action);
     return newState;
   } catch (ex) {

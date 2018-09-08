@@ -19,3 +19,4 @@ export const CONTEST_LIST_LOADED = "[model] contest list loaded";
 export const CONTEST_LOADED = "[model] contest loaded";
 export const TASK_RESOURCES_LOADED = "[model] task resources loaded";
 export const TASK_LOADED = "[model] task loaded";
+export const TEAM_LOADED = "[model] team loaded";
