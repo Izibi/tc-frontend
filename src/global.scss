@@ -49,6 +49,9 @@ body {
   max-width: 1300px;
 }
 
+.lightText {
+  color: $lightTextColor;
+}
 .bp3-control.bp3-switch input:checked ~ .bp3-control-indicator {
   background: $themeColorLight;
 }
