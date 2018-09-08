@@ -111,7 +111,16 @@ export function* loadContest (contestId: string) : IterableIterator<Effect> {
       contest = testContests.find(contest => contest.id === contestId);
     }
     if (!contest) throw new Error("contest failed to load");
-    yield put(actionCreators.contestLoaded(contest));
+    // TODO
+    const contestPeriod = {
+      id: '1',
+      title: 'day 1',
+      number: 1,
+      chain_election_at: moment(),
+      main_game_id: '1',
+      main_game_starts_at: moment().add(1, 'hour'),
+    };
+    yield put(actionCreators.contestLoaded(contest, contestPeriod));
   }
   return contest;
 }

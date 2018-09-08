@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {Contest, Task, TaskResource, User} from '../types';
+import {Contest, ContestPeriod, Task, TaskResource, User} from '../types';
 
 import * as ActionTypes from './action_types';
 
@@ -36,7 +36,7 @@ export const actionCreators = {
   userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
 
   contestListLoaded: (contests: Contest[]) => createAction(ActionTypes.CONTEST_LIST_LOADED, {contests}),
-  contestLoaded: (contest: Contest) => createAction(ActionTypes.CONTEST_LOADED, {contest}),
+  contestLoaded: (contest: Contest, contestPeriod: ContestPeriod | undefined) => createAction(ActionTypes.CONTEST_LOADED, {contest, contestPeriod}),
   taskLoaded: (task: Task) => createAction(ActionTypes.TASK_LOADED, {task}),
   taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
 

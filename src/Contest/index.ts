@@ -7,7 +7,7 @@ export {ContestState} from './types';
 export function contestReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.CONTEST_LOADED: {
-      const {contest} = action.payload;
+      const {contest, contestPeriod} = action.payload;
       /* Clear task and task_resources if the task changes. */
       let task = state.task;
       let task_resources = state.task_resources;
@@ -15,7 +15,7 @@ export function contestReducer (state: State, action: Actions): State {
         task = undefined;
         task_resources = undefined;
       }
-      return {...state, contest, task, task_resources};
+      return {...state, contest, contestPeriod, task, task_resources};
     }
   }
   return state;
