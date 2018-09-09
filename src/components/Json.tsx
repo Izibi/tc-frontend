@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 type Props = {
-  value: object
+  value: any
 }
 
 class Json extends React.PureComponent<Props> {
