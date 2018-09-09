@@ -2,7 +2,7 @@
 import {Effect} from 'redux-saga';
 import {all, call, put, takeEvery} from 'redux-saga/effects';
 
-import {navigate} from '../router';
+import {navigate, reload} from '../router';
 import {ActionTypes, actionCreators} from '../app';
 
 export default function* () {
@@ -11,6 +11,7 @@ export default function* () {
     yield all([
       call(function () { console.log('sagas are running'); }),
       call(require('../router').saga),
+      call(reloadOnUserLogin),
       call(navigateOnUserLogout),
     ]);
   } catch (ex) {
@@ -18,10 +19,18 @@ export default function* () {
   }
 }
 
-function* navigateOnUserLogout () : IterableIterator<Effect> {
-  yield takeEvery(ActionTypes.USER_LOGGED_OUT, userLoggedOutSaga);
+
+function* reloadOnUserLogin () : IterableIterator<Effect> {
+  yield takeEvery(ActionTypes.USER_LOGGED_IN, function* (action: any) {
+    console.log('user logged in, reload page');
+    yield call(reload);
+  });
 }
 
-function* userLoggedOutSaga (action: any) : IterableIterator<Effect> {
-  yield call(navigate, "UnauthenticatedUserLanding", {}, true);
+function* navigateOnUserLogout () : IterableIterator<Effect> {
+  yield takeEvery(ActionTypes.USER_LOGGED_OUT, function* (action: any) {
+    yield call(navigate, "UnauthenticatedUserLanding", {}, true);
+  });
 }
+
+

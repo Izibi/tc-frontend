@@ -1,6 +1,6 @@
 
 import {Effect} from 'redux-saga';
-import {call, select, takeEvery} from 'redux-saga/effects';
+import {call, select} from 'redux-saga/effects';
 
 import {Actions, ActionTypes, State} from '../app';
 import {Rule, navigate} from '../router';
@@ -14,7 +14,8 @@ export {LandingState} from './types';
 export const routes : Rule[] = [
   {
     name: "UnauthenticatedUserLanding",
-    pattern: "/",
+    test: (state: State, pathname: string) => !state.user || pathname === '/' ? {} : null,
+    pathname: "/",
     component: UnauthenticatedUserPage,
     saga: unauthenticatedUserSaga,
   },
@@ -45,18 +46,8 @@ export function landingReducer (state: State, action: Actions): State {
 function* unauthenticatedUserSaga () : IterableIterator<Effect> {
   const user = yield select((state : State) => state.user);
   if (user) {
-    yield call(redirectToAuthenticatedUserLanding);
-  } else {
-    yield takeEvery(ActionTypes.USER_LOGGED_IN, userLoggedInSaga);
+    yield call(navigate, "AuthenticatedUserLanding", {}, true);
   }
-}
-
-function* userLoggedInSaga (action: any) : IterableIterator<Effect> {
-  yield call(redirectToAuthenticatedUserLanding);
-}
-
-function* redirectToAuthenticatedUserLanding () : IterableIterator<Effect> {
-  yield call(navigate, "AuthenticatedUserLanding", {}, true);
 }
 
 function* authenticatedUserSaga () : IterableIterator<Effect> {
