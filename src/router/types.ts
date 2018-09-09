@@ -1,19 +1,30 @@
 
+import {State} from '../app';
+
 export type Component = React.StatelessComponent<any> | React.ComponentClass<any>;
 
-export type Rule = {
+export type Rule = (StatefulRule | PatternRule) & RuleTarge
+
+export type StatefulRule = {
+  name: string,
+  test: (state: State, pathname: string) => object | null,
+  pathname: string,
+}
+
+export type PatternRule = {
   name: string,
   pattern: string,
+}
+
+export type RuleTarge = {
   component: Component,
   saga?: any,
 }
 
 export type Route = {
-  ruleName: string,
+  rule: Rule,
   pathname: string,
   params: object,
-  component: Component,
-  saga?: any,
 }
 
 export type LinkProps = {

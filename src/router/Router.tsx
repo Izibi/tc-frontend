@@ -12,7 +12,7 @@ type RouterProps = {
 function BareRouter (props: RouterProps) {
   const {route} = props;
   if (route) {
-    return React.createElement(route.component, route.params);
+    return React.createElement(route.rule.component, route.params);
   } else {
     return <NotFound path={props.path}/>;
   }

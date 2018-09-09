@@ -15,7 +15,7 @@ import {AppContainer} from 'react-hot-loader';
 import './global.scss';
 import {startRouter} from './router';
 
-import {actionCreators} from './wiring/actions';
+import {actionCreators} from './app';
 import {State, reducer, initialState} from './wiring/store';
 import routes from './wiring/routes';
 import Root from './wiring/Root';
@@ -79,7 +79,7 @@ function start () {
       console.log("HOT routes");
       const routes = module.require('./wiring/routes')['default'];
       const {startRouter} = module.require('./router');
-      startRouter(store.dispatch, routes);
+      startRouter(store, routes);
     });
     hot.accept('./src/wiring/sagas.js', function () {
       console.log("HOT sagas");
@@ -97,7 +97,7 @@ function start () {
   }
 
   store.dispatch(actionCreators.init());
-  startRouter(store.dispatch, routes);
+  startRouter(store, routes);
 
   Object.assign(app, {actionCreators, store, rootTask});
   renderRoot(Root, store);
