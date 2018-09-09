@@ -5,6 +5,7 @@
 .platformHeader {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   .contestHead {
     flex: 1 1 50%;
     display: flex;
