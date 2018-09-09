@@ -28,16 +28,31 @@ class Header extends React.PureComponent<Props> {
     const {user, contest, contestPeriod} = this.props;
     if (!contest) return false;
     return (
-      <div className="platformHeader">
-        <div className="contestHead">
-          <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
-          <div className="contestTitle">{contest.title}</div>
+      <div>
+        <div className="platformHeader">
+          <div className="contestHead">
+            <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
+            <div className="contestTitle">{contest.title}</div>
+          </div>
+          <div className="chainHead">
+            {contestPeriod &&
+              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contestPeriod.day_number}</span></div>}
+            <div className="chainStatus">
+              <div className="day"></div>
+              <div className="rounds"></div>
+            </div>
+            {user &&
+               <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
+          </div>
         </div>
-        <div className="chainHead">
-          {contestPeriod &&
-            <div className="contestPeriod">{"Day"}<span className="dayNumber">{contestPeriod.day_number}</span></div>}
-          {user &&
-             <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
+        <div className="mainMenu">
+           <ul>
+             <li>{"Task"}</li>
+             <li>{"Team"}</li>
+             <li>{"Chains"}</li>
+             <li>{"Forum"}</li>
+             <li>{"Scoreboard"}</li>
+           </ul>
         </div>
       </div>
     );

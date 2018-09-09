@@ -105,3 +105,23 @@
 .roundDuration {
   align-self: flex-end;
 }
+
+/*********************************
+  MAIN MENU
+*********************************/
+.mainMenu {
+  font-size: 14px;
+  margin: 2.5em 0 1.5em;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      text-transform: uppercase;
+      display: inline-block;
+      margin-right: 50px;
+      padding-bottom: 0.5em;
+      border-bottom: 5px solid $themeColorLight;
+    }
+  }
+}
