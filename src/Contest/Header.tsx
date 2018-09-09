@@ -4,6 +4,7 @@ import {Button} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
 import {actionCreators, DispatchProp} from '../app';
+import {Link} from '../router';
 import {User, Contest, ContestPeriod} from '../types';
 
 import {ContestState} from './types';
@@ -47,8 +48,8 @@ class Header extends React.PureComponent<Props> {
         </div>
         <div className="mainMenu">
            <ul>
-             <li>{"Task"}</li>
-             <li>{"Team"}</li>
+             <li><Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}} text="Task" /></li>
+             <li><Link to="TeamManagement" params={{contestId: contest.id}} text="Team" /></li>
              <li>{"Chains"}</li>
              <li>{"Forum"}</li>
              <li>{"Scoreboard"}</li>
