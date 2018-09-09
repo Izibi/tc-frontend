@@ -9,76 +9,113 @@
     text-transform: uppercase;
     margin-top: 2em;
   }
-  .teamMembersSection {
-    flex: 3 0 0;
-    padding-right: 50px;
-    border-right: 1px solid #ebebeb;
+  .hasTeam {
+    flex-wrap: wrap;
 
-    th {
-      font-weight: normal;
-      text-transform: uppercase;
-      color: $lightTextColor;
-    }
-  }
-  .teamCodeSection {
-    flex: 2 0 0;
-    padding: 0 50px;
-    border-right: 1px solid #ebebeb;
+    .teamSection {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
 
-    .teamCodeFrame {
-      position: relative;
-      text-align: center;
-      margin: 50px 0;
-      padding: 31px 0;
-      border: 1px solid $themeColorLight;
-      border-radius: $radius;
+      &.members {
+        flex: 3 0 0;
+        border-right: 1px solid #ebebeb;
 
-      .teamCode {
-        font-size: 30px;
-        color: $accentTextColor;
+        th {
+          font-weight: normal;
+          text-transform: uppercase;
+          color: $lightTextColor;
+        }
       }
-      button {
-        position: absolute;
-        background: $themeColorLight;
-        color: $lighterTextColor;
-        border: none;
-        border-radius: 1.75em;
-        box-shadow: none;
-        transform: translate(-50%, 50%);
+      &.code {
+        flex: 2 0 0;
+        border-right: 1px solid #ebebeb;
+        white-space: pre-line;
+
+        .teamCodeFrame {
+            text-align: center;
+            margin: 4em 0;
+            padding: 2em 30px;
+            border: 1px solid #2ab7ca;
+            border-radius: 11px;
+            display: inline-block;
+
+          .teamCode {
+            font-size: 30px;
+            color: $accentTextColor;
+          }
+          button {
+            position: absolute;
+            background: $themeColorLight;
+            color: $lighterTextColor;
+            border: none;
+            border-radius: 1.75em;
+            box-shadow: none;
+            transform: translate(-50%, 50%);
+          }
+        }
       }
-    }
-  }
-  .leaveTeamSection {
-    flex: 1 0 0;
-    padding: 0 20px 0 30px;
+      &.leave {
+        flex: 1 0 0;
 
-    button.leaveTeam {
-      display: block;
-      width: 80px;
-      height: 60px;
-      margin: 72px auto 0;
-      font-size: 24px;
-      text-align: center;
-      background: #e15554;
-      border: none;
-      border-radius: $radius;
-      box-shadow: none;
-      vertical-align: middle;
+        button.leaveTeam {
+          display: block;
+          width: 80px;
+          height: 60px;
+          margin: 72px auto 0;
+          font-size: 24px;
+          text-align: center;
+          background: #e15554;
+          border: none;
+          border-radius: $radius;
+          box-shadow: none;
+          vertical-align: middle;
 
-      .bp3-icon {
-        color: $lighterTextColor;
-        vertical-align: middle;
+          .bp3-icon {
+            color: $lighterTextColor;
+            vertical-align: middle;
+          }
+        }
       }
     }
   }
   .notInTeam {
-    justify-content: space-around;
-    .teamCreationSection {
+    margin-top: 5em;
+    flex-wrap: wrap;
+
+    .teamSection {
       flex: 1 0 auto;
-      border-right: 1px solid #ebebeb;
-    }
-    .teamJoinSection {
-      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      &.creation {
+        border-right: 1px solid #ebebeb;
+      }
+      .sectionTitle {
+        margin-bottom: 2em;
+      }
+      input {
+        border: none;
+        border-bottom: 1px solid #ebebeb;
+        padding: 8px 0;
+        margin-right: 30px;
+      }
+      button {
+        text-transform: uppercase;
+        padding: 9px 22px;
+        border: none;
+        border-radius: 1.75em;
+        box-shadow: none;
+      }
+      &.creation button {
+        background: $themeColorLight;
+        color: $lighterTextColor;
+      }
+      &.join button {
+        background: $accentColor;
+        color: $themeColorDark;
+      }
     }
   }
   .teamStatus .bp3-control.bp3-large {

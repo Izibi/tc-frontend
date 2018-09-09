@@ -48,60 +48,71 @@ class TeamManagementPage extends React.PureComponent<Props> {
             </div>
             {contestInfos}
             <div className="flexRow notInTeam">
-              <div className="teamCreationSection">
-                <div className="sectionTitle">{"Create new team"}</div>
-                <div></div>
+              <div className="teamSection creation">
+                <div>
+                  <div className="sectionTitle">{"Create new team"}</div>
+                  <div><input type="text" placeholder="Team name"/> <Button text="Create"/></div>
+                </div>
               </div>
-              <div className="teamJoinSection">
-                <div className="sectionTitle">{"Join an existing team"}</div>
-                <div></div>
+              <div className="teamSection join">
+                <div>
+                  <div className="sectionTitle">{"Join an existing team"}</div>
+                  <div><input type="text" placeholder="Team code"/> <Button text="Join"/></div>
+                </div>
               </div>
             </div>
           </div>}
 
           {typeof team === 'object' &&
-            <div>
+            <div className="hasTeam">
               {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>
               <div className="teamName">{team.name}</div>
               <div className="flexRow">
-                <div className="teamMembersSection">
-                  <div className="sectionTitle">{"Your team members"}</div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Login</th>
-                        <th>Firstname Lastname</th>
-                        <th>Status</th>
-                        <th>Member since</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="teamCodeSection">
-                  <div className="sectionTitle">{"Team access code"}</div>
-                  <div className="teamCodeFrame">
-                    <div className="teamCode">{team.access_code}</div>
-                    <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
-                  </div>
-                  <div className="lightText">
-                    {"Give this code to each person you want to invite to your team."}
+                <div className="teamSection members">
+                  <div>
+                    <div className="sectionTitle">{"Your team members"}</div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Login</th>
+                          <th>Firstname Lastname</th>
+                          <th>Status</th>
+                          <th>Member since</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-                <div className="leaveTeamSection">
-                  <div className="sectionTitle">{"Leave this team"}</div>
-                  <Button type="button" className="leaveTeam" onClick={this.handleLeaveTeam} >
-                    <Icon icon="arrow-right" iconSize={40} />
-                  </Button>
+                <div className="teamSection code">
+                  <div>
+                    <div className="sectionTitle">{"Team access code"}</div>
+                    <div className="teamCodeFrame">
+                      <div className="teamCode">{team.access_code}</div>
+                      <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
+                    </div>
+                    <div className="lightText">
+                      {`Give this code to each person
+you want to invite to your team.`}
+                    </div>
+                  </div>
+                </div>
+                <div className="teamSection leave">
+                  <div>
+                    <div className="sectionTitle">{"Leave this team"}</div>
+                    <Button type="button" className="leaveTeam" onClick={this.handleLeaveTeam} >
+                      <Icon icon="arrow-right" iconSize={40} />
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div className="teamStatus">
