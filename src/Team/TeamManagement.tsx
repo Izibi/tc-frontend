@@ -26,16 +26,32 @@ function mapStateToProps (state: TeamState, props: TeamManagementParams): StoreP
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
     const {user, team} = this.props;
+    const contestInfos = <div><p>{"You may participate individually, or as a team of 1 to 3"}</p>
+              <p>{"Teams can be created or modified until the 10/09/2018 at 20:00 pm"}</p></div>;
     return (
       <div>
         <ContestHeader/>
-        <div className="pageContent">
+        <div className="pageContent teamManagement">
           {!team &&
-            <div>{"Get started in a team!"}</div>}
-          <p>{"You may participate individually, or as a team of 1 to 3"}</p>
-          <p>{"Teams can be created or modified until the 10/09/2018 at 20:00 pm"}</p>
-          {team &&
-            <div className="teamDetails">
+            <div>
+              <div style={{fontSize: "18px", marginBottom: "1em"}}>{"Get started in a team!"}</div>
+              {contestInfos}
+              <div className="flexRow notInTeam">
+                <div className="teamCreationSection">
+                  <div className="sectionTitle">{"Create new team"}</div>
+                  <div></div>
+                </div>
+                <div className="teamJoinSection">
+                  <div className="sectionTitle">{"Join an existing team"}</div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          }
+
+          {team && user &&
+            <div>
+              {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>
               <div className="teamName">{team.name}</div>
               <div className="flexRow">
