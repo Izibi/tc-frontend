@@ -3,53 +3,63 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {Button, Switch, Icon} from "@blueprintjs/core";
 
-import {DispatchProp} from '../app';
+import {DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {User, Team} from '../types';
+import {Contest, Team, User} from '../types';
 import {Json} from '../components';
 //import {Link} from '../router';
 
 import {TeamState, TeamManagementParams} from './types';
 
 type StoreProps = {
-  user: User | undefined,
-  team: Team | undefined,
+  user: User,
+  contest: Contest,
+  team: Team | undefined | 'unknown',
 }
 
 type Props = TeamManagementParams & StoreProps & DispatchProp
 
 function mapStateToProps (state: TeamState, props: TeamManagementParams): StoreProps {
-  const {user, team} = state;
-  return {user, team};
+  const {user, contest, team} = state;
+  if (!user || !contest) throw new Error('bad state');
+  return {user, contest, team};
 }
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
-    const {user, team} = this.props;
-    const contestInfos = <div><p>{"You may participate individually, or as a team of 1 to 3"}</p>
-              <p>{"Teams can be created or modified until the 10/09/2018 at 20:00 pm"}</p></div>;
+    const {user, contest, team} = this.props;
+    const contestInfos =
+      <div>
+        <p>{"You may participate individually, or as a team of 1 to 3"}</p>
+        <p>
+          {"Teams can be created or modified until the "}
+          {contest.registration_closes_at.format('L')}
+          {" at "}
+          {contest.registration_closes_at.format('LT')}
+        </p>
+      </div>;
     return (
       <div>
         <ContestHeader/>
         <div className="pageContent teamManagement">
-          {!team &&
-            <div>
-              <div style={{fontSize: "18px", marginBottom: "1em"}}>{"Get started in a team!"}</div>
-              {contestInfos}
-              <div className="flexRow notInTeam">
-                <div className="teamCreationSection">
-                  <div className="sectionTitle">{"Create new team"}</div>
-                  <div></div>
-                </div>
-                <div className="teamJoinSection">
-                  <div className="sectionTitle">{"Join an existing team"}</div>
-                  <div></div>
-                </div>
+          {team === undefined && <div>
+            <div style={{fontSize: "18px", marginBottom: "1em"}}>
+              {"Get started in a team!"}
+            </div>
+            {contestInfos}
+            <div className="flexRow notInTeam">
+              <div className="teamCreationSection">
+                <div className="sectionTitle">{"Create new team"}</div>
+                <div></div>
+              </div>
+              <div className="teamJoinSection">
+                <div className="sectionTitle">{"Join an existing team"}</div>
+                <div></div>
               </div>
             </div>
-          }
+          </div>}
 
-          {team && user &&
+          {typeof team === 'object' &&
             <div>
               {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>
@@ -81,28 +91,45 @@ class TeamManagementPage extends React.PureComponent<Props> {
                   <div className="sectionTitle">{"Team access code"}</div>
                   <div className="teamCodeFrame">
                     <div className="teamCode">{team.access_code}</div>
-                    <Button type="button" text="Change code" />
+                    <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
                   </div>
-                  <div className="lightText">{"Give this code to each person you want to invite to your team."}</div>
+                  <div className="lightText">
+                    {"Give this code to each person you want to invite to your team."}
+                  </div>
                 </div>
-                <div className="teamExitSection">
+                <div className="leaveTeamSection">
                   <div className="sectionTitle">{"Leave this team"}</div>
-                  <Button type="button" className="teamExit">
+                  <Button type="button" className="leaveTeam" onClick={this.handleLeaveTeam} >
                     <Icon icon="arrow-right" iconSize={40} />
                   </Button>
                 </div>
               </div>
               <div className="teamStatus">
-                <Switch checked={team.is_open} label="Accept new members" alignIndicator="right" large inline />
+                <Switch alignIndicator="right" large inline
+                  checked={team.is_open} onChange={this.handleChangeTeamOpen}
+                  label="Accept new members" />
               </div>
             </div>
           }
         </div>
-        {user && <Json value={user}/>}
+        <Json value={user}/>
+        <Json value={contest}/>
         {team && <Json value={team}/>}
       </div>
     );
   }
+  handleChangeAccessCode = () => {
+    this.props.dispatch(actionCreators.changeTeamAccessCode());
+  };
+  handleLeaveTeam = () => {
+    this.props.dispatch(actionCreators.leaveTeam());
+  };
+  handleChangeTeamOpen = () => {
+    const {team} = this.props;
+    if (typeof team === 'object') {
+      this.props.dispatch(actionCreators.changeTeamOpen(!team.is_open));
+    }
+  };
 }
 
 export default connect(mapStateToProps)(TeamManagementPage);

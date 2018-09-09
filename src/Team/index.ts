@@ -2,7 +2,7 @@
 import {Effect} from 'redux-saga';
 import {call, select} from 'redux-saga/effects';
 
-import {State, Actions} from '../app';
+import {State, Actions, ActionTypes} from '../app';
 import {Rule} from '../router';
 import {monitorBackendTask, loadTeam} from '../Backend';
 import {User}  from '../types';
@@ -13,6 +13,24 @@ import TeamManagementPage from './TeamManagement';
 export {TeamState} from './types';
 
 export function teamReducer (state: State, action: Actions): State {
+  switch (action.type) {
+    case ActionTypes.LEAVE_TEAM: {
+      state = {...state, team: undefined};
+      break;
+    }
+    case ActionTypes.CHANGE_TEAM_ACCESS_CODE: {
+      if (typeof state.team === 'object') {
+        state = {...state, team: {...state.team, access_code: "..."}};
+      }
+      break;
+    }
+    case ActionTypes.CHANGE_TEAM_OPEN: {
+      if (typeof state.team === 'object') {
+        state = {...state, team: {...state.team, is_open: action.payload.isOpen}};
+      }
+      break;
+    }
+  }
   return state;
 }
 

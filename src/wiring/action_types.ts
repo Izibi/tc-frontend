@@ -20,3 +20,7 @@ export const CONTEST_LOADED = "[model] contest loaded";
 export const TASK_RESOURCES_LOADED = "[model] task resources loaded";
 export const TASK_LOADED = "[model] task loaded";
 export const TEAM_LOADED = "[model] team loaded";
+
+export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
+export const LEAVE_TEAM = "[team] leave";
+export const CHANGE_TEAM_OPEN = "[team] change is_open";

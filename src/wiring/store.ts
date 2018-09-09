@@ -28,7 +28,7 @@ export const initialState : State = {
   mainChain: undefined,
   task: undefined,
   task_resources: undefined,
-  team: undefined,
+  team: 'unknown',
   user: undefined,
   backend: {
     tasks: [],

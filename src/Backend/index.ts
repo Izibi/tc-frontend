@@ -86,14 +86,13 @@ export function backendReducer (state: State, action: Actions): State {
     case ActionTypes.CONTEST_LOADED: {
       const {contest, contestPeriod} = action.payload;
       /* Clear task and task_resources if the task changes. */
-      let team = undefined;
       let task = state.task;
       let task_resources = state.task_resources;
       if (task && task.id !== contest.task_id) {
         task = undefined;
         task_resources = undefined;
       }
-      return {...state, contest, contestPeriod, task, task_resources, team};
+      return {...state, contest, contestPeriod, task, task_resources, team: 'unknown'};
     }
     case ActionTypes.TASK_LOADED: {
       let {task} = action.payload;
@@ -199,8 +198,8 @@ export function* loadTaskResources () : Saga {
 }
 
 export function* loadTeam (userId: string, contestId: string) : Saga {
-  let team: Team | undefined = yield select((state: State) => state.team);
-  if (!team) {
+  let team: Team | 'unknown' | undefined = yield select((state: State) => state.team);
+  if (team === 'unknown') {
     yield call(delay, 500);
     const item = testTeams.find(item => item.user_id === userId && item.contest_id === contestId);
     if (!item) throw new Error("team failed to load");

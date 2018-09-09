@@ -41,6 +41,10 @@ export const actionCreators = {
   taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
   teamLoaded: (team: Team) => createAction(ActionTypes.TEAM_LOADED, {team}),
 
+  changeTeamAccessCode: () => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {}),
+  leaveTeam: () => createAction(ActionTypes.LEAVE_TEAM, {}),
+  changeTeamOpen: (isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_OPEN, {isOpen}),
+
 };
 
 type FunctionType = (...args: any[]) => any;
