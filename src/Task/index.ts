@@ -19,7 +19,7 @@ export function taskReducer (state: State, action: Actions): State {
 function* taskResourcesSaga (params: TaskResourcesParams) : IterableIterator<Effect> {
   yield call(monitorBackendTask, function* () {
     const contest: Contest = yield call(loadContest, params.contestId);
-    yield call(loadTask, contest.task_id);
+    yield call(loadTask, contest.task.id);
     yield call(loadTaskResources);
   });
 }

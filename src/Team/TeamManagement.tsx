@@ -101,8 +101,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
                       <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
                     </div>
                     <div className="lightText">
-                      {`Give this code to each person
-you want to invite to your team.`}
+                      {`Give this code to each person you want to invite to your team.`}
                     </div>
                   </div>
                 </div>

@@ -6,30 +6,43 @@ import * as moment from 'moment';
 
 import {without} from '../utils';
 import {actionCreators, Actions, ActionTypes, AppToaster, State} from '../app';
-import {Contest, Task, TaskResource, Team} from '../types';
+import {Contest, Task, TaskResource, ContestPeriod, Team} from '../types';
 
 export {BackendState} from './types';
 export {default as BackendFeedback} from './Feedback';
 
 type Saga = IterableIterator<Effect>
 
+const testTasks: Task[] = [
+  {
+    id: "1",
+    title: "task 1",
+  }
+];
+const testContestPeriod : ContestPeriod = {
+  id: "1",
+  title: "day 1",
+  day_number: 1,
+  chain_election_at: moment('2018-09-05T18:00'),
+  main_chain: {
+    title: "day 1",
+    description: "description",
+    interface: "",
+    implementation: "",
+  }
+};
 const testContests : Contest[] = [
   {
     id: "1",
     title: "Contest name",
     description: "Lorem ipsum blah blah",
-    logo_url: null,
+    logo_url: "",
     registration_open: true,
     registration_closes_at: moment('2018-09-05'),
     starts_at: moment('2018-09-05'),
     ends_at: moment('2018-09-10'),
-    task_id: "1",
-  }
-];
-const testTasks: Task[] = [
-  {
-    id: "1",
-    title: "task 1",
+    task: testTasks[0],
+    current_period: testContestPeriod,
   }
 ];
 const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
@@ -45,10 +58,23 @@ const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
   }
 ];
 const team1 : Team = {
+  id: "1",
   name: "CodersPlanet",
   access_code: "ab824XbsI9",
   is_open: true,
   is_locked: false,
+  members: [
+    {
+      user: {
+        id: "1",
+        username: "Test User",
+        firstname: "Test",
+        lastname: "User",
+      },
+      is_creator: true,
+      member_since: moment('2018-09-05T08:00'),
+    }
+  ]
 };
 const testTeams = [
   {contest_id: "1", user_id: "1", team: team1}
@@ -84,15 +110,15 @@ export function backendReducer (state: State, action: Actions): State {
       return {...state, contests};
     }
     case ActionTypes.CONTEST_LOADED: {
-      const {contest, contestPeriod} = action.payload;
+      const {contest} = action.payload;
       /* Clear task and task_resources if the task changes. */
       let task = state.task;
       let task_resources = state.task_resources;
-      if (task && task.id !== contest.task_id) {
-        task = undefined;
+      if (task && task.id !== contest.task.id) {
+        task = contest.task;
         task_resources = undefined;
       }
-      return {...state, contest, contestPeriod, task, task_resources, team: 'unknown'};
+      return {...state, contest, task, task_resources, team: 'unknown'};
     }
     case ActionTypes.TASK_LOADED: {
       let {task} = action.payload;
@@ -157,15 +183,7 @@ export function* loadContest (contestId: string) : Saga {
     }
     if (!contest) throw new Error("contest failed to load");
     // TODO
-    const contestPeriod = {
-      id: '1',
-      title: 'day 1',
-      day_number: 1,
-      chain_election_at: moment(),
-      main_game_id: '1',
-      main_game_starts_at: moment().add(1, 'hour'),
-    };
-    yield put(actionCreators.contestLoaded(contest, contestPeriod));
+    yield put(actionCreators.contestLoaded(contest));
   }
   return contest;
 }
@@ -185,7 +203,7 @@ export function* loadTaskResources () : Saga {
   let taskResources: TaskResource[] | undefined = yield select((state: State) => state.task_resources);
   if (!taskResources) {
     const taskId: string = yield select((state: State) => {
-      if (state.contest) return state.contest.task_id;
+      if (state.contest) return state.contest.task.id;
       if (state.task) return state.task.id;
       throw new Error("cannot determine what task resources to load");
     });

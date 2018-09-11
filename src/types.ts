@@ -14,10 +14,12 @@ export type User = {
 }
 
 export type Team = {
+  id: string,
   name: string,
   access_code: string,
   is_open: boolean /* can new users join the team? */,
   is_locked: boolean /* contest started, team cannot be changed */,
+  members: TeamMember[],
 }
 
 export type TeamMember = {
@@ -30,21 +32,13 @@ export type Contest = {
   id: string,
   title: string,
   description: string,
-  logo_url: null | string,
+  logo_url: string,
   registration_open: boolean,
   registration_closes_at: Moment,
   starts_at: Moment,
   ends_at: Moment,
-  task_id: string,
-}
-
-export type ContestPeriod = {
-  id: string,
-  title: string,
-  day_number: number,
-  chain_election_at: Moment,
-  main_game_id: string,
-  main_game_starts_at: Moment,
+  task: Task,
+  current_period: ContestPeriod,
 }
 
 export type Task = {
@@ -55,20 +49,14 @@ export type Task = {
 export type TaskResource = {
   title: string,
   description: string,
-  url?: string,
-  html?: string,
-}
+} & ({url: string} | {html: string})
 
-export type Game = {
-  key: string,
-  started_at: null | Moment,
-  owner_team: null | Team,
-  protocol: string,
-}
-
-export type Protocol = {
-  parent_hash: null | string,
-  hash: null | string,
+export type ContestPeriod = {
+  id: string,
+  title: string,
+  day_number: number,
+  chain_election_at: Moment,
+  main_chain: Chain,
 }
 
 export type Chain = {
@@ -76,4 +64,17 @@ export type Chain = {
   description: string,
   interface: string,
   implementation: string,
+}
+
+export type Game = {
+  key: string,
+  starts_at: Moment,
+  started_at: Moment | null,
+  owner_team: Team | null,
+  protocol_hash: string,
+}
+
+export type Protocol = {
+  parent_hash: null | string,
+  hash: null | string,
 }
