@@ -6,22 +6,22 @@ import {all, call, cancelled, takeLatest} from 'redux-saga/effects';
 import {ActionTypes, actionCreators, State} from '../app';
 import {Rule, StatefulRule, Route} from './types';
 
-type Matcher = {
-  rule: Rule,
-  match: (state: State, pathname: string) => object | null,
-  build: (params: object) => string,
+type Matcher<T extends object> = {
+  rule: Rule<T>,
+  match: (state: State, pathname: string) => T | null,
+  build: (params: T) => string,
 }
 
 /* private state */
 const prefix : string = process.env.MOUNT_PATH || "";
-let matchers : Matcher[] = [];
+let matchers : Matcher<object>[] = [];
 let store : Store<State, AnyAction>;
 
 export function addPrefix (pathname: string) {
   return `${prefix}${pathname}`;
 }
 
-function getMatcherByName (ruleName: string) : Matcher | null {
+function getMatcherByName (ruleName: string) : Matcher<object> | null {
   for (const matcher of matchers) {
     const {rule} = matcher;
     if ('name' in rule && rule.name === ruleName) {
@@ -31,7 +31,7 @@ function getMatcherByName (ruleName: string) : Matcher | null {
   return null;
 }
 
-function buildRoute (matcher: Matcher, params: object): Route {
+function buildRoute<T extends object> (matcher: Matcher<T>, params: T): Route<T> {
   let pathname = matcher.build(params);
   return {rule: matcher.rule, pathname: addPrefix(pathname), params};
 }
@@ -73,7 +73,7 @@ function dropPrefix (pathname: string): Promise<string> {
   });
 }
 
-function getRouteOfPath (pathname: string): Route | null {
+function getRouteOfPath (pathname: string): Route<object> | null {
   const state = store.getState();
   for (const matcher of matchers) {
     const params = matcher.match(state, pathname);
@@ -97,13 +97,13 @@ function handleCurrentRoute () {
   });
 }
 
-export function startRouter (newStore: Store<State, AnyAction>, rules: Rule[]) {
+export function startRouter (newStore: Store<State, AnyAction>, rules: Rule<object>[]) {
   console.log('routing for prefix', prefix);
   store = newStore;
   matchers = rules.map(rule => {
     if ('test' in rule) {
-      function build (params: object) {
-        return (rule as StatefulRule).pathname;
+      function build<T extends object> (params: T) {
+        return (rule as StatefulRule<T>).pathname;
       }
       return {rule, match: rule.test, build};
     } else {

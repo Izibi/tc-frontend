@@ -4,36 +4,50 @@ import {Actions} from '../app';
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
 import {BackendState, backendReducer} from '../Backend';
-import {ContestState, contestReducer} from '../Contest';
-import {LandingState, landingReducer} from '../Landing';
-import {TeamState, teamReducer} from '../Team';
-import {TaskState, taskReducer} from '../Task';
+import {contestReducer} from '../Contest';
+import {landingReducer} from '../Landing';
+import {teamReducer} from '../Team';
+import {taskReducer} from '../Task';
 
 export type State =
   ErrorsState &
   RouterState &
   BackendState &
-  LandingState &
-  TeamState &
-  TaskState &
-  ContestState
+  {
+    userId: string /* id of user logged in or 'unknonw' */,
+    contestIds: string[] | undefined /* list of available contests, if loaded */,
+    contestId: string /* id of current contest or 'unknown' */,
+    teamId: string /* id of user's team or 'unknown' */,
+    taskResourceIndex: number /* index of resource selected in task tab */,
+  }
 
 export const initialState : State = {
+
   path: '/',
   route: undefined,
   lastError: undefined,
-  contests: undefined,
-  contest: undefined,
-  contestPeriod: undefined,
-  mainChain: undefined,
-  task: undefined,
-  task_resources: undefined,
-  team: 'unknown',
-  user: undefined,
   backend: {
-    tasks: [],
     lastError: undefined,
+    tasks: [],
   },
+
+  entities: {
+    users: {},
+    contests: {},
+    tasks: {},
+    taskResources: {},
+    contestPeriods: {},
+    teams: {},
+    teamMembers: {},
+    chains: {},
+  },
+
+  userId: 'unknown',
+  contestIds: undefined,
+  contestId: 'unknown',
+  teamId: 'unknown',
+  taskResourceIndex: 0,
+
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {

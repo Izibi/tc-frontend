@@ -7,13 +7,7 @@ import {State, actionCreators, AppToaster, DispatchProp} from '../app';
 import {Link, Router} from '../router';
 import {AppError, ErrorReport} from '../errors';
 import {Dev} from '../components';
-import {User} from '../types';
 import {BackendFeedback} from '../Backend';
-
-const devUsers : User[] = [
-  {id: "1", username: "alice", firstname: "Alice", lastname: "Doe"},
-  {id: "2", username: "bob", firstname: "Bob", lastname: "Smith"},
-];
 
 type StoreProps = {
   lastError: AppError | undefined,
@@ -36,8 +30,8 @@ class Root extends React.PureComponent<Props> {
             <hr/>
             <Dev>
               <Button onClick={this.handleLogout} >{"I am no one"}</Button>
-              <Button onClick={this.handleLogin} data-username="alice">{"I am Alice"}</Button>
-              <Button onClick={this.handleLogin} data-username="bob">{"I am Bob"}</Button>
+              <Button onClick={this.handleLogin} data-user-id="1">{"I am Alice"}</Button>
+              <Button onClick={this.handleLogin} data-user-id="2">{"I am Bob"}</Button>
               <Button onClick={this.toast}>{"Toast"}</Button>
               <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}} text="task resources" />
               <Link to="TeamManagement" params={{contestId: "1"}} text="team management" />
@@ -54,11 +48,8 @@ class Root extends React.PureComponent<Props> {
     this.props.dispatch(actionCreators.userLoggedOut());
   };
   handleLogin = (event: React.MouseEvent<HTMLElement>) => {
-    const username = event.currentTarget.getAttribute('data-username');
-    const user = devUsers.find(user => user.username === username);
-    if (user) {
-      this.props.dispatch(actionCreators.userLoggedIn(user));
-    }
+    const userId = event.currentTarget.getAttribute('data-user-id') || 'unknown';
+    this.props.dispatch(actionCreators.userLoggedIn(userId));
   };
   toast = () => {
     AppToaster.show({message: "Toasty!"});

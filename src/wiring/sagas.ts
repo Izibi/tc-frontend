@@ -4,6 +4,7 @@ import {all, call, put, takeEvery} from 'redux-saga/effects';
 
 import {navigate, reload} from '../router';
 import {ActionTypes, actionCreators} from '../app';
+import {monitorBackendTask, loadUser} from '../Backend';
 
 export default function* () {
   // yield setContext(props);
@@ -22,8 +23,12 @@ export default function* () {
 
 function* reloadOnUserLogin () : IterableIterator<Effect> {
   yield takeEvery(ActionTypes.USER_LOGGED_IN, function* (action: any) {
-    console.log('user logged in, reload page');
-    yield call(reload);
+    yield call(monitorBackendTask, function* () {
+      if (action.type === ActionTypes.USER_LOGGED_IN) {
+        yield call(loadUser, action.payload.userId);
+        yield call(reload);
+      }
+    });
   });
 }
 
@@ -32,5 +37,3 @@ function* navigateOnUserLogout () : IterableIterator<Effect> {
     yield call(navigate, "UnauthenticatedUserLanding", {}, true);
   });
 }
-
-

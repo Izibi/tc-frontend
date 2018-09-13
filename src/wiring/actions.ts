@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {Contest, Task, TaskResource, Team, User} from '../types';
+import {EntitiesUpdate} from '../Backend';
 
 import * as ActionTypes from './action_types';
 
@@ -18,7 +18,7 @@ export const actionCreators = {
   init: () => createAction(ActionTypes.INIT, {}),
 
   // router
-  routeChanged: (route: Route) => createAction(ActionTypes.ROUTE_CHANGED, {route}),
+  routeChanged: (route: Route<object>) => createAction(ActionTypes.ROUTE_CHANGED, {route}),
 
   // errors
   reactError: (error: Error | undefined, info: {componentStack: any}) => createAction(ActionTypes.REACT_ERROR, {error, info}),
@@ -30,16 +30,15 @@ export const actionCreators = {
   backendTaskStarted: (task: object) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task}),
   backendTaskFailed: (task: object, error: string) => createAction(ActionTypes.BACKEND_TASK_FAILED, {task, error}),
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
+  backendEntitiesLoaded: (entities: EntitiesUpdate) => createAction(ActionTypes.BACKEND_ENTITIES_LOADED, {entities}),
 
   // login
   userLoggedOut: () => createAction(ActionTypes.USER_LOGGED_OUT, {}),
-  userLoggedIn: (user: User) => createAction(ActionTypes.USER_LOGGED_IN, {user}),
+  userLoggedIn: (userId: string) => createAction(ActionTypes.USER_LOGGED_IN, {userId}),
 
-  contestListLoaded: (contests: Contest[]) => createAction(ActionTypes.CONTEST_LIST_LOADED, {contests}),
-  contestLoaded: (contest: Contest) => createAction(ActionTypes.CONTEST_LOADED, {contest}),
-  taskLoaded: (task: Task) => createAction(ActionTypes.TASK_LOADED, {task}),
-  taskResourcesLoaded: (resources: TaskResource[]) => createAction(ActionTypes.TASK_RESOURCES_LOADED, {resources}),
-  teamLoaded: (team: Team) => createAction(ActionTypes.TEAM_LOADED, {team}),
+  contestListChanged: (contestIds: string[]) => createAction(ActionTypes.CONTEST_LIST_CHANGED, {contestIds}),
+  contestChanged: (contestId: string) => createAction(ActionTypes.CONTEST_CHANGED, {contestId}),
+  teamChanged: (teamId: string) => createAction(ActionTypes.TEAM_CHANGED, {teamId}),
 
   changeTeamAccessCode: () => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {}),
   leaveTeam: () => createAction(ActionTypes.LEAVE_TEAM, {}),

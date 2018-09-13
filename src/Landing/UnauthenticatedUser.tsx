@@ -15,8 +15,7 @@ type StoreProps = {}
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
-  const {user} = state;
-  return {user};
+  return {};
 }
 
 class UnauthenticatedUserPage extends React.PureComponent<Props> {

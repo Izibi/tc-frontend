@@ -5,6 +5,7 @@ import {connect} from 'react-redux';
 import {DispatchProp} from '../app';
 import {Link} from '../router';
 import {Contest} from '../types';
+import {selectors} from '../Backend';
 
 import {LandingState} from './types';
 import Header from './Header';
@@ -18,8 +19,13 @@ type StoreProps = {
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
-  const {contests} = state;
-  return {contests};
+  try {
+    const contests = (state.contestIds||[]).map(id => selectors.getContest(state, id));
+    return {contests};
+  } catch (ex) {
+    console.error(ex);
+    return {contests: undefined};
+  }
 }
 
 class AuthenticatedUserPage extends React.PureComponent<Props> {
@@ -33,6 +39,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
             <ContestItem key={contest.id} contest={contest} />)}
         </ul>
     }
+    console.log('contests', contests);
     return (
       <div>
         <Header/>

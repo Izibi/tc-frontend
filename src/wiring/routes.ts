@@ -5,7 +5,7 @@ import {routes as LandingRoutes} from '../Landing';
 import {routes as TaskRoutes} from '../Task';
 import {routes as TeamRoutes} from '../Team';
 
-const routes : Rule[] = [
+const routes : Rule<any>[] = [
   ...LandingRoutes,
   ...TaskRoutes,
   ...TeamRoutes,

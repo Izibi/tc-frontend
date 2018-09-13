@@ -5,7 +5,7 @@ export function routerReducer (state: State, action: Actions) {
   switch (action.type) {
     case ActionTypes.ROUTE_CHANGED: {
       const {route} = action.payload;
-      return {...state, route};
+      return route.rule.reducer({...state, route}, route.params);
     }
   }
   return state;

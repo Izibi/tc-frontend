@@ -1,20 +1,21 @@
 
 import {Effect} from 'redux-saga';
-import {call, select} from 'redux-saga/effects';
+import {call, put, select} from 'redux-saga/effects';
 
-import {Actions, ActionTypes, State} from '../app';
+import {Actions, ActionTypes, State, actionCreators} from '../app';
 import {Rule, navigate} from '../router';
-import {monitorBackendTask, loadContests} from '../Backend';
+import {monitorBackendTask, loadContestList} from '../Backend';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';
 
 export {LandingState} from './types';
 
-export const routes : Rule[] = [
+export const routes : Rule<object>[] = [
   {
     name: "UnauthenticatedUserLanding",
-    test: (state: State, pathname: string) => !state.user || pathname === '/' ? {} : null,
+    test: (state: State, pathname: string) => state.userId === 'unknown' || pathname === '/' ? {} : null,
+    reducer: (state: State, params: object) => state,
     pathname: "/",
     component: UnauthenticatedUserPage,
     saga: unauthenticatedUserSaga,
@@ -22,6 +23,7 @@ export const routes : Rule[] = [
   {
     name: "AuthenticatedUserLanding",
     pattern: "/contests",
+    reducer: (state: State, params: object) => state,
     component: AuthenticatedUserPage,
     saga: authenticatedUserSaga,
   },
@@ -30,13 +32,13 @@ export const routes : Rule[] = [
 export function landingReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.USER_LOGGED_IN: {
-      const {user} = action.payload;
-      return {...state, user};
+      const {userId} = action.payload;
+      return {...state, userId};
     }
     case ActionTypes.USER_LOGGED_OUT: {
       return {...state,
-        user: undefined,
-        contest: undefined, task: undefined, task_resources: undefined
+        userId: 'unknown',
+        contestId: 'unknown',
       };
     }
   }
@@ -44,14 +46,16 @@ export function landingReducer (state: State, action: Actions): State {
 }
 
 function* unauthenticatedUserSaga () : IterableIterator<Effect> {
-  const user = yield select((state : State) => state.user);
-  if (user) {
+  const userId = yield select((state : State) => state.userId);
+  if (userId !== 'unknown') {
     yield call(navigate, "AuthenticatedUserLanding", {}, true);
   }
+  // See wiring/sagas.ts for handling of USER_LOGGED_IN
 }
 
 function* authenticatedUserSaga () : IterableIterator<Effect> {
   yield call(monitorBackendTask, function* () {
-    yield call(loadContests);
+    const contestIds = yield call(loadContestList);
+    yield put(actionCreators.contestListChanged(contestIds));
   });
 }

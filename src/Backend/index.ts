@@ -1,87 +1,113 @@
 
 import {Effect} from 'redux-saga';
-import {fork, call, put, select, cancelled} from 'redux-saga/effects';
+import {fork, call, put, cancelled} from 'redux-saga/effects';
 import {delay} from 'redux-saga';
-import * as moment from 'moment';
 
 import {without} from '../utils';
 import {actionCreators, Actions, ActionTypes, AppToaster, State} from '../app';
-import {Contest, Task, TaskResource, ContestPeriod, Team} from '../types';
 
-export {BackendState} from './types';
+import {IdMap, Entities, EntitiesUpdate, User, Team, TeamMember, Contest, Task, TaskResource, ContestPeriod, Chain} from './types';
+import * as _selectors from './selectors';
+
+export {IdMap, BackendState, EntitiesUpdate} from './types';
 export {default as BackendFeedback} from './Feedback';
+export const selectors = _selectors;
 
 type Saga = IterableIterator<Effect>
 
-const testTasks: Task[] = [
-  {
+const keysOf = (Object.keys as <T>(o: T) => (keyof T)[]);
+
+const testUsers : IdMap<User> = {
+  "1": {
     id: "1",
-    title: "task 1",
-  }
-];
-const testContestPeriod : ContestPeriod = {
-  id: "1",
-  title: "day 1",
-  day_number: 1,
-  chain_election_at: moment('2018-09-05T18:00'),
-  main_chain: {
-    title: "day 1",
-    description: "description",
-    interface: "",
-    implementation: "",
-  }
+    username: "alice",
+    firstname: "Alice",
+    lastname: "Doe"
+  },
+  "2": {
+    id: "2",
+    username: "bob",
+    firstname: "Bob",
+    lastname: "Smith"
+  },
+  "3": {
+    id: "3",
+    username: "Test User",
+    firstname: "Test",
+    lastname: "User",
+  },
 };
-const testContests : Contest[] = [
-  {
+const testContests: IdMap<Contest> = {
+  "1": {
     id: "1",
     title: "Contest name",
     description: "Lorem ipsum blah blah",
     logo_url: "",
     registration_open: true,
-    registration_closes_at: moment('2018-09-05'),
-    starts_at: moment('2018-09-05'),
-    ends_at: moment('2018-09-10'),
-    task: testTasks[0],
-    current_period: testContestPeriod,
+    registration_closes_at: '2018-09-05',
+    starts_at: '2018-09-05',
+    ends_at: '2018-09-10',
+    task_id: '1',
+    current_period_id: '1',
   }
-];
-const testTaskResources: {task_id: string, resources: TaskResource[]}[] = [
-  {
-    task_id: "1",
-    resources: [
-      {title: "Task description", description: "This section describes the task", html: "Task description goes <p>here</p>..."},
-      {title: "Commands", description: "", html: "Commands description goes here…"},
-      {title: "API", description: "", url: "about:blank#2"},
-      {title: "Examples", description: "", url: "about:blank#3"},
-      {title: "OCaml basics", description: "", url: "about:blank#4"},
-    ]
-  }
-];
-const team1 : Team = {
-  id: "1",
-  name: "CodersPlanet",
-  access_code: "ab824XbsI9",
-  is_open: true,
-  is_locked: false,
-  members: [
-    {
-      user: {
-        id: "1",
-        username: "Test User",
-        firstname: "Test",
-        lastname: "User",
-      },
-      is_creator: true,
-      member_since: moment('2018-09-05T08:00'),
-    }
-  ]
 };
-const testTeams = [
-  {contest_id: "1", user_id: "1", team: team1}
-];
+const testTasks: IdMap<Task> = {
+  "1": {
+    id: "1",
+    title: "task 1",
+  }
+};
+const testContestPeriods : IdMap<ContestPeriod> = {
+  "1": {
+    id: "1",
+    title: "day 1",
+    day_number: 1,
+    chain_election_at: '2018-09-05T18:00',
+    main_chain_id: "1",
+  }
+};
+const testChains : IdMap<Chain> = {
+  "1": {
+    id: "1",
+    title: "day 1",
+    description: "description",
+    interface: "",
+    implementation: "",
+    current_game_key: "",
+  }
+};
+
+const testTaskResources: IdMap<TaskResource> = {
+  "1": {id: "1", task_id: "1", rank: 1, title: "Task description", description: "This section describes the task", url: null, html: "Task description goes <p>here</p>..."},
+  "2": {id: "2", task_id: "1", rank: 2, title: "Commands", description: "", url: null, html: "Commands description goes here…"},
+  "3": {id: "3", task_id: "1", rank: 3, title: "API", description: "", url: "about:blank#2", html: null},
+  "4": {id: "4", task_id: "1", rank: 4, title: "Examples", description: "", url: "about:blank#3", html: null},
+  "5": {id: "5", task_id: "1", rank: 5, title: "OCaml basics", description: "", url: "about:blank#4", html: null},
+};
+const testTeams : IdMap<Team> = {
+  "1": {
+    id: "1",
+    created_at: "2018-09-01",
+    access_code: "ab824XbsI9",
+    contest_id: "1",
+    is_open: true,
+    is_locked: false,
+    name: "CodersPlanet",
+    public_key: "sCnGFS3n7TX9Y9dZ2ZQ63/rLtB02iEGlySRDSg/DgcM=.ed25519",
+  }
+};
+const testTeamMembers : IdMap<TeamMember> = {
+  "1 1": {
+    team_id: "1",
+    user_id: "1",
+    is_creator: true,
+    joined_at: '2018-09-05T08:00',
+  }
+};
 
 export function backendReducer (state: State, action: Actions): State {
   switch (action.type) {
+
     case ActionTypes.BACKEND_TASKS_CLEARED: {
       return {...state, backend: {tasks: [], lastError: undefined}};
     }
@@ -105,41 +131,35 @@ export function backendReducer (state: State, action: Actions): State {
       return {...state, backend: {...backend, tasks}};
     }
 
-    case ActionTypes.CONTEST_LIST_LOADED: {
-      const {contests} = action.payload;
-      return {...state, contests};
+    case ActionTypes.BACKEND_ENTITIES_LOADED: {
+      const entities = updateEntities(state.entities, action.payload.entities);
+      return {...state, entities};
     }
-    case ActionTypes.CONTEST_LOADED: {
-      const {contest} = action.payload;
-      /* Clear task and task_resources if the task changes. */
-      let task = state.task;
-      let task_resources = state.task_resources;
-      if (task && task.id !== contest.task.id) {
-        task = contest.task;
-        task_resources = undefined;
-      }
-      return {...state, contest, task, task_resources, team: 'unknown'};
+
+    case ActionTypes.CONTEST_LIST_CHANGED: {
+      const {contestIds} = action.payload;
+      return {...state, contestIds};
     }
-    case ActionTypes.TASK_LOADED: {
-      let {task} = action.payload;
-      /* Clear task_resources if the task changes. */
-      let task_resources = state.task_resources;
-      if (state.task && task.id !== state.task.id) {
-        task_resources = undefined;
-      }
-      return {...state, task, task_resources};
+    case ActionTypes.CONTEST_CHANGED: {
+      const {contestId} = action.payload;
+      // Teams are per-contest? so when the contest changes, forget the current team.
+      return {...state, contestId, teamId: 'unknown'};
     }
-    case ActionTypes.TASK_RESOURCES_LOADED: {
-      const {resources} = action.payload;
-      return {...state, task_resources: resources};
-    }
-    case ActionTypes.TEAM_LOADED: {
-      let {team} = action.payload;
-      return {...state, team};
+    case ActionTypes.TEAM_CHANGED: {
+      let {teamId} = action.payload;
+      return {...state, teamId};
     }
 
   }
   return state;
+}
+
+function updateEntities (entities: Entities, update: EntitiesUpdate): Entities {
+  const result: Entities = {...entities};
+  for (let key of keysOf(update)) {
+    result[key] = Object.assign({}, entities[key], update[key]);
+  }
+  return result;
 }
 
 export function* monitorBackendTask (saga: any): Saga {
@@ -160,70 +180,46 @@ export function* monitorBackendTask (saga: any): Saga {
   });
 }
 
-export function* loadContests (): Saga {
-  let contests: Contest[] = yield select((state: State) => state.contests);
-  if (!contests) {
-    yield call(delay, 500);
-    contests = testContests;
-    yield put(actionCreators.contestListLoaded(contests));
-  }
-  return contests;
+export function* loadUser (id: string): Saga {
+  yield call(delay, 500);
+  yield put(actionCreators.backendEntitiesLoaded({
+    users: testUsers
+  }));
 }
 
-export function* loadContest (contestId: string) : Saga {
-  let contest: Contest | undefined = yield select((state: State) => state.contest);
-  if (!contest || contest.id !== contestId) {
-    const contests: Contest[] | undefined = yield select((state: State) => state.contests);
-    if (contests) {
-      contest = contests.find(contest => contest.id === contestId);
-    }
-    if (!contest) {
-      yield call(delay, 500);
-      contest = testContests.find(contest => contest.id === contestId);
-    }
-    if (!contest) throw new Error("contest failed to load");
-    // TODO
-    yield put(actionCreators.contestLoaded(contest));
-  }
-  return contest;
+export function* loadContestList (): Saga {
+  yield call(delay, 500);
+  yield put(actionCreators.backendEntitiesLoaded({
+    contests: testContests,
+    contestPeriods: testContestPeriods,
+    tasks: testTasks,
+    taskResources: testTaskResources,
+    chains: testChains,
+  }));
+  return ["1"];
 }
 
-export function* loadTask (taskId: string) : Saga {
-  let task: Task | undefined = yield select((state: State) => state.task);
-  if (!task || task.id !== taskId) {
-    yield call(delay, 500);
-    task = testTasks.find(task => task.id === taskId);
-    if (!task) throw new Error("task failed to load");
-    yield put(actionCreators.taskLoaded(task));
-  }
-  return task;
-}
-
-export function* loadTaskResources () : Saga {
-  let taskResources: TaskResource[] | undefined = yield select((state: State) => state.task_resources);
-  if (!taskResources) {
-    const taskId: string = yield select((state: State) => {
-      if (state.contest) return state.contest.task.id;
-      if (state.task) return state.task.id;
-      throw new Error("cannot determine what task resources to load");
-    });
-    yield call(delay, 500);
-    const item = testTaskResources.find(item => item.task_id === taskId);
-    if (!item) throw new Error("task resources failed to load");
-    yield put(actionCreators.taskResourcesLoaded(item.resources));
-  }
-  return taskResources;
+export function* loadContest (id: string) : Saga {
+  yield call(delay, 500);
+  yield put(actionCreators.backendEntitiesLoaded({
+    contests: testContests,
+    tasks: testTasks,
+    taskResources: testTaskResources,
+    contestPeriods: testContestPeriods,
+    chains: testChains,
+  }));
 }
 
 export function* loadTeam (userId: string, contestId: string) : Saga {
-  let team: Team | 'unknown' | undefined = yield select((state: State) => state.team);
-  if (team === 'unknown') {
-    yield call(delay, 500);
-    const item = testTeams.find(item => item.user_id === userId && item.contest_id === contestId);
-    if (!item) throw new Error("team failed to load");
-    team = item.team;
-    yield put(actionCreators.teamLoaded(team));
-  }
-  return team;
+  yield call(delay, 500);
+  yield put(actionCreators.backendEntitiesLoaded({
+    contests: testContests,
+    tasks: testTasks,
+    taskResources: testTaskResources,
+    contestPeriods: testContestPeriods,
+    chains: testChains,
+    teams: testTeams,
+    teamMembers: testTeamMembers,
+  }));
+  return "1";
 }
-

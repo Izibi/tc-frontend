@@ -3,32 +3,40 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import {Button, Switch, Icon} from "@blueprintjs/core";
 
-import {DispatchProp, actionCreators} from '../app';
+import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
 import {Contest, Team, User} from '../types';
-import {Json} from '../components';
+import {Spinner, Json} from '../components';
+import {selectors} from '../Backend';
 //import {Link} from '../router';
 
-import {TeamState, TeamManagementParams} from './types';
+import {TeamManagementParams} from './types';
 
 type StoreProps = {
-  user: User,
-  contest: Contest,
-  team: Team | undefined | 'unknown',
+  loaded: boolean,
+  user?: User,
+  contest?: Contest,
+  team?: Team,
 }
 
 type Props = TeamManagementParams & StoreProps & DispatchProp
 
-function mapStateToProps (state: TeamState, props: TeamManagementParams): StoreProps {
-  const {user, contest, team} = state;
-  if (!user || !contest) throw new Error('bad state');
-  return {user, contest, team};
+function mapStateToProps (state: State, props: TeamManagementParams): StoreProps {
+  try {
+    const {userId, contestId, teamId} = state;
+    const user = selectors.getUser(state, userId);
+    const contest = selectors.getContest(state, contestId);
+    const team = selectors.getTeam(state, teamId);
+    return {loaded: true, user, contest, team};
+  } catch (ex) {
+    return {loaded: false};
+  }
 }
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
-    const {user, contest, team} = this.props;
-    const contestInfos =
+    const {loaded, user, contest, team} = this.props;
+    const contestInfos = contest &&
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
         <p>
@@ -38,11 +46,15 @@ class TeamManagementPage extends React.PureComponent<Props> {
           {contest.registration_closes_at.format('LT')}
         </p>
       </div>;
+    console.log(team);
     return (
       <div>
         <ContestHeader/>
         <div className="pageContent teamManagement">
-          {team === undefined && <div>
+
+          {!loaded && <Spinner/>}
+
+          {loaded && team === undefined && <div>
             <div style={{fontSize: "18px", marginBottom: "1em"}}>
               {"Get started in a team!"}
             </div>
@@ -63,7 +75,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
             </div>
           </div>}
 
-          {typeof team === 'object' &&
+          {loaded && typeof team === 'object' &&
             <div className="hasTeam">
               {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>

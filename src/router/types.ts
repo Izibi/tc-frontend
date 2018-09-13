@@ -3,11 +3,11 @@ import {State} from '../app';
 
 export type Component = React.StatelessComponent<any> | React.ComponentClass<any>;
 
-export type Rule = (StatefulRule | PatternRule) & RuleTarge
+export type Rule<T extends object> = (StatefulRule<T> | PatternRule) & RuleTarget<T>
 
-export type StatefulRule = {
+export type StatefulRule<T extends object> = {
   name: string,
-  test: (state: State, pathname: string) => object | null,
+  test: (state: State, pathname: string) => T | null,
   pathname: string,
 }
 
@@ -16,15 +16,16 @@ export type PatternRule = {
   pattern: string,
 }
 
-export type RuleTarge = {
+export type RuleTarget<T extends object> = {
   component: Component,
+  reducer: (state: State, params: T) => State,
   saga?: any,
 }
 
-export type Route = {
-  rule: Rule,
+export type Route<T extends object> = {
+  rule: Rule<T>,
   pathname: string,
-  params: object,
+  params: T,
 }
 
 export type LinkProps = {
@@ -40,5 +41,5 @@ export type LinkProps = {
 
 export type RouterState = {
   path: string,
-  route: Route | undefined,
+  route: Route<object> | undefined,
 };

@@ -1,9 +1,7 @@
 
-import {User, Contest, ContestPeriod, Chain} from '../types';
+import {BackendState} from '../Backend';
 
-export type ContestState = {
-  user: User | undefined,
-  contest: Contest | undefined,
-  contestPeriod: ContestPeriod | undefined,
-  mainChain: Chain | undefined,
+export type ContestState = BackendState & {
+  user_id: string | undefined,
+  contest_id: string | undefined,
 }

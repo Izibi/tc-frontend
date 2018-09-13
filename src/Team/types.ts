@@ -1,10 +1,8 @@
 
-import {Contest, Team, User}  from '../types';
-
 export type TeamState = {
-  user: User | undefined,
-  team: Team | undefined | 'unknown',
-  contest: Contest | undefined,
+  userId: string,
+  teamId: string,
+  contestId: string,
 }
 
 export type TeamManagementParams = {

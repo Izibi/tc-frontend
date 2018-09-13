@@ -25,7 +25,7 @@ export type Team = {
 export type TeamMember = {
   user: User,
   is_creator: boolean,
-  member_since: Moment,
+  joined_at: Moment,
 }
 
 export type Contest = {
@@ -47,9 +47,13 @@ export type Task = {
 }
 
 export type TaskResource = {
+  id: string,
+  rank: number,
   title: string,
   description: string,
-} & ({url: string} | {html: string})
+  url: string | undefined,
+  html: string | undefined,
+}
 
 export type ContestPeriod = {
   id: string,
@@ -64,6 +68,7 @@ export type Chain = {
   description: string,
   interface: string,
   implementation: string,
+  current_game_key: string,
 }
 
 export type Game = {

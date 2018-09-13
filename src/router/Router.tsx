@@ -6,7 +6,7 @@ import {Route, RouterState} from './types';
 
 type RouterProps = {
   path: string,
-  route: Route | undefined
+  route: Route<object> | undefined
 };
 
 function BareRouter (props: RouterProps) {

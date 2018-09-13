@@ -3,41 +3,47 @@ import * as React from 'react';
 import {Button} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
-import {actionCreators, DispatchProp} from '../app';
+import {actionCreators, DispatchProp, State} from '../app';
 import {Link} from '../router';
-import {User, Contest, ContestPeriod} from '../types';
-
-import {ContestState} from './types';
+import {User, Contest} from '../types';
+import {selectors} from '../Backend';
 
 type OuterProps = {}
 
 type StoreProps = {
-  user: User | undefined,
-  contest: Contest | undefined,
-  contestPeriod: ContestPeriod | undefined,
+  loaded: boolean,
+  contestId: string,
+  taskResourceIndex: number,
+  user?: User,
+  contest?: Contest,
 }
 
 type Props = OuterProps & StoreProps & DispatchProp
 
-function mapStateToProps (state: ContestState, _props: OuterProps): StoreProps {
-  const {user, contest, contestPeriod} = state;
-  return {user, contest, contestPeriod};
+function mapStateToProps (state: State, _props: OuterProps): StoreProps {
+  const {userId, contestId, taskResourceIndex} = state;
+  try {
+    const user = selectors.getUser(state, userId);
+    const contest = selectors.getContest(state, contestId);
+    return {loaded: true, contestId, taskResourceIndex, user, contest};
+  } catch (ex) {
+    return {loaded: false, contestId, taskResourceIndex};
+  }
 }
 
 class Header extends React.PureComponent<Props> {
   render() {
-    const {user, contest, contestPeriod} = this.props;
-    if (!contest) return false;
+    const {contestId, taskResourceIndex, user, contest} = this.props;
     return (
       <div>
         <div className="platformHeader">
           <div className="contestHead">
             <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
-            <div className="contestTitle">{contest.title}</div>
+            {contest && <div className="contestTitle">{contest.title}</div>}
           </div>
           <div className="chainHead">
-            {contestPeriod &&
-              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contestPeriod.day_number}</span></div>}
+            {contest &&
+              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contest.current_period.day_number}</span></div>}
             <div className="chainStatus">
               <div className="day"></div>
               <div className="rounds"></div>
@@ -48,8 +54,8 @@ class Header extends React.PureComponent<Props> {
         </div>
         <div className="mainMenu">
            <ul>
-             <li><Link to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}} text="Task" /></li>
-             <li><Link to="TeamManagement" params={{contestId: contest.id}} text="Team" /></li>
+             <li><Link to="TaskResources" params={{contestId: contestId, resourceIndex: taskResourceIndex}} text="Task" /></li>
+             <li><Link to="TeamManagement" params={{contestId: contestId}} text="Team" /></li>
              <li>{"Chains"}</li>
              <li>{"Forum"}</li>
              <li>{"Scoreboard"}</li>

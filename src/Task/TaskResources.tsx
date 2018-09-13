@@ -2,40 +2,44 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {DispatchProp} from '../app';
+import {State, DispatchProp} from '../app';
 import {TaskResource} from '../types';
 import {Header as ContestHeader} from '../Contest';
 import {Link} from '../router';
-
-import {TaskState, TaskResourcesParams} from './types';
+import {selectors} from '../Backend';
 
 type StoreProps = {
-  resources: TaskResource[] | undefined,
-  currentResource: TaskResource | undefined,
+  loaded: boolean,
+  contestId?: string,
+  resources?: TaskResource[],
+  currentResource?: TaskResource,
 }
 
-type Props = TaskResourcesParams & StoreProps & DispatchProp
+type Props = StoreProps & DispatchProp
 
-function mapStateToProps (state: TaskState, props: TaskResourcesParams): StoreProps {
-  const {task_resources} = state;
-  const {resourceIndex} = props;
-  let currentResource: TaskResource | undefined;
-  if (task_resources) {
-    currentResource = task_resources[parseInt(resourceIndex)];
+function mapStateToProps (state: State): StoreProps {
+  try {
+    const {contestId, taskResourceIndex} = state;
+    const contest = selectors.getContest(state, state.contestId);
+    const resources = selectors.getTaskResources(state, contest.task.id);
+    let currentResource: TaskResource | undefined;
+    currentResource = resources[taskResourceIndex];
+    return {loaded: true, contestId, resources, currentResource};
+  } catch (ex) {
+    return {loaded: false};
   }
-  return {resources: task_resources, currentResource};
 }
 
 class TaskResourcesPage extends React.PureComponent<Props> {
   render () {
-    const {contestId} = this.props;
-    const {resources, currentResource} = this.props;
     let resourceOptions : JSX.Element[] | undefined;
-    if (resources) {
+    const {loaded, contestId, resources, currentResource} = this.props;
+    if (loaded && contestId && resources) {
       resourceOptions = resources.map((resource, index) =>
         <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
       resourceOptions.reverse(); // Shoot your graphist.
     }
+    console.log('currentResource', currentResource);
     return (
       <div>
         <ContestHeader/>
@@ -44,8 +48,8 @@ class TaskResourcesPage extends React.PureComponent<Props> {
             {resourceOptions}
           </div>
           <div className="pageContent">
-            {currentResource && 'url' in currentResource && <iframe src={currentResource.url} />}
-            {currentResource && 'html' in currentResource && <iframe srcDoc={currentResource.html}/>}
+            {currentResource && currentResource.url !== undefined && <iframe src={currentResource.url} />}
+            {currentResource && currentResource.html !== undefined && <iframe srcDoc={currentResource.html}/>}
           </div>
         </div>
       </div>

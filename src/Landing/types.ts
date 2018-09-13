@@ -1,7 +1,7 @@
 
-import {User, Contest} from '../types';
+import {BackendState} from '../Backend';
 
-export type LandingState = {
-  user: User | undefined,
-  contests: Contest[] | undefined,
+export type LandingState = BackendState & {
+  userId: string,
+  contestIds: string[] | undefined,
 }

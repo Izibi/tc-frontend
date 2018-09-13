@@ -11,15 +11,15 @@ export const BACKEND_TASK_DONE = "[backend] task done";
 export const BACKEND_TASK_FAILED = "[backend] task failed";
 export const BACKEND_TASK_STARTED = "[backend] task started";
 export const BACKEND_TASKS_CLEARED = "[backend] tasks cleared";
+export const BACKEND_ENTITIES_LOADED = "[backend] entities loaded";
 
 export const USER_LOGGED_OUT = "[login] user logged out";
 export const USER_LOGGED_IN = "[login] user logged in";
 
-export const CONTEST_LIST_LOADED = "[model] contest list loaded";
-export const CONTEST_LOADED = "[model] contest loaded";
-export const TASK_RESOURCES_LOADED = "[model] task resources loaded";
-export const TASK_LOADED = "[model] task loaded";
-export const TEAM_LOADED = "[model] team loaded";
+export const CONTEST_LIST_CHANGED = "[model] contest list changed";
+export const CONTEST_CHANGED = "[model] contest changed";
+export const TEAM_CHANGED = "[model] team changed";
+export const CHAIN_CHANGED = "[model] chain changed";
 
 export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
 export const LEAVE_TEAM = "[team] leave";
