@@ -10,12 +10,20 @@
     margin-top: 2em;
   }
   .hasTeam {
-    flex-wrap: wrap;
+    .flexRow{
+      flex-wrap: wrap;
+      margin-top: 2em;
+    }
 
     .teamSection {
       display: flex;
       flex-direction: column;
       align-items: center;
+
+
+      & > div {
+        padding: 0 50px;
+      }
 
       &.members {
         flex: 3 0 0;
@@ -26,11 +34,16 @@
           text-transform: uppercase;
           color: $lightTextColor;
         }
+        th, td {
+          padding-right: 55px;
+        }
+        th:last-child, td:last-child {
+          padding-right: 0;
+        }
       }
       &.code {
         flex: 2 0 0;
         border-right: 1px solid #ebebeb;
-        white-space: pre-line;
 
         .teamCodeFrame {
             text-align: center;
@@ -38,7 +51,6 @@
             padding: 2em 30px;
             border: 1px solid #2ab7ca;
             border-radius: 11px;
-            display: inline-block;
 
           .teamCode {
             font-size: 30px;
@@ -77,6 +89,10 @@
           }
         }
       }
+    }
+
+    .teamStatus {
+      margin-top: 2em;
     }
   }
   .notInTeam {
