@@ -59,7 +59,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
 
           {!loaded && <Spinner/>}
 
-          {loaded && team === undefined && <div>
+          {loaded && !team && <div>
             <div style={{fontSize: "18px", marginBottom: "1em"}}>
               {"Get started in a team!"}
             </div>
@@ -80,7 +80,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
             </div>
           </div>}
 
-          {loaded && typeof team === 'object' &&
+          {loaded && team &&
             <div className="hasTeam">
               {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>
