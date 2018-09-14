@@ -167,7 +167,7 @@ const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
       <td>{firstname}{" "}{lastname}</td>
       <td>{isCreator &&
         <span>{"Creator"}</span>}</td>
-      <td>{joinedAt.format('DD-MM-YYYY, hh:mm a')}</td>
+      <td>{joinedAt.format('YYYY-MM-DD, hh:mm a')}</td>
     </tr>
   );
 };
