@@ -117,11 +117,26 @@
     margin: 0;
     padding: 0;
     li {
-      text-transform: uppercase;
       display: inline-block;
+
+      a {
+      text-transform: uppercase;
       margin-right: 50px;
-      padding-bottom: 0.5em;
-      border-bottom: 5px solid $themeColorLight;
+      padding-bottom: 13px;
+      display: block;
+      position: relative;
+
+        &::after {
+          content: " ";
+          height: 5px;
+          background-color: #2ab7ca;
+          width: 100%;
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          border-radius: 10px / 7px;
+        }
+      }
     }
   }
 }
