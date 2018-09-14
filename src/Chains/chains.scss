@@ -1,0 +1,22 @@
+.chainFilters {
+  .flexRow {
+    justify-content: space-between;
+  }
+  .chainStatus button {
+    font-size: 12px;
+    line-height: 22px;
+    color: $accentTextColor;
+    padding: 0 10px;
+    min-height: auto;
+    margin-right: 4px;
+    background: $secondaryBgColor;
+    border: none;
+    border-radius: 1.75em;
+    box-shadow: none;
+
+    &.active {
+      color: $lighterTextColor;
+      background: $themeColorLight;
+    }
+  }
+}
