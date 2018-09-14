@@ -38,7 +38,7 @@ export function getTaskResources(state: State, taskId: string): TaskResource[] {
       } else {
         throw new Error('malformed task resource');
       }
-      results[item.rank] = resource;
+      results.push(resource);
     }
   }
   return results;
