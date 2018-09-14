@@ -48,13 +48,10 @@ class TeamManagementPage extends React.PureComponent<Props> {
           {contest.registration_closes_at.format('LT')}
         </p>
       </div>;
-    if (team && team.members) {
+    if (team) {
       teamMembers = team.members.map((member, index) =>
-          <TeamMembers key={index}
-          username={member.user.username} firstname={member.user.firstname} lastname={member.user.lastname}
-          joinedat={member.joined_at} is_creator={member.is_creator} />);
+        <TeamMember key={index} user={member.user} joinedAt={member.joined_at} isCreator={member.is_creator} />);
     }
-    console.log(team);
     return (
       <div>
         <ContestHeader/>
@@ -157,22 +154,20 @@ class TeamManagementPage extends React.PureComponent<Props> {
 }
 
 type TeamMembersProps = {
-  username: string,
-  firstname: string,
-  lastname: string,
-  joinedat: Moment,
-  is_creator: boolean,
+  user: User,
+  joinedAt: Moment,
+  isCreator: boolean,
 }
 
-const TeamMembers : React.StatelessComponent<TeamMembersProps> = (props) => {
-  const {username, firstname, lastname, joinedat, is_creator} = props;
+const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
+  const {user: {username, firstname, lastname}, joinedAt, isCreator} = props;
   return (
     <tr>
       <td>{username}</td>
       <td>{firstname}{" "}{lastname}</td>
-      <td>{is_creator &&
+      <td>{isCreator &&
         <span>{"Creator"}</span>}</td>
-      <td>{joinedat.format('DD-MM-YYYY, hh:mm a')}</td>
+      <td>{joinedAt.format('DD-MM-YYYY, hh:mm a')}</td>
     </tr>
   );
 };
