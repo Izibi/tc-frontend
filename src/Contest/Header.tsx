@@ -56,7 +56,7 @@ class Header extends React.PureComponent<Props> {
            <ul>
              <li><Link to="TaskResources" params={{contestId: contestId, resourceIndex: taskResourceIndex}} text="Task" /></li>
              <li><Link to="TeamManagement" params={{contestId: contestId}} text="Team" /></li>
-             <li>{"Chains"}</li>
+             <li><Link to="ChainsPage" params={{contestId: contestId}} text="Chains" /></li>
              <li>{"Forum"}</li>
              <li>{"Scoreboard"}</li>
            </ul>

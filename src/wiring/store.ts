@@ -8,6 +8,7 @@ import {contestReducer} from '../Contest';
 import {landingReducer} from '../Landing';
 import {teamReducer} from '../Team';
 import {taskReducer} from '../Task';
+import {chainsReducer} from '../Chains';
 
 export type State =
   ErrorsState &
@@ -19,6 +20,7 @@ export type State =
     contestId: string /* id of current contest or 'unknown' */,
     teamId: string /* id of user's team or 'unknown' */,
     taskResourceIndex: number /* index of resource selected in task tab */,
+    chainIds: string[] /* list of chains to display */,
   }
 
 export const initialState : State = {
@@ -47,6 +49,7 @@ export const initialState : State = {
   contestId: 'unknown',
   teamId: 'unknown',
   taskResourceIndex: 0,
+  chainIds: [],
 
 };
 
@@ -60,6 +63,7 @@ export function reducer (state: State | undefined, action: Actions) : State {
     newState = landingReducer(newState, action);
     newState = teamReducer(newState, action);
     newState = taskReducer(newState, action);
+    newState = chainsReducer(newState, action);
     return newState;
   } catch (ex) {
     return {...newState,
