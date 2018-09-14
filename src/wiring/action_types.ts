@@ -19,7 +19,7 @@ export const USER_LOGGED_IN = "[login] user logged in";
 export const CONTEST_LIST_CHANGED = "[model] contest list changed";
 export const CONTEST_CHANGED = "[model] contest changed";
 export const TEAM_CHANGED = "[model] team changed";
-export const CHAIN_CHANGED = "[model] chain changed";
+export const CHAIN_LIST_CHANGED = "[model] chain list changed";
 
 export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
 export const LEAVE_TEAM = "[team] leave";

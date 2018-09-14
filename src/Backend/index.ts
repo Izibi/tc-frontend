@@ -149,6 +149,10 @@ export function backendReducer (state: State, action: Actions): State {
       let {teamId} = action.payload;
       return {...state, teamId};
     }
+    case ActionTypes.CHAIN_LIST_CHANGED: {
+      let {chainIds} = action.payload;
+      return {...state, chainIds};
+    }
 
   }
   return state;
@@ -222,4 +226,16 @@ export function* loadTeam (userId: string, contestId: string) : Saga {
     teamMembers: testTeamMembers,
   }));
   return "1";
+}
+
+export function* loadContestChains (contestId: string, filters: object) : Saga {
+  yield call(delay, 500);
+  yield put(actionCreators.backendEntitiesLoaded({
+    contests: testContests,
+    tasks: testTasks,
+    taskResources: testTaskResources,
+    contestPeriods: testContestPeriods,
+    chains: testChains,
+  }));
+  return ["1"];
 }

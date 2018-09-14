@@ -39,6 +39,7 @@ export const actionCreators = {
   contestListChanged: (contestIds: string[]) => createAction(ActionTypes.CONTEST_LIST_CHANGED, {contestIds}),
   contestChanged: (contestId: string) => createAction(ActionTypes.CONTEST_CHANGED, {contestId}),
   teamChanged: (teamId: string) => createAction(ActionTypes.TEAM_CHANGED, {teamId}),
+  chainListChanged: (chainIds: string[]) => createAction(ActionTypes.CHAIN_LIST_CHANGED, {chainIds}),
 
   changeTeamAccessCode: () => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {}),
   leaveTeam: () => createAction(ActionTypes.LEAVE_TEAM, {}),

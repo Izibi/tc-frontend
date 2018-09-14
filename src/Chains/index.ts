@@ -1,11 +1,11 @@
 
 import {Effect} from 'redux-saga';
-import {call} from 'redux-saga/effects';
+import {call, put} from 'redux-saga/effects';
 
-import {Actions, State} from '../app';
+import {Actions, actionCreators, State} from '../app';
 
 import {Rule} from '../router';
-import {monitorBackendTask, loadContest} from '../Backend';
+import {monitorBackendTask, loadContest, loadContestChains} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -26,6 +26,7 @@ export function chainsReducer (state: State, action: Actions): State {
 function* chainsPageSaga (params: {contestId: string}) : IterableIterator<Effect> {
   yield call(monitorBackendTask, function* () {
     yield call(loadContest, params.contestId);
-    // TODO: load chains
+    const chainIds = yield call(loadContestChains, params.contestId, {/* filters go here */});
+    yield put(actionCreators.chainListChanged(chainIds));
   });
 }
