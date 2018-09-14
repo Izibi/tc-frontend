@@ -12,9 +12,8 @@ import ChainsPage from './ChainsPage';
 export const routes : Rule<any>[] = [
   {
     name: "ChainsPage",
-    test: (state: State, pathname: string) => state.userId === 'unknown' || pathname === '/' ? {} : null,
+    pattern: "/contests/:contestId/chains",
     reducer: (state: State, params: {contestId: string}) => ({...state, contestId: params.contestId}),
-    pathname: "/contest/:contestId/chains",
     component: ChainsPage,
     saga: chainsPageSaga,
   }
