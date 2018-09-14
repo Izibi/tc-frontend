@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 import {State, DispatchProp} from '../app';
 import {Header as ContestHeader} from '../Contest';
 import {Chain} from '../types';
-import {Spinner} from '../components';
+import {Json, Spinner} from '../components';
 import {selectors} from '../Backend';
 
 type StoreProps = {
@@ -34,12 +34,24 @@ class ChainsPage extends React.PureComponent<Props> {
         <div className="pageContent chainsPage">
           <p>{"Everything goes here"}</p>
           {!loaded && <Spinner/>}
-          {chains &&
-            <p>{chains.length}</p>}
+          {chains && chains.map(chain =>
+            <ChainItem chain={chain} />)}
         </div>
       </div>
     );
   }
 }
+
+type ChainItemProps = {
+  chain: Chain
+}
+
+class ChainItem extends React.PureComponent<ChainItemProps> {
+  render () {
+    const {chain} = this.props;
+    return <Json value={chain} />;
+  }
+}
+
 
 export default connect(mapStateToProps)(ChainsPage);
