@@ -2,6 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Button, Switch, Icon} from "@blueprintjs/core";
+import {Moment} from 'moment';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
@@ -35,6 +36,7 @@ function mapStateToProps (state: State, props: TeamManagementParams): StoreProps
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
+    let teamMembers : JSX.Element[] | undefined;
     const {loaded, user, contest, team} = this.props;
     const contestInfos = contest &&
       <div>
@@ -46,6 +48,12 @@ class TeamManagementPage extends React.PureComponent<Props> {
           {contest.registration_closes_at.format('LT')}
         </p>
       </div>;
+    if (team && team.members) {
+      teamMembers = team.members.map((member, index) =>
+          <TeamMembers key={index}
+          username={member.user.username} firstname={member.user.firstname} lastname={member.user.lastname}
+          joinedat={member.joined_at} is_creator={member.is_creator} />);
+    }
     console.log(team);
     return (
       <div>
@@ -94,13 +102,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                        </tr>
+                        {teamMembers}
                       </tbody>
                     </table>
                   </div>
@@ -153,5 +155,26 @@ class TeamManagementPage extends React.PureComponent<Props> {
     }
   };
 }
+
+type TeamMembersProps = {
+  username: string,
+  firstname: string,
+  lastname: string,
+  joinedat: Moment,
+  is_creator: boolean,
+}
+
+const TeamMembers : React.StatelessComponent<TeamMembersProps> = (props) => {
+  const {username, firstname, lastname, joinedat, is_creator} = props;
+  return (
+    <tr>
+      <td>{username}</td>
+      <td>{firstname}{" "}{lastname}</td>
+      <td>{is_creator &&
+        <span>{"Creator"}</span>}</td>
+      <td>{joinedat.format('DD-MM-YYYY, hh:mm a')}</td>
+    </tr>
+  );
+};
 
 export default connect(mapStateToProps)(TeamManagementPage);
