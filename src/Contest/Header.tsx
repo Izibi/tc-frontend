@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 
 import {actionCreators, DispatchProp, State} from "../app";
 import {Link} from "../router";
-import {User, Contest} from "../types";
+import {Entity, User, Contest} from "../types";
 import {selectors} from "../Backend";
 
 type OuterProps = {}
@@ -14,8 +14,8 @@ type StoreProps = {
   loaded: boolean,
   contestId: string,
   taskResourceIndex: number,
-  user?: User,
-  contest?: Contest,
+  user: Entity<User>,
+  contest: Entity<Contest>,
   here: string,
 }
 
@@ -24,13 +24,9 @@ type Props = OuterProps & StoreProps & DispatchProp
 function mapStateToProps (state: State, _props: OuterProps): StoreProps {
   const {userId, contestId, taskResourceIndex, route} = state;
   const here = route ? route.rule.name : '';
-  try {
-    const user = selectors.getUser(state, userId);
-    const contest = selectors.getContest(state, contestId);
-    return {loaded: true, contestId, taskResourceIndex, user, contest, here};
-  } catch (ex) {
-    return {loaded: false, contestId, taskResourceIndex, here};
-  }
+  const user = selectors.getUser(state, userId);
+  const contest = selectors.getContest(state, contestId);
+  return {loaded: true, contestId, taskResourceIndex, user, contest, here};
 }
 
 class Header extends React.PureComponent<Props> {
@@ -41,17 +37,17 @@ class Header extends React.PureComponent<Props> {
         <div className="platformHeader">
           <div className="contestHead">
             <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
-            {contest && <div className="contestTitle">{contest.title}</div>}
+            {'value' in contest && <div className="contestTitle">{contest.value.title}</div>}
           </div>
           <div className="chainHead">
-            {contest &&
-              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contest.current_period.day_number}</span></div>}
+            {'value' in contest && 'value' in contest.value.current_period &&
+              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contest.value.current_period.value.day_number}</span></div>}
             <div className="chainStatus">
               <div className="day"></div>
               <div className="rounds"></div>
             </div>
-            {user &&
-               <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon="log-out" />}
+            {'value' in user &&
+               <Button text={`Hello, ${user.value.firstname} ${user.value.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon="log-out" />}
           </div>
         </div>
         <div className="mainMenu">

@@ -1,6 +1,23 @@
 
 import {Moment} from 'moment';
 
+export enum EntityState {
+  Null,
+  Thunk,
+  Loading,
+  Loaded,
+  Reloading,
+  Error
+}
+
+export type Entity<T> =
+  {state: EntityState.Null} |
+  {state: EntityState.Thunk, id: string} |
+  {state: EntityState.Loading, id: string} |
+  {state: EntityState.Loaded, id: string, value: T} |
+  {state: EntityState.Reloading, id: string, value: T} |
+  {state: EntityState.Error, id: string}
+
 export type AnyAction = {
   type: string,
   payload: object,
@@ -23,7 +40,7 @@ export type Team = {
 }
 
 export type TeamMember = {
-  user: User,
+  user: Entity<User>,
   is_creator: boolean,
   joined_at: Moment,
 }
@@ -37,13 +54,14 @@ export type Contest = {
   registration_closes_at: Moment,
   starts_at: Moment,
   ends_at: Moment,
-  task: Task,
-  current_period: ContestPeriod,
+  task: Entity<Task>,
+  current_period: Entity<ContestPeriod>,
 }
 
 export type Task = {
   id: string,
   title: string,
+  resources: Entity<TaskResource>[],
 }
 
 export type TaskResource = {
@@ -60,26 +78,40 @@ export type ContestPeriod = {
   title: string,
   day_number: number,
   chain_election_at: Moment,
-  main_chain: Chain,
+  main_chain: Entity<Chain>,
 }
 
 export type Chain = {
+  id: string,
+  contest: Entity<Contest>,
+  team: Entity<Team>,
+  parent: Entity<Chain>,
+  created_at: Moment,
+  updated_at: Moment,
+  status: "private" | "public" | "candidate" | "main" | "past" | "invalid",
+  nb_votes_reject: number,
+  nb_votes_unknown: number,
+  nb_votes_approve: number,
   title: string,
+  protocol_hash: string,
+  new_protocol: Entity<Protocol>,
+  current_game: Entity<Game>,
+  current_block_hash: string,
+  current_round: number,
+}
+
+export type Protocol = {
   description: string,
   interface: string,
   implementation: string,
-  current_game_key: string,
+  hash: string | undefined,
+  /* errors? */
 }
 
 export type Game = {
   key: string,
   starts_at: Moment,
-  started_at: Moment | null,
-  owner_team: Team | null,
+  started_at: Moment | undefined,
+  owner_team: Entity<Team>,
   protocol_hash: string,
-}
-
-export type Protocol = {
-  parent_hash: null | string,
-  hash: null | string,
 }

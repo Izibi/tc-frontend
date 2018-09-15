@@ -1,7 +1,7 @@
 
 import {State} from '../app';
 
-export type Component = React.StatelessComponent<any> | React.ComponentClass<any>;
+export type Component = React.ComponentType<any>;
 
 export type Rule<T extends object> = (StatefulRule<T> | PatternRule) & RuleTarget<T>
 

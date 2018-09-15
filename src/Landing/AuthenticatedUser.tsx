@@ -3,8 +3,9 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 
 import {DispatchProp} from '../app';
+import {Slot, Spinner} from '../components';
 import {Link} from '../router';
-import {Contest} from '../types';
+import {Entity, Contest} from '../types';
 import {selectors} from '../Backend';
 
 import {LandingState} from './types';
@@ -13,30 +14,32 @@ import Header from './Header';
 type RouteProps = {}
 
 type StoreProps = {
-  contests: Contest[] | undefined,
+  loading: boolean,
+  contests: Entity<Contest>[],
 }
 
 type Props = RouteProps & StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: RouteProps): StoreProps {
-  try {
-    const contests = (state.contestIds||[]).map(id => selectors.getContest(state, id));
-    return {contests};
-  } catch (ex) {
-    console.error(ex);
-    return {contests: undefined};
+  if (state.contestIds === undefined) {
+    return {loading: true, contests: []};
+  } else {
+    const contests = state.contestIds.map(id => selectors.getContest(state, id));
+    return {loading: false, contests};
   }
 }
 
 class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
-    const {contests} = this.props;
-    let contestList : JSX.Element | undefined;
+    const {loading, contests} = this.props;
+    let contestList : JSX.Element | null = null;
     if (contests) {
       contestList =
         <ul className="contestList">
           {contests.map((contest, index) =>
-            <ContestItem key={contest.id} contest={contest} />)}
+            'id' in contest
+              ? <Slot<Contest> key={contest.id} component={ContestItem} entity={contest} />
+              : null)}
         </ul>
     }
     console.log('contests', contests);
@@ -44,7 +47,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
       <div>
         <Header/>
         <div className="landingContent">
-          <p>{"AuthenticatedUser Landing Page"}</p>
+          {loading && <Spinner/>}
           {contestList}
         </div>
       </div>
@@ -55,11 +58,12 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
 export default connect(mapStateToProps)(AuthenticatedUserPage);
 
 type ContestItemProps = {
-  contest: Contest,
+  value: Contest,
+  reloading: boolean,
 }
 
 const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
-  const {contest} = props;
+  const {value: contest} = props;
   const range = contest.starts_at.twix(contest.ends_at, {allDay: true});
   return (
     <Link component="li" to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}} key={contest.id}>

@@ -29,6 +29,7 @@ export const initialState : State = {
   route: undefined,
   lastError: undefined,
   backend: {
+    generation: 0,
     lastError: undefined,
     tasks: [],
   },

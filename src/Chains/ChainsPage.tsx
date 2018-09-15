@@ -6,13 +6,13 @@ import {Button, InputGroup} from "@blueprintjs/core";
 
 import {State, DispatchProp} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Chain} from '../types';
-import {Json, Spinner} from '../components';
+import {Entity, Chain} from '../types';
+import {Json, Slot, Spinner} from '../components';
 import {selectors} from '../Backend';
 
 type StoreProps = {
   loaded: boolean,
-  chains?: Chain[],
+  chains?: Entity<Chain>[],
 }
 
 type Props = StoreProps & DispatchProp
@@ -38,7 +38,9 @@ class ChainsPage extends React.PureComponent<Props> {
         <div className="chainFilters">
           <div className="flexRow">
             <div>
-              <div className="sectionTitle">Filter by Status</div>
+              <div className="sectionTitle">
+                {"Filter by Status"}
+              </div>
               <div className="chainStatus">
                 <Button text="Active" />
                 <Button text="Private test" />
@@ -48,12 +50,16 @@ class ChainsPage extends React.PureComponent<Props> {
               </div>
             </div>
             <div>
-              <div className="sectionTitle">Team</div>
-              <select>
-                <option>Team 1</option>
-                <option>Team 2</option>
-                <option>TODO</option>
-              </select>
+              <div className="sectionTitle">
+                {"Team"}
+              </div>
+              <div className="bp3-select">
+                <select>
+                  <option>{"Team 1"}</option>
+                  <option>{"Team 2"}</option>
+                  <option>{"TODO"}</option>
+                </select>
+              </div>
             </div>
             <div>
               <InputGroup type="search" placeholder="Search" rightElement={searchIcon} />
@@ -64,7 +70,7 @@ class ChainsPage extends React.PureComponent<Props> {
           </div>
         </div>
         {chains && chains.map((chain, index) =>
-          <ChainItem chain={chain} key={index}/>)}
+          <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
         <div className="pageContent chainsPage">
           <p>{"Everything goes here"}</p>
         </div>
@@ -74,20 +80,20 @@ class ChainsPage extends React.PureComponent<Props> {
 }
 
 type ChainItemProps = {
-  chain: Chain
+  value: Chain,
+  reloading: boolean,
 }
 
 class ChainItem extends React.PureComponent<ChainItemProps> {
   render () {
-    const {chain} = this.props;
+    const {value} = this.props;
     return (
       <div>
-        {chain.title}{" "}
-        <Json value={chain} />
+        {value.title}{" "}
+        <Json value={value} />
       </div>
      );
   }
 }
-
 
 export default connect(mapStateToProps)(ChainsPage);

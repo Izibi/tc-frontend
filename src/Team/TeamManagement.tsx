@@ -6,7 +6,7 @@ import {Moment} from 'moment';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Contest, Team, User} from '../types';
+import {Entity, EntityState, Contest, Team, User} from '../types';
 import {Spinner, Json} from '../components';
 import {selectors} from '../Backend';
 //import {Link} from '../router';
@@ -14,42 +14,42 @@ import {selectors} from '../Backend';
 import {TeamManagementParams} from './types';
 
 type StoreProps = {
-  loaded: boolean,
-  user?: User,
-  contest?: Contest,
-  team?: Team,
+  loading: boolean,
+  user: Entity<User>,
+  contest: Entity<Contest>,
+  team: Entity<Team>,
 }
 
 type Props = TeamManagementParams & StoreProps & DispatchProp
 
 function mapStateToProps (state: State, props: TeamManagementParams): StoreProps {
-  try {
-    const {userId, contestId, teamId} = state;
-    const user = selectors.getUser(state, userId);
-    const contest = selectors.getContest(state, contestId);
-    const team = selectors.getTeam(state, teamId);
-    return {loaded: true, user, contest, team};
-  } catch (ex) {
-    return {loaded: false};
-  }
+  const {userId, contestId, teamId} = state;
+  const user = selectors.getUser(state, userId);
+  const contest = selectors.getContest(state, contestId);
+  const team = selectors.getTeam(state, teamId);
+  const loading =
+    user.state === EntityState.Loading ||
+    contest.state === EntityState.Loading ||
+    team.state === EntityState.Loading;
+  return {loading, user, contest, team};
 }
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
     let teamMembers : JSX.Element[] | undefined;
-    const {loaded, user, contest, team} = this.props;
-    const contestInfos = contest &&
+    const {loading, user, contest, team} = this.props;
+    const contestInfos = 'value' in contest &&
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
         <p>
           {"Teams can be created or modified until the "}
-          {contest.registration_closes_at.format('L')}
+          {contest.value.registration_closes_at.format('L')}
           {" at "}
-          {contest.registration_closes_at.format('LT')}
+          {contest.value.registration_closes_at.format('LT')}
         </p>
       </div>;
-    if (team) {
-      teamMembers = team.members.map((member, index) =>
+    if ('value' in team) {
+      teamMembers = team.value.members.map((member, index) =>
         <TeamMember key={index} user={member.user} joinedAt={member.joined_at} isCreator={member.is_creator} />);
     }
     return (
@@ -57,9 +57,9 @@ class TeamManagementPage extends React.PureComponent<Props> {
         <ContestHeader/>
         <div className="pageContent teamManagement">
 
-          {!loaded && <Spinner/>}
+          {loading && <Spinner/>}
 
-          {loaded && !team && <div>
+          {team.state === EntityState.Null && <div>
             <div style={{fontSize: "18px", marginBottom: "1em"}}>
               {"Get started in a team!"}
             </div>
@@ -80,11 +80,11 @@ class TeamManagementPage extends React.PureComponent<Props> {
             </div>
           </div>}
 
-          {loaded && team &&
+          {'value' in team &&
             <div className="hasTeam">
               {contestInfos}
               <div className="sectionTitle">{"Team name"}</div>
-              <div className="teamName">{team.name}</div>
+              <div className="teamName">{team.value.name}</div>
               <div className="flexRow">
                 <div className="teamSection members">
                   <div>
@@ -108,7 +108,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
                   <div>
                     <div className="sectionTitle">{"Team access code"}</div>
                     <div className="teamCodeFrame">
-                      <div className="teamCode">{team.access_code}</div>
+                      <div className="teamCode">{team.value.access_code}</div>
                       <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
                     </div>
                     <div className="lightText">
@@ -127,7 +127,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
               </div>
               <div className="teamStatus">
                 <Switch alignIndicator="right" large inline
-                  checked={team.is_open} onChange={this.handleChangeTeamOpen}
+                  checked={team.value.is_open} onChange={this.handleChangeTeamOpen}
                   label="Accept new members" />
               </div>
             </div>
@@ -147,20 +147,22 @@ class TeamManagementPage extends React.PureComponent<Props> {
   };
   handleChangeTeamOpen = () => {
     const {team} = this.props;
-    if (typeof team === 'object') {
-      this.props.dispatch(actionCreators.changeTeamOpen(!team.is_open));
+    if ('value' in team) {
+      this.props.dispatch(actionCreators.changeTeamOpen(!team.value.is_open));
     }
   };
 }
 
 type TeamMembersProps = {
-  user: User,
+  user: Entity<User>,
   joinedAt: Moment,
   isCreator: boolean,
 }
 
 const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
-  const {user: {username, firstname, lastname}, joinedAt, isCreator} = props;
+  const {user, joinedAt, isCreator} = props;
+  if (!('value' in user)) return null;
+  const {username, firstname, lastname} = user.value;
   return (
     <tr>
       <td>{username}</td>

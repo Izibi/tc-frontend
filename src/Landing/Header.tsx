@@ -4,7 +4,7 @@ import {Button} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
 import {actionCreators, DispatchProp} from '../app';
-import {User} from '../types';
+import {Entity, User} from '../types';
 import {selectors} from '../Backend';
 
 import {LandingState} from './types';
@@ -13,20 +13,15 @@ type OuterProps = {
 }
 
 type StoreProps = {
-  user: User | undefined,
+  user: Entity<User>,
 }
 
 type Props = StoreProps & DispatchProp
 
 function mapStateToProps (state: LandingState, _props: OuterProps): StoreProps {
   const {userId} = state;
-  try {
-    return {
-      user: userId === 'unknown' ? undefined : selectors.getUser(state, userId)
-    }
-  } catch (ex) {
-    return {user: undefined};
-  }
+  const user = selectors.getUser(state, userId);
+  return {user};
 }
 
 class Header extends React.PureComponent<Props> {
@@ -37,8 +32,8 @@ class Header extends React.PureComponent<Props> {
         <div className="landingTitle">
           {"Tezos Contests"}
         </div>
-        {user &&
-           <Button text={`Hello, ${user.firstname} ${user.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
+        {'value' in user &&
+          <Button text={`Hello, ${user.value.firstname} ${user.value.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
       </div>
     );
   }

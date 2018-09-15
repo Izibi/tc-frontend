@@ -1,10 +1,13 @@
 
-export interface IdMap<T> {
-  [key: string]: T;
+import {Entity} from '../types';
+
+export interface EntityMap<T> {
+  [key: string]: Entity<T>;
 }
 
 export type BackendState = {
   backend: {
+    generation: number,
     lastError: string | undefined,
     tasks: object[],
   },
@@ -12,25 +15,25 @@ export type BackendState = {
 }
 
 export type Entities = {
-  users: IdMap<User>,
-  contests: IdMap<Contest>,
-  tasks: IdMap<Task>,
-  taskResources: IdMap<TaskResource>,
-  contestPeriods: IdMap<ContestPeriod>,
-  teams: IdMap<Team>,
-  teamMembers: IdMap<TeamMember>,
-  chains: IdMap<Chain>,
+  users: EntityMap<User>,
+  contests: EntityMap<Contest>,
+  tasks: EntityMap<Task>,
+  taskResources: EntityMap<TaskResource>,
+  contestPeriods: EntityMap<ContestPeriod>,
+  teams: EntityMap<Team>,
+  teamMembers: EntityMap<TeamMember>,
+  chains: EntityMap<Chain>,
 }
 
 export type EntitiesUpdate = {
-  users?: IdMap<User>,
-  contests?: IdMap<Contest>,
-  tasks?: IdMap<Task>,
-  taskResources?: IdMap<TaskResource>,
-  contestPeriods?: IdMap<ContestPeriod>,
-  teams?: IdMap<Team>,
-  teamMembers?: IdMap<TeamMember>,
-  chains?: IdMap<Chain>,
+  users?: EntityMap<User>,
+  contests?: EntityMap<Contest>,
+  tasks?: EntityMap<Task>,
+  taskResources?: EntityMap<TaskResource>,
+  contestPeriods?: EntityMap<ContestPeriod>,
+  teams?: EntityMap<Team>,
+  teamMembers?: EntityMap<TeamMember>,
+  chains?: EntityMap<Chain>,
 }
 
 /* Types of entities as they are received from the backend. */
@@ -98,9 +101,22 @@ export type ContestPeriod = {
 
 export type Chain = {
   id: string,
+  contest_id: string,
+  team_id: string | null,
+  parent_id: string | null,
+  created_at: string,
+  updated_at: string,
+  status: "private" | "public" | "candidate" | "main" | "past" | "invalid",
+  nb_votes_reject: number,
+  nb_votes_unknown: number,
+  nb_votes_approve: number,
   title: string,
   description: string,
   interface: string,
   implementation: string,
-  current_game_key: string,
+  protocol_hash: string,
+  new_protocol_hash: string | null,
+  current_game_key: string | null,
+  current_block_hash: string,
+  current_round: number,
 }
