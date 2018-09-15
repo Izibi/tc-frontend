@@ -15,9 +15,20 @@ class Json extends React.PureComponent<Props> {
       border: '1px solid black',
       padding: '1px',
     };
+    var cache = new WeakMap();
+    function replacer (key: string, value: any): any {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) {
+          return "circular";
+        }
+        cache.set(value, true);
+      }
+      return value;
+    }
+    const text = JSON.stringify(value, replacer, unfold ? 2 : 0);
     return (
       <pre style={style} onClick={this.handleClick} >
-        {JSON.stringify(value, null, unfold ? 2 : 0)}
+        {text}
       </pre>
     );
   }
