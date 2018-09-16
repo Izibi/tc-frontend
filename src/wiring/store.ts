@@ -19,6 +19,8 @@ export type State =
     contestIds: string[] | undefined /* list of available contests, if loaded */,
     contestId: string /* id of current contest or 'unknown' */,
     teamId: string /* id of user's team or 'unknown' */,
+    chainId: string /* id of selected chain or 'unknown' */,
+    blockHash: string /* hash of selected block or 'unknonw' */,
     taskResourceIndex: number /* index of resource selected in task tab */,
     chainIds: string[] /* list of chains to display */,
   }
@@ -49,6 +51,8 @@ export const initialState : State = {
   contestIds: undefined,
   contestId: 'unknown',
   teamId: 'unknown',
+  chainId: 'unknown',
+  blockHash: 'unknown',
   taskResourceIndex: 0,
   chainIds: [],
 

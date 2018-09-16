@@ -52,9 +52,9 @@ class Header extends React.PureComponent<Props> {
         </div>
         <div className="mainMenu">
            <ul>
-             <MenuItem here={here} to="TaskResources" params={{contestId: contestId, resourceIndex: taskResourceIndex}} text="Task" />
-             <MenuItem here={here} to="TeamManagement" params={{contestId: contestId}} text="Team" />
-             <MenuItem here={here} to="ChainsPage" params={{contestId: contestId}} text="Chains" />
+             <MenuItem active={here === 'TaskResources'} to="TaskResources" params={{contestId: contestId, resourceIndex: taskResourceIndex}} text="Task" />
+             <MenuItem active={here === 'TeamManagement'} to="TeamManagement" params={{contestId: contestId}} text="Team" />
+             <MenuItem active={/ChainsPage|ChainPage|BlockPage/.test(here)} to="ChainsPage" params={{contestId: contestId}} text="Chains" />
              <li>{"Forum"}</li>
              <li>{"Scoreboard"}</li>
            </ul>
@@ -68,16 +68,16 @@ class Header extends React.PureComponent<Props> {
 }
 
 type MenuItemProps = {
-  here: string,
+  active: boolean,
   to: string,
   params: object,
   text: string,
 }
 
 function MenuItem(props: MenuItemProps) {
-  const {here, to, params, text} = props;
+  const {active, to, params, text} = props;
   return (
-    <li className={here === to ? "active" : ""}>
+    <li className={active ? "active" : ""}>
       <Link to={to} params={params} text={text} />
     </li>
   );
