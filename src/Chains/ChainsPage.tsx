@@ -20,8 +20,9 @@ type StoreProps = {
   contestId: string,
   chainId: string,
   blockHash: string,
-  chains?: Entity<Chain>[],
+  chains: Entity<Chain>[],
   teams: Team[],
+  chain: Entity<Chain>,
 }
 
 type Props = StoreProps & DispatchProp
@@ -29,18 +30,16 @@ type Props = StoreProps & DispatchProp
 function mapStateToProps (state: State, _props: object): StoreProps {
   const {route, contestId, chainIds, chainId, blockHash} = state;
   const here = route ? route.rule.name : '';
-  try {
-    const chains = chainIds.map(id => selectors.getChain(state, id));
-    const teams = selectors.getTeams(state);
-    return {here, loaded: true, contestId, chainId, blockHash, chains, teams};
-  } catch (ex) {
-    return {here, loaded: false, contestId, chainId, blockHash, teams: []};
-  }
+  const chains = chainIds.map(id => selectors.getChain(state, id));
+  const chain = selectors.getChain(state, "1" /* XXX chainId*/);
+  const teams = selectors.getTeams(state);
+  const loaded = 'value' in chain;
+  return {here, loaded, contestId, chainId, blockHash, chains, teams, chain};
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, contestId, chainId, loaded, chains, teams} = this.props;
+    const {here, contestId, chainId, loaded, chains, teams, chain} = this.props;
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
       <div className="chainsPage">
@@ -62,7 +61,7 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
             </div>
             <div>
-              {tab === 'chain' && <ChainTab/>}
+              {tab === 'chain' && <ChainTab chain={chain}/>}
               {tab === 'block' && <BlockTab/>}
             </div>
           </div>

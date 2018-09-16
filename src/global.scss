@@ -39,6 +39,11 @@ body {
 .flexRow {
   display: flex;
   flex-flow: row;
+
+  .onehalf {
+    flex: 1 1 50%;
+    margin: 0 10px;
+  }
 }
 .flexColumn {
   display: flex;
@@ -126,12 +131,29 @@ button.logOut.bp3-button {
   flex: 1 0 auto;
   border: $tabsBorders;
   min-height: 500px;
-  padding: 2em 3%;
+  padding: 2em;
 
   iframe{
     border: none;
   }
+
+  .panel {
+    border-radius: 0 $radiusSmall $radiusSmall $radiusSmall;
+    box-shadow: $boxShadow;
+    margin-bottom: 1.5em;
+    overflow: hidden;
+
+    .panelHeader {
+      background: $themeColorLight;
+      color: $lighterTextColor;
+      padding: 7px 9px;
+    }
+    .panelBody {
+      padding: 20px 10px;
+    }
+  }
 }
+
 
 @import "./Landing/landing.scss";
 @import "./Contest/header.scss";

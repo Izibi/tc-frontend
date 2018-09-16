@@ -20,6 +20,13 @@
     }
   }
 }
-.chainsPage .tabSelector {
-  flex: 0 1 10%;
+.chainsPage {
+
+  .tabSelector {
+   flex: 0 1 10%;
+  }
+
+  .flexRow {
+    margin: 0 -10px;
+  }
 }
