@@ -43,26 +43,30 @@ class ChainsPage extends React.PureComponent<Props> {
     const {here, contestId, chainId, loaded, chains, teams} = this.props;
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
-      <div>
+      <div className="chainsPage">
         <ContestHeader/>
         {!loaded && <Spinner/>}
         <ChainFilters teams={teams}/>
         {chains && chains.map((chain, index) =>
           <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
-        <div className="pageContent chainsPage">
-          <div>
-            <div className={tab === 'chain' ? "active" : ""}>
-              <Link to="ChainPage" text="Chain" params={{contestId, chainId}}/>
-            </div>
-            <div className={tab === 'block' ? "active" : ""}>
+        <div className="tabLayout">
+          <div className="tabSelector">
+            <div className={tab === 'block' ? "selected" : ""}>
               <Link to="BlockPage" text="Block" params={{contestId, chainId, blockHash: 'unknown'}}/>
             </div>
+            <div className={tab === 'chain' ? "selected" : ""}>
+              <Link to="ChainPage" text="Chain" params={{contestId, chainId}}/>
+            </div>
           </div>
-          <div>
-            {tab === 'chain' && <ChainTab/>}
-            {tab === 'block' && <BlockTab/>}
+          <div className="pageContent">
+            <div>
+            </div>
+            <div>
+              {tab === 'chain' && <ChainTab/>}
+              {tab === 'block' && <BlockTab/>}
+            </div>
           </div>
-        </div>
+          </div>
       </div>
     );
   }
