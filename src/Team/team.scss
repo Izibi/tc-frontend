@@ -57,7 +57,7 @@
             margin: 4em 0;
             padding: 2em 10px;
             border: 1px solid #2ab7ca;
-            border-radius: 11px;
+            border-radius: $radiusLarge;
 
           .teamCode {
             font-size: 30px;
@@ -68,7 +68,7 @@
             background: $themeColorLight;
             color: $lighterTextColor;
             border: none;
-            border-radius: 1.75em;
+            border-radius: $radiusButton;
             box-shadow: none;
             transform: translate(-50%, 50%);
           }
@@ -91,7 +91,7 @@
           text-align: center;
           background: #e15554;
           border: none;
-          border-radius: $radius;
+          border-radius: $radiusLarge;
           box-shadow: none;
           vertical-align: middle;
 
@@ -133,7 +133,7 @@
         text-transform: uppercase;
         padding: 9px 22px;
         border: none;
-        border-radius: 1.75em;
+        border-radius: $radiusButton;
         box-shadow: none;
       }
       &.creation button {

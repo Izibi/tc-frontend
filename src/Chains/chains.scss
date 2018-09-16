@@ -11,7 +11,7 @@
     margin-right: 4px;
     background: $secondaryBgColor;
     border: none;
-    border-radius: 1.75em;
+    border-radius: $radiusButton;
     box-shadow: none;
 
     &.active {

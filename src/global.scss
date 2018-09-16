@@ -15,7 +15,9 @@ $themeColorLight: #2ab7ca;
 $mainBgColor: #eff5f8;
 $secondaryBgColor: #ffffff;
 $inactiveSecondaryBgColor: #f2f7f9;
-$radius: 11px;
+$radiusSmall: 7px;
+$radiusLarge: 11px;
+$radiusButton: 1.75em;
 $boxShadow: 0 2px 4px 0 #d2e4ee;
 $tabsBorders: 1px solid #d0e3e9;
 
@@ -104,7 +106,7 @@ button.logOut.bp3-button {
       padding-left: 20%;
       display: block;
       border: $tabsBorders;
-      border-radius: 0 0 0 $radius;
+      border-radius: 0 0 0 $radiusLarge;
       transition: background-color 125ms, color 500ms;
     }
     &.selected a {
@@ -120,7 +122,7 @@ button.logOut.bp3-button {
 .pageContent {
   background-color: $secondaryBgColor;
   position: relative;
-  border-radius: 0 $radius $radius $radius;
+  border-radius: 0 $radiusLarge $radiusLarge $radiusLarge;
   flex: 1 0 auto;
   border: $tabsBorders;
   min-height: 500px;
