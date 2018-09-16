@@ -6,13 +6,14 @@ import {Button, InputGroup} from "@blueprintjs/core";
 
 import {State, DispatchProp} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, Chain} from '../types';
+import {Entity, Chain, Team} from '../types';
 import {Json, Slot, Spinner} from '../components';
 import {selectors} from '../Backend';
 
 type StoreProps = {
   loaded: boolean,
   chains?: Entity<Chain>[],
+  teams: Team[],
 }
 
 type Props = StoreProps & DispatchProp
@@ -21,15 +22,16 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   try {
     const {chainIds} = state;
     const chains = chainIds.map(id => selectors.getChain(state, id));
-    return {loaded: true, chains};
+    const teams = selectors.getTeams(state);
+    return {loaded: true, chains, teams};
   } catch (ex) {
-    return {loaded: false};
+    return {loaded: false, teams: []};
   }
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {loaded, chains} = this.props;
+    const {loaded, chains, teams} = this.props;
     const searchIcon = <Button icon="search" minimal/>;
     return (
       <div>
@@ -55,9 +57,8 @@ class ChainsPage extends React.PureComponent<Props> {
               </div>
               <div className="bp3-select">
                 <select>
-                  <option>{"Team 1"}</option>
-                  <option>{"Team 2"}</option>
-                  <option>{"TODO"}</option>
+                  {teams.map(team =>
+                    <option key={team.id}>{team.name}</option>)}
                 </select>
               </div>
             </div>

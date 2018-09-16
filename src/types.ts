@@ -36,7 +36,7 @@ export type Team = {
   access_code: string,
   is_open: boolean /* can new users join the team? */,
   is_locked: boolean /* contest started, team cannot be changed */,
-  members: TeamMember[],
+  members?: TeamMember[],
 }
 
 export type TeamMember = {

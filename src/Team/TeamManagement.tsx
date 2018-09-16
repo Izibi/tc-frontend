@@ -48,7 +48,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
           {contest.value.registration_closes_at.format('LT')}
         </p>
       </div>;
-    if ('value' in team) {
+    if ('value' in team && team.value.members !== undefined) {
       teamMembers = team.value.members.map((member, index) =>
         <TeamMember key={index} user={member.user} joinedAt={member.joined_at} isCreator={member.is_creator} />);
     }

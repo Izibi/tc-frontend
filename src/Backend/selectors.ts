@@ -84,6 +84,17 @@ export function getContestPeriod (state: State, id: string | null): Entity<Conte
   });
 }
 
+export function getTeams (state: State /* TODO: filter */): Team[] {
+  const result: Team[] = [];
+  for (let entity of Object.values(state.entities.teams)) {
+    withEntityValue(entity, value => {
+      // TODO: test filter
+      result.push(value);
+    });
+  }
+  return result;
+}
+
 export function getTeam (state: State, id: string | null): Entity<Team> {
   return visitEntity(state, 'teams', id, (team) => {
     const members = getTeamMembers(state, team.id);

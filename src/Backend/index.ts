@@ -251,16 +251,27 @@ export function* loadContest (id: string) : Saga {
 export function* loadTeam (userId: string, contestId: string) : Saga {
   yield call(delay, 500);
   const testTeams : Team[] = yield call(fetchJson, `${process.env.MOUNT_PATH}/public/teams.json`);
+  const teamId = "1";
   yield put(actionCreators.backendEntitiesLoaded({
     contests: testContests,
     tasks: testTasks,
     taskResources: testTaskResources,
     contestPeriods: testContestPeriods,
     chains: testChains,
-    teams: loadEntities<Team>(testTeams),
+    teams: loadEntities<Team>(testTeams.filter(({id}) => teamId === id)),
     teamMembers: testTeamMembers,
   }));
-  return "1";
+  return teamId;
+}
+
+export function* loadContestTeams (contestId: string) : Saga {
+  yield call(delay, 500);
+  let testTeams : Team[] = yield call(fetchJson, `${process.env.MOUNT_PATH}/public/teams.json`);
+  testTeams = testTeams.filter(({contest_id}) => contestId === contest_id);
+  yield put(actionCreators.backendEntitiesLoaded({
+    teams: loadEntities<Team>(testTeams),
+  }));
+  return testTeams.map(team => team.id);
 }
 
 export function* loadContestChains (contestId: string, filters: object) : Saga {
