@@ -16,7 +16,7 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
       <div className="chainFilters">
         <div className="flexRow">
           <div>
-            <div className="sectionTitle">
+            <div className="filterTitle">
               {"Filter by Status"}
             </div>
             <div className="chainStatus">
@@ -28,7 +28,7 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
             </div>
           </div>
           <div>
-            <div className="sectionTitle">
+            <div className="filterTitle">
               {"Team"}
             </div>
             <div className="bp3-select">
@@ -38,10 +38,10 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
               </select>
             </div>
           </div>
-          <div>
+          <div className="filterSearch">
             <InputGroup type="search" placeholder="Search" rightElement={searchBtn} />
           </div>
-          <div>
+          <div className="filterToggle">
             <Button text="Options" rightIcon="chevron-down" />
           </div>
         </div>

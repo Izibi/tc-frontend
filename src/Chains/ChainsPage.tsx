@@ -46,14 +46,18 @@ class ChainsPage extends React.PureComponent<Props> {
         <ContestHeader/>
         {!loaded && <Spinner/>}
         <ChainFilters teams={teams}/>
-        <div className="flexRow">
-          <div>{"Name"}</div>
-          <div>{"Team"}</div>
-          <div>{"Approved"}</div>
-          <div>{"Rejected"}</div>
+        <div className="chainList">
+          <div className="flexRow">
+            <div className="chainListTitle chainName">{"Name"}</div>
+            <div className="chainListTitle chainTeam">{"Team"}</div>
+            <div className="chainListTitle chainApproved">{"Approved"}</div>
+            <div className="chainListTitle chainRejected">{"Rejected"}</div>
+          </div>
+          <div className="chainListItems">
+            {chains && chains.map((chain, index) =>
+              <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
+          </div>
         </div>
-        {chains && chains.map((chain, index) =>
-          <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
         <div className="tabLayout">
           <div className="tabSelector">
             <div className={tab === 'block' ? "selected" : ""}>

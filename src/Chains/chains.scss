@@ -1,32 +1,106 @@
-.chainFilters {
-  .flexRow {
-    justify-content: space-between;
-  }
-  .chainStatus button {
-    font-size: 12px;
-    line-height: 22px;
-    color: $accentTextColor;
-    padding: 0 10px;
-    min-height: auto;
-    margin-right: 4px;
-    background: $secondaryBgColor;
-    border: none;
-    border-radius: $radiusButton;
-    box-shadow: none;
+.chainsPage {
+  .chainFilters {
+    margin-bottom: 1.5em;
 
-    &.active {
-      color: $lighterTextColor;
-      background: $themeColorLight;
+    .flexRow {
+      justify-content: space-between;
+    }
+
+    .filterTitle {
+      text-transform: uppercase;
+      color: $lightTextColor;
+      margin-bottom: 1em;
+    }
+    .chainStatus button {
+      font-size: 12px;
+      line-height: 22px;
+      color: $accentTextColor;
+      padding: 0 10px;
+      min-height: auto;
+      margin-right: 4px;
+      background: $secondaryBgColor;
+      border: none;
+      border-radius: $radiusButton;
+      box-shadow: none;
+
+      &.active {
+        color: $lighterTextColor;
+        background: $themeColorLight;
+      }
+    }
+    .bp3-select select {
+      background: $secondaryBgColor;
+      border: none;
+      box-shadow: none;
+      color: $themeColorLight;
+    }
+    .bp3-html-select .bp3-icon, .bp3-select .bp3-icon, .bp3-select::after {
+      color: $themeColorLight;
+    }
+    .filterSearch,
+    .filterToggle {
+      margin-top: 2em;
+    }
+    .filterSearch {
+      .bp3-input {
+        border-radius: $radiusSmall;
+        box-shadow: none;
+      }
+
+      .bp3-input-group .bp3-input:not(:focus) + .bp3-input-action .bp3-button.bp3-minimal:not(:hover):not(:focus) .bp3-icon,
+      .bp3-icon {
+        color: $themeColorLight;
+      }
+    }
+    .filterToggle button {
+      font-size: 12px;
+      color: $themeColorDark;
+      padding: 5px 8px;
+      background: $accentColor;
+      border: none;
+      border-radius: $radiusSmall;
+      box-shadow: none;
+
+       .bp3-button-text {
+        font-weight: bold;
+        padding: 0px 16px 0px 24px;
+       }
     }
   }
-}
-.chainsPage {
+  .chainList {
+    margin-bottom: 1em;
+
+    .chainListTitle {
+      text-transform: uppercase;
+      color: $lightTextColor;
+      margin-bottom: 1em;
+    }
+
+    .chainName, .chainTeam, .chainApproved, .chainRejected, {
+      flex: 0 0 80px;
+      text-align: center;
+      margin-right: 10px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .chainListItems .chainListItem {
+      padding: 20px 0;
+      color: $lighterTextColor;
+      background: $themeColorLight;
+      border-radius: 27px;
+    }
+
+  }
 
   .tabSelector {
    flex: 0 1 10%;
   }
 
-  .flexRow {
-    margin: 0 -10px;
+  .pageContent {
+    .flexRow {
+      margin: 0 -10px;
+    }
   }
 }
