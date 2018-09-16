@@ -1,6 +1,6 @@
 
 import {Effect} from 'redux-saga';
-import {fork, call, put, cancelled} from 'redux-saga/effects';
+import {fork, call, put} from 'redux-saga/effects';
 import {delay} from 'redux-saga';
 
 import {without} from '../utils';
@@ -209,12 +209,11 @@ export function* monitorBackendTask (saga: any): Saga {
     try {
       yield call(saga);
     } catch (ex) {
-      if (!(yield cancelled())) {
-        AppToaster.show({message: ex.toString()});
-        yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
-      }
+      AppToaster.show({message: ex.toString()});
+      yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
+    } finally {
+      yield put(actionCreators.backendTaskDone(taskRef));
     }
-    yield put(actionCreators.backendTaskDone(taskRef));
   });
 }
 
