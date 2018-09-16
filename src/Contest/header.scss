@@ -118,23 +118,35 @@
     padding: 0;
     li {
       display: inline-block;
-
-      a {
       text-transform: uppercase;
       margin-right: 50px;
+      color: $lightTextColor;
+
+      a {
       padding-bottom: 13px;
       display: block;
       position: relative;
+      color: $mainTextColor;
+      text-decoration: none;
+      }
 
-        &::after {
-          content: " ";
-          height: 5px;
-          background-color: $themeColorLight;
-          width: 100%;
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          border-radius: 10px / 7px;
+      &.active {
+        a {
+          padding-bottom: 13px;
+          display: block;
+          position: relative;
+          color: $accentTextColor;
+
+          &::after {
+            content: " ";
+            height: 5px;
+            background-color: $themeColorLight;
+            width: 100%;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            border-radius: 10px / 7px;
+          }
         }
       }
     }
