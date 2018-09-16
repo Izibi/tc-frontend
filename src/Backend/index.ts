@@ -114,7 +114,7 @@ const testTaskResources = loadEntities<TaskResource>([
   {id: "4", task_id: "1", rank: 4, title: "Examples", description: "", url: "about:blank#3", html: null},
   {id: "5", task_id: "1", rank: 5, title: "OCaml basics", description: "", url: "about:blank#4", html: null},
 ]);
-const testTeams = loadEntities<Team>([
+/*const testTeams = loadEntities<Team>([
   {
     id: "1",
     created_at: "2018-09-01",
@@ -125,7 +125,7 @@ const testTeams = loadEntities<Team>([
     name: "CodersPlanet",
     public_key: "sCnGFS3n7TX9Y9dZ2ZQ63/rLtB02iEGlySRDSg/DgcM=.ed25519",
   }
-]);
+]);*/
 const testTeamMembers = loadEntities2<TeamMember>([
   {
     team_id: "1",
@@ -250,13 +250,14 @@ export function* loadContest (id: string) : Saga {
 
 export function* loadTeam (userId: string, contestId: string) : Saga {
   yield call(delay, 500);
+  const testTeams : Team[] = yield call(fetchJson, `${process.env.MOUNT_PATH}/public/teams.json`);
   yield put(actionCreators.backendEntitiesLoaded({
     contests: testContests,
     tasks: testTasks,
     taskResources: testTaskResources,
     contestPeriods: testContestPeriods,
     chains: testChains,
-    teams: testTeams,
+    teams: loadEntities<Team>(testTeams),
     teamMembers: testTeamMembers,
   }));
   return "1";
@@ -272,4 +273,12 @@ export function* loadContestChains (contestId: string, filters: object) : Saga {
     chains: testChains,
   }));
   return ["1"];
+}
+
+function fetchJson (url: string) {
+  return new Promise(function (resolve, reject) {
+    fetch(url).then(function (req) {
+      req.json().then(resolve).catch(reject);
+    }).catch(reject);
+  });
 }
