@@ -46,6 +46,12 @@ class ChainsPage extends React.PureComponent<Props> {
         <ContestHeader/>
         {!loaded && <Spinner/>}
         <ChainFilters teams={teams}/>
+        <div className="flexRow">
+          <div>{"Name"}</div>
+          <div>{"Team"}</div>
+          <div>{"Approved"}</div>
+          <div>{"Rejected"}</div>
+        </div>
         {chains && chains.map((chain, index) =>
           <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
         <div className="tabLayout">
