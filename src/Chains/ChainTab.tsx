@@ -21,7 +21,7 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
             <div className="panelBody">
               <div>{"Name "}{chain.value.title}</div>
               <div>{"By team "}{"TODO: chain owner"}</div>
-              {"Status "}{chain.value.status}{" since "}{chain.value.updated_at.format('YYYY-MM-DD, hh:mm a')}
+              {"Status "}{chain.value.status}{" since "}{chain.value.updatedAt.format('YYYY-MM-DD, hh:mm a')}
             </div>
           </div>
           <div className="panel">

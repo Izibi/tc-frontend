@@ -64,11 +64,11 @@ type ContestItemProps = {
 
 const ContestItem : React.StatelessComponent<ContestItemProps> = (props) => {
   const {value: contest} = props;
-  const range = contest.starts_at.twix(contest.ends_at, {allDay: true});
+  const range = contest.startsAt.twix(contest.endsAt, {allDay: true});
   return (
     <Link component="li" to="TaskResources" params={{contestId: contest.id, resourceIndex: 0}} key={contest.id}>
       <div className="contestImage">
-        {contest.logo_url && <img src="{contest.logo_url}" />}
+        {contest.logoUrl && <img src="{contest.logo_url}" />}
       </div>
       <div className="contestInfos">
         <div className="contestTitle">{contest.title}</div>

@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {Button} from "@blueprintjs/core";
+import {AnchorButton, Button} from "@blueprintjs/core";
 
 import {State, actionCreators, AppToaster, DispatchProp} from '../app';
 import {Link, Router} from '../router';
@@ -30,8 +30,8 @@ class Root extends React.PureComponent<Props> {
             <hr/>
             <Dev>
               <Button onClick={this.handleLogout} >{"I am no one"}</Button>
-              <Button onClick={this.handleLogin} data-user-id="1">{"I am Alice"}</Button>
-              <Button onClick={this.handleLogin} data-user-id="2">{"I am Bob"}</Button>
+              <AnchorButton href={'http://localhost:8080/Login/1'} target='_blank' text="I am Alice"/>
+              <AnchorButton href={'http://localhost:8080/Login/2'} target='_blank' text="I am Bob"/>
               <Button onClick={this.toast}>{"Toast"}</Button>
               <Link to="TaskResources" params={{contestId: "1", resourceIndex: 0}} text="task resources" />
               <Link to="TeamManagement" params={{contestId: "1"}} text="team management" />

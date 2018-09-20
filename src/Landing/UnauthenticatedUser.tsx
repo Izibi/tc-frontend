@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {Button} from '@blueprintjs/core';
+import {AnchorButton} from '@blueprintjs/core';
 
 import {DispatchProp} from '../app';
 
@@ -25,7 +25,7 @@ class UnauthenticatedUserPage extends React.PureComponent<Props> {
         <Header />
         <p>{"UnauthenticatedUser Landing Page"}</p>
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '30vh'}}>
-          <Button text="You will authenticate"/>
+          <AnchorButton href="https://home.epixode.fr/tezos/backend/Login" target="login" text="Log in"/>
         </div>
       </div>
     );

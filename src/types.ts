@@ -33,29 +33,29 @@ export type User = {
 export type Team = {
   id: string,
   name: string,
-  access_code: string,
-  is_open: boolean /* can new users join the team? */,
-  is_locked: boolean /* contest started, team cannot be changed */,
+  accessCode: string,
+  isOpen: boolean /* can new users join the team? */,
+  isLocked: boolean /* contest started, team cannot be changed */,
   members?: TeamMember[],
 }
 
 export type TeamMember = {
   user: Entity<User>,
-  is_creator: boolean,
-  joined_at: Moment,
+  isCreator: boolean,
+  joinedAt: Moment,
 }
 
 export type Contest = {
   id: string,
   title: string,
   description: string,
-  logo_url: string,
-  registration_open: boolean,
-  registration_closes_at: Moment,
-  starts_at: Moment,
-  ends_at: Moment,
+  logoUrl: string,
+  registrationOpen: boolean,
+  registrationClosesAt: Moment,
+  startsAt: Moment,
+  endsAt: Moment,
   task: Entity<Task>,
-  current_period: Entity<ContestPeriod>,
+  currentPeriod: Entity<ContestPeriod>,
 }
 
 export type Task = {
@@ -76,28 +76,31 @@ export type TaskResource = {
 export type ContestPeriod = {
   id: string,
   title: string,
-  day_number: number,
-  chain_election_at: Moment,
-  main_chain: Entity<Chain>,
+  dayNumber: number,
+  chainElectionAt: Moment,
+  mainChain: Entity<Chain>,
 }
+
+export type ChainStatus =
+  "private" | "public" | "candidate" | "main" | "past" | "invalid";
 
 export type Chain = {
   id: string,
   contest: Entity<Contest>,
   team: Entity<Team>,
   parent: Entity<Chain>,
-  created_at: Moment,
-  updated_at: Moment,
-  status: "private" | "public" | "candidate" | "main" | "past" | "invalid",
-  nb_votes_reject: number,
-  nb_votes_unknown: number,
-  nb_votes_approve: number,
+  createdAt: Moment,
+  updatedAt: Moment,
+  status: ChainStatus,
+  nbVotesReject: number,
+  nbVotesUnknown: number,
+  nbVotesApprove: number,
   title: string,
-  protocol_hash: string,
-  new_protocol: Entity<Protocol>,
-  current_game: Entity<Game>,
-  current_block_hash: string,
-  current_round: number,
+  protocolHash: string,
+  newProtocol: Entity<Protocol>,
+  currentGame: Entity<Game>,
+  currentBlockHash: string,
+  currentRound: number,
 }
 
 export type Protocol = {
@@ -110,8 +113,8 @@ export type Protocol = {
 
 export type Game = {
   key: string,
-  starts_at: Moment,
-  started_at: Moment | undefined,
-  owner_team: Entity<Team>,
-  protocol_hash: string,
+  startsAt: Moment,
+  startedAt: Moment | undefined,
+  ownerTeam: Entity<Team>,
+  protocolHash: string,
 }

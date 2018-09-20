@@ -17,8 +17,8 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
       <div className="flexRow chainListItem">
         <div className="chainName">{value.title}</div>
         <div className="chainTeam">{"TODO: chain owner team name"}</div>
-        <div className="chainApproved">{value.nb_votes_approve}</div>
-        <div className="chainRejected">{value.nb_votes_reject}</div>
+        <div className="chainApproved">{value.nbVotesApprove}</div>
+        <div className="chainRejected">{value.nbVotesReject}</div>
         <div>{"TODO: display chain blocks"}</div>
       </div>
         <Json value={value} />

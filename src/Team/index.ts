@@ -1,10 +1,10 @@
 
 import {Effect} from 'redux-saga';
-import {call, put, select} from 'redux-saga/effects';
+//import {call, put, select} from 'redux-saga/effects';
 
-import {State, Actions, ActionTypes, actionCreators} from '../app';
+import {State, Actions, ActionTypes} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadTeam} from '../Backend';
+//import {monitorBackendTask, loadTeam} from '../Backend';
 
 import {TeamManagementParams} from './types';
 import TeamManagementPage from './TeamManagement';
@@ -35,11 +35,13 @@ export function teamReducer (state: State, action: Actions): State {
 }
 
 function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<Effect> {
+/*
   yield call(monitorBackendTask, function* () {
     const userId = yield select((state: State) => state.userId);
     const teamId = yield call(loadTeam, userId, params.contestId);
     yield put(actionCreators.teamChanged(teamId));
   });
+*/
 }
 
 const TeamManagementRoute : Rule<TeamManagementParams> = {

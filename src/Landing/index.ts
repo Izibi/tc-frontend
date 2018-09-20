@@ -4,7 +4,7 @@ import {call, put, select} from 'redux-saga/effects';
 
 import {Actions, ActionTypes, State, actionCreators} from '../app';
 import {Rule, navigate} from '../router';
-import {monitorBackendTask, loadContestList} from '../Backend';
+import {getUser, getAuthenticatedUserLanding} from '../Backend';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';
@@ -46,16 +46,25 @@ export function landingReducer (state: State, action: Actions): State {
 }
 
 function* unauthenticatedUserSaga () : IterableIterator<Effect> {
-  const userId = yield select((state : State) => state.userId);
-  if (userId !== 'unknown') {
+  const currentUserId: string = yield select((state : State) => state.userId);
+  if (currentUserId === 'unknown') {
+    const userId : string | undefined = yield call(getUser);
+    if (userId !== undefined) {
+      /* See wiring/sagas.ts for handling of USER_LOGGED_IN,
+         which causes a re-evaluation of the current route. */
+      yield put(actionCreators.userLoggedIn(userId));
+    }
+  } else {
     yield call(navigate, "AuthenticatedUserLanding", {}, true);
   }
-  // See wiring/sagas.ts for handling of USER_LOGGED_IN
+
 }
 
 function* authenticatedUserSaga () : IterableIterator<Effect> {
-  yield call(monitorBackendTask, function* () {
-    const contestIds = yield call(loadContestList);
-    yield put(actionCreators.contestListChanged(contestIds));
-  });
+  const {userId, contestIds} = yield call(getAuthenticatedUserLanding);
+  const currentUserId = yield select((state: State) => state.userId)
+  if (userId !== currentUserId) {
+    yield put(actionCreators.userLoggedIn(userId));
+  }
+  yield put(actionCreators.contestListChanged(contestIds));
 }

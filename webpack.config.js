@@ -69,7 +69,7 @@ const config = {
     fs: 'empty'
   },
   plugins: [
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'MOUNT_PATH']),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'MOUNT_PATH', 'BACKEND_URL']),
     new webpack.optimize.OccurrenceOrderPlugin()
   ],
   optimization: {

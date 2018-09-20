@@ -1,9 +1,9 @@
 
 import * as React from 'react';
-import {Button} from "@blueprintjs/core";
+import {AnchorButton} from "@blueprintjs/core";
 import {connect} from 'react-redux';
 
-import {actionCreators, DispatchProp} from '../app';
+import {DispatchProp} from '../app';
 import {Entity, User} from '../types';
 import {selectors} from '../Backend';
 
@@ -33,13 +33,12 @@ class Header extends React.PureComponent<Props> {
           {"Tezos Contests"}
         </div>
         {'value' in user &&
-          <Button text={`Hello, ${user.value.firstname} ${user.value.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon='log-out' />}
+          <AnchorButton href="https://home.epixode.fr/tezos/backend/Logout" target="login"
+            className="logOut"
+            text={`Hello, ${user.value.firstname} ${user.value.lastname}`} />}
       </div>
     );
   }
-  handleLogout = () => {
-    this.props.dispatch(actionCreators.userLoggedOut());
-  };
 }
 
 export default connect(mapStateToProps)(Header);

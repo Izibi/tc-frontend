@@ -43,14 +43,14 @@ class TeamManagementPage extends React.PureComponent<Props> {
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
         <p>
           {"Teams can be created or modified until the "}
-          {contest.value.registration_closes_at.format('L')}
+          {contest.value.registrationClosesAt.format('L')}
           {" at "}
-          {contest.value.registration_closes_at.format('LT')}
+          {contest.value.registrationClosesAt.format('LT')}
         </p>
       </div>;
     if ('value' in team && team.value.members !== undefined) {
       teamMembers = team.value.members.map((member, index) =>
-        <TeamMember key={index} user={member.user} joinedAt={member.joined_at} isCreator={member.is_creator} />);
+        <TeamMember key={index} user={member.user} joinedAt={member.joinedAt} isCreator={member.isCreator} />);
     }
     return (
       <div>
@@ -108,7 +108,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
                   <div>
                     <div className="sectionTitle">{"Team access code"}</div>
                     <div className="teamCodeFrame">
-                      <div className="teamCode">{team.value.access_code}</div>
+                      <div className="teamCode">{team.value.accessCode}</div>
                       <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
                     </div>
                     <div className="lightText">
@@ -127,7 +127,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
               </div>
               <div className="teamStatus">
                 <Switch alignIndicator="right" large inline
-                  checked={team.value.is_open} onChange={this.handleChangeTeamOpen}
+                  checked={team.value.isOpen} onChange={this.handleChangeTeamOpen}
                   label="Accept new members" />
               </div>
             </div>
@@ -148,7 +148,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
   handleChangeTeamOpen = () => {
     const {team} = this.props;
     if ('value' in team) {
-      this.props.dispatch(actionCreators.changeTeamOpen(!team.value.is_open));
+      this.props.dispatch(actionCreators.changeTeamOpen(!team.value.isOpen));
     }
   };
 }

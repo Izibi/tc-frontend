@@ -1,7 +1,7 @@
 
 import * as moment from 'moment';
 
-import {Entity, User, Contest, ContestPeriod, Task, TaskResource, Team, TeamMember, Chain} from '../types';
+import {Entity, User, Contest, ContestPeriod, Task, TaskResource, Team, TeamMember, Chain, ChainStatus} from '../types';
 
 import {BackendState as State, Entities} from './types';
 import {nullEntity, projectEntity, thunkEntity, withEntityValue} from './entities';
@@ -67,20 +67,20 @@ export function getTaskResources(state: State, taskId: string): Entity<TaskResou
 
 export function getContest (state: State, id: string | null): Entity<Contest> {
   return visitEntity(state, 'contests', id, (contest) => {
-    const task = getTask(state, contest.task_id);
-    const current_period = getContestPeriod(state, contest.current_period_id);
-    const starts_at = moment(contest.starts_at);
-    const ends_at = moment(contest.ends_at);
-    const registration_closes_at = moment(contest.registration_closes_at);
-    return {...contest, task, current_period, starts_at, ends_at, registration_closes_at};
+    const task = getTask(state, contest.taskId);
+    const currentPeriod = getContestPeriod(state, contest.currentPeriodId);
+    const startsAt = moment(contest.startsAt);
+    const endsAt = moment(contest.endsAt);
+    const registrationClosesAt = moment(contest.registrationClosesAt);
+    return {...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt};
   });
 }
 
 export function getContestPeriod (state: State, id: string | null): Entity<ContestPeriod> {
   return visitEntity(state, 'contestPeriods', id, (period) => {
-    const main_chain = getChain(state, period.main_chain_id);
-    const chain_election_at = moment(period.chain_election_at);
-    return {...period, main_chain, chain_election_at};
+    const mainChain = getChain(state, period.mainChainId);
+    const chainElectionAt = moment(period.chainElectionAt);
+    return {...period, mainChain, chainElectionAt};
   });
 }
 
@@ -106,10 +106,10 @@ export function getTeamMembers (state: State, teamId: string): TeamMember[] {
   const results: TeamMember[] = [];
   for (let item of Object.values(state.entities.teamMembers)) {
     withEntityValue(item, value => {
-      if (value.team_id === teamId) {
-        const user = getUser(state,  value.user_id);
-        const joined_at = moment(value.joined_at);
-        const member = {...value, user, joined_at};
+      if (value.teamId === teamId) {
+        const user = getUser(state,  value.userId);
+        const joinedAt = moment(value.joinedAt);
+        const member = {...value, user, joinedAt};
         results.push(member);
       }
     });
@@ -119,13 +119,28 @@ export function getTeamMembers (state: State, teamId: string): TeamMember[] {
 
 export function getChain (state: State, id: string | null): Entity<Chain> {
   return visitEntity(state, 'chains', id, (chain) => {
-    const contest = getContest(state, chain.contest_id);
-    const team = getTeam(state, chain.team_id);
-    const parent = getChain(state, chain.parent_id);
-    const created_at = moment(chain.created_at);
-    const updated_at = moment(chain.updated_at);
-    const new_protocol = nullEntity(); // TODO
-    const current_game = nullEntity(); // TODO
-    return {...chain, contest, team, parent, created_at, updated_at, new_protocol, current_game};
+    const contest = getContest(state, chain.contestId);
+    const team = getTeam(state, chain.teamId);
+    const parent = getChain(state, chain.parentId);
+    const createdAt = moment(chain.createdAt);
+    const updatedAt = moment(chain.updatedAt);
+    const newProtocol = nullEntity(); // TODO
+    const currentGame = nullEntity(); // TODO
+    const status = checkChainStatus(chain.status);
+    return {...chain, contest, team, parent, createdAt, updatedAt, status, newProtocol, currentGame};
   });
+}
+
+function checkChainStatus(status: string) : ChainStatus {
+  switch (status) {
+    case "private":
+    case "public":
+    case "candidate":
+    case "main":
+    case "past":
+    case "invalid":
+      return status;
+   default:
+     return "invalid";
+  }
 }
