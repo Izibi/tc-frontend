@@ -176,8 +176,11 @@ export function* monitorBackendTask (saga: any): Saga {
 }
 
 export function* getUser (): Saga {
-  const response : null | {userId: string} = yield call(fetchJson, `${process.env.BACKEND_URL}/User`);
-  return response ? response.userId : undefined;
+  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/User`);
+  if (entities) {
+    yield put(actionCreators.backendEntitiesLoaded(entities));
+  }
+  return result ? result.userId : undefined;
 }
 
 export function* loadAuthenticatedUserLanding (): Saga {
