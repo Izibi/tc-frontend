@@ -192,5 +192,9 @@ export function* loadAuthenticatedUserLanding (): Saga {
 }
 
 export function* loadContest (contestId: string): Saga {
-  yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}`);
+  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}`);
+  if (entities) {
+    yield put(actionCreators.backendEntitiesLoaded(entities));
+  }
+  return result; // {}
 }

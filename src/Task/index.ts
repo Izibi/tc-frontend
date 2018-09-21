@@ -1,10 +1,10 @@
 
 import {Effect} from 'redux-saga';
-//import {call} from 'redux-saga/effects';
+import {call} from 'redux-saga/effects';
 
 import {State, Actions} from '../app';
 import {Rule} from '../router';
-//import {monitorBackendTask, loadContest} from '../Backend';
+import {monitorBackendTask, loadContest} from '../Backend';
 
 import TaskResourcesPage from './TaskResources';
 import {TaskResourcesParams} from './types';
@@ -14,11 +14,9 @@ export function taskReducer (state: State, action: Actions): State {
 }
 
 function* taskResourcesSaga (params: TaskResourcesParams) : IterableIterator<Effect> {
-  /*
   yield call(monitorBackendTask, function* () {
     yield call(loadContest, params.contestId);
   });
-  */
 }
 
 export const routes : Rule<TaskResourcesParams>[] = [
