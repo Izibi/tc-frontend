@@ -180,9 +180,14 @@ export function* getUser (): Saga {
   return response ? response.userId : undefined;
 }
 
-export function* getAuthenticatedUserLanding (): Saga {
+export function* loadAuthenticatedUserLanding (): Saga {
   const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/AuthenticatedUserLanding`);
-  yield put(actionCreators.backendEntitiesLoaded(entities));
-  // result?
-  return result;
+  if (entities) {
+    yield put(actionCreators.backendEntitiesLoaded(entities));
+  }
+  return result; // {userId: string, contestIds: string[]}
+}
+
+export function* loadContest (contestId: string): Saga {
+  yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}`);
 }

@@ -4,7 +4,7 @@ import {call, put, select} from 'redux-saga/effects';
 
 import {Actions, ActionTypes, State, actionCreators} from '../app';
 import {Rule, navigate} from '../router';
-import {getUser, getAuthenticatedUserLanding} from '../Backend';
+import {monitorBackendTask, getUser, loadAuthenticatedUserLanding} from '../Backend';
 
 import UnauthenticatedUserPage from './UnauthenticatedUser';
 import AuthenticatedUserPage from './AuthenticatedUser';
@@ -61,10 +61,12 @@ function* unauthenticatedUserSaga () : IterableIterator<Effect> {
 }
 
 function* authenticatedUserSaga () : IterableIterator<Effect> {
-  const {userId, contestIds} = yield call(getAuthenticatedUserLanding);
-  const currentUserId = yield select((state: State) => state.userId)
-  if (userId !== currentUserId) {
-    yield put(actionCreators.userLoggedIn(userId));
-  }
-  yield put(actionCreators.contestListChanged(contestIds));
+  yield call(monitorBackendTask, function* () {
+    const view: {userId: string, contestIds: string[]} = yield call(loadAuthenticatedUserLanding);
+    const currentUserId = yield select((state: State) => state.userId)
+    if (view.userId !== currentUserId) {
+      yield put(actionCreators.userLoggedIn(view.userId));
+    }
+    yield put(actionCreators.contestListChanged(view.contestIds));
+  });
 }
