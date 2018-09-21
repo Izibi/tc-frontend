@@ -198,3 +198,11 @@ export function* loadContest (contestId: string): Saga {
   }
   return result; // {}
 }
+
+export function* loadContestTeam (contestId: string): Saga {
+  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}/Team`);
+  if (entities) {
+    yield put(actionCreators.backendEntitiesLoaded(entities));
+  }
+  return result; // {teamId: string | null}
+}
