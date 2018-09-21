@@ -37,7 +37,6 @@ class TaskResourcesPage extends React.PureComponent<Props> {
         <TaskResourceOption key={index} resource={resource} index={index} contestId={contestId} selected={currentResource === resource} />);
       resourceOptions.reverse(); // Shoot your graphist.
     }
-    console.log('currentResource', currentResource);
     return (
       <div>
         <ContestHeader/>
