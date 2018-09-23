@@ -46,7 +46,7 @@ export const actionCreators = {
   joinTeam: (contestId: string, accessCode: string) => createAction(ActionTypes.JOIN_TEAM, {contestId, accessCode}),
   leaveTeam: (teamId: string) => createAction(ActionTypes.LEAVE_TEAM, {teamId}),
   changeTeamAccessCode: (teamId: string) => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {teamId}),
-  changeTeamOpen: (teamId: string, isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_OPEN, {teamId, isOpen}),
+  changeTeamIsOpen: (teamId: string, isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_IS_OPEN, {teamId, isOpen}),
 
 };
 

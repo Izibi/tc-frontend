@@ -25,4 +25,4 @@ export const CREATE_TEAM = "[team] create";
 export const JOIN_TEAM = "[team] join";
 export const LEAVE_TEAM = "[team] leave";
 export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
-export const CHANGE_TEAM_OPEN = "[team] change is_open";
+export const CHANGE_TEAM_IS_OPEN = "[team] change is_open";

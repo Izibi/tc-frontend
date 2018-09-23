@@ -4,7 +4,7 @@ import {call, put, takeEvery} from 'redux-saga/effects';
 
 import {State, Actions, ActionTypes, actionCreators} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, changeTeamAccessCode} from '../Backend';
+import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, updateTeam, changeTeamAccessCode} from '../Backend';
 
 import {TeamManagementParams} from './types';
 import TeamManagementPage from './TeamManagement';
@@ -28,7 +28,7 @@ export function teamReducer (state: State, action: Actions): State {
       // XXX backend optimistic update
       break;
     }
-    case ActionTypes.CHANGE_TEAM_OPEN: {
+    case ActionTypes.CHANGE_TEAM_IS_OPEN: {
       // XXX backend optimistic update
       break;
     }
@@ -71,6 +71,12 @@ function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<E
     if (action.type !== ActionTypes.CHANGE_TEAM_ACCESS_CODE) return; //@ts
     yield call(monitorBackendTask, function* () {
       yield call(changeTeamAccessCode, action.payload.teamId);
+    });
+  });
+  yield takeEvery(ActionTypes.CHANGE_TEAM_IS_OPEN, function* (action: Actions) {
+    if (action.type !== ActionTypes.CHANGE_TEAM_IS_OPEN) return; //@ts
+    yield call(monitorBackendTask, function* () {
+      yield call(updateTeam, action.payload.teamId, {isOpen: action.payload.isOpen});
     });
   });
 }

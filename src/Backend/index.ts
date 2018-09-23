@@ -282,6 +282,10 @@ export function* leaveTeam (teamId: string): Saga {
   return yield call(backendPost, `Teams/${teamId}/Leave`, {});
 }
 
+export function* updateTeam (teamId: string, arg: {isOpen: boolean}): Saga {
+  return yield call(backendPost, `Teams/${teamId}/Update`, arg);
+}
+
 export function* changeTeamAccessCode (teamId: string): Saga {
   // result: {}
   return yield call(backendPost, `Teams/${teamId}/AccessCode`, null);

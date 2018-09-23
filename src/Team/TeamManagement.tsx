@@ -61,7 +61,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
             <ManageTeamScreen infos={contestInfos} team={team.value}
               onChangeAccessCode={this.handleChangeAccessCode}
               onLeaveTeam={this.handleLeaveTeam}
-              onChangeTeamIsOpen={this.handleChangeTeamOpen} />}
+              onChangeTeamIsOpen={this.handleChangeTeamIsOpen} />}
         </div>
         <Json value={user}/>
         <Json value={contest}/>
@@ -85,9 +85,9 @@ class TeamManagementPage extends React.PureComponent<Props> {
       this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
     }
   };
-  handleChangeTeamOpen = (isOpen: boolean) => {
+  handleChangeTeamIsOpen = (isOpen: boolean) => {
     if ('value' in this.props.team) {
-      this.props.dispatch(actionCreators.changeTeamOpen(this.props.team.id, isOpen));
+      this.props.dispatch(actionCreators.changeTeamIsOpen(this.props.team.id, isOpen));
     }
   };
 }
