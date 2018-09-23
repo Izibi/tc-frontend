@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 
-import {State, actionCreators, AppToaster, DispatchProp} from '../app';
+import {State, actionCreators, DispatchProp} from '../app';
 import {Router} from '../router';
 import {AppError, ErrorReport} from '../errors';
 import {Dev} from '../components';
@@ -37,16 +37,6 @@ class Root extends React.PureComponent<Props> {
   componentDidCatch (error: Error, info: {componentStack: any}) {
     this.props.dispatch(actionCreators.reactError(error, info));
   }
-  handleLogout = (event: React.MouseEvent<HTMLElement>) => {
-    this.props.dispatch(actionCreators.userLoggedOut());
-  };
-  handleLogin = (event: React.MouseEvent<HTMLElement>) => {
-    const userId = event.currentTarget.getAttribute('data-user-id') || 'unknown';
-    this.props.dispatch(actionCreators.userLoggedIn(userId));
-  };
-  toast = () => {
-    AppToaster.show({message: "Toasty!"});
-  };
 }
 
 function mapStateToProps (state : State) : StoreProps {

@@ -33,7 +33,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
   render () {
     const {loading, contests} = this.props;
     let contestList : JSX.Element | null = null;
-    if (contests) {
+    if (contests && contests.length > 0) {
       contestList =
         <ul className="contestList">
           {contests.map((contest, index) =>
@@ -41,8 +41,10 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
               ? <Slot<Contest> key={contest.id} component={ContestItem} entity={contest} />
               : null)}
         </ul>
+    } else {
+      contestList =
+        <p>{"You do not have access to any contest at this time."}</p>;
     }
-    console.log('contests', contests);
     return (
       <div>
         <Header/>

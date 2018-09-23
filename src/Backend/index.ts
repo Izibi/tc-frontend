@@ -30,7 +30,8 @@ export function backendReducer (state: State, action: Actions): State {
       const {task} = action.payload;
       return {...state, backend: {
         ...state.backend,
-        tasks: [...state.backend.tasks, task]
+        tasks: [...state.backend.tasks, task],
+        lastError: undefined,
       }};
     }
     case ActionTypes.BACKEND_TASK_FAILED: {
@@ -199,6 +200,7 @@ export function* monitorBackendTask (saga: any): Saga {
   const taskRef = {
     task: undefined,
   };
+  yield put(actionCreators.clearError());
   yield put(actionCreators.backendTaskStarted(taskRef));
   /* TODO: save entities, enabling the saga to make eager updates while being
      able to revert if the backend returns an error. */
@@ -219,14 +221,10 @@ export function* monitorBackendTask (saga: any): Saga {
 function* backendGet (path: string) {
   const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`);
   if (response.csrfToken) {
-    if (csrfToken !== response.csrfToken) {
-      console.log('Received CSRF token', response.csrfToken);
-    }
     csrfToken = response.csrfToken;
   }
   if (response.error) {
-    AppToaster.show({className: 'error', message: response.error});
-    throw new Error('API error');
+    throw new Error(response.error);
   }
   if (response.entities) {
     yield put(actionCreators.backendEntitiesLoaded(response.entities));
@@ -236,10 +234,8 @@ function* backendGet (path: string) {
 
 function* backendPost (path: string, body: object | null) {
   const response = yield call(postJson, `${process.env.BACKEND_URL}/${path}`, body);
-  console.log(response);
   if (response.error) {
-    AppToaster.show({className: 'error', message: response.error});
-    throw new Error('API error');
+    throw new Error(response.error);
   }
   if (response.entities) {
     yield put(actionCreators.backendEntitiesLoaded(response.entities));
