@@ -23,9 +23,8 @@ class UnauthenticatedUserPage extends React.PureComponent<Props> {
     return (
       <div>
         <Header />
-        <p>{"UnauthenticatedUser Landing Page"}</p>
         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '30vh'}}>
-          <AnchorButton href="https://home.epixode.fr/tezos/backend/Login" target="login" text="Log in"/>
+          <AnchorButton href={`${process.env.BACKEND_URL}/Login`} target="login" text="Log in"/>
         </div>
       </div>
     );

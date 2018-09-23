@@ -33,7 +33,7 @@ class Header extends React.PureComponent<Props> {
           {"Tezos Contests"}
         </div>
         {'value' in user &&
-          <AnchorButton href="https://home.epixode.fr/tezos/backend/Logout" target="login"
+          <AnchorButton href={`${process.env.BACKEND_URL}/Logout`} target="login"
             className="logOut"
             text={`Hello, ${user.value.firstname} ${user.value.lastname}`} />}
       </div>
