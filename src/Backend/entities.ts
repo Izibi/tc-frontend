@@ -25,6 +25,15 @@ export function errorEntity<T>(id: string): {state: EntityState.Error, id: strin
   return {state: EntityState.Error, id};
 }
 
+export function updateEntity<T extends object>(entity: Entity<T>, value: T): Entity<T> {
+  if ('value' in entity) {
+    const newValue : T = Object.assign({}, entity.value, value);
+    return {...entity, value: newValue};
+  } else {
+    return entity;
+  }
+}
+
 export function withEntityValue<T, R>(entity: Entity<T>, func: (value: T) => R): R | undefined {
   if (entity.state !== EntityState.Loaded && entity.state !== EntityState.Reloading) {
     return undefined;

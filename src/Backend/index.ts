@@ -74,14 +74,13 @@ export function backendReducer (state: State, action: Actions): State {
   return state;
 }
 
-export type UniEntities = {[collection: string]: {[id: string]: object}}
+export type UniEntities = {[collection: string]: {[id: string]: Entity<object>}}
 
 function updateEntities (entities: UniEntities, update: EntitiesUpdate): UniEntities {
   const result : UniEntities = {};
   for (let key of Object.keys(update)) {
     const value = update[key];
-    // Split key at first '.' yielding (collection, id).
-    const {collection, id} = splitEntityKey(key);
+    const {collection, facet, id} = splitEntityKey(key);
     // Ensure the collection has been copied.
     if (!(collection in result)) {
       result[collection] = {}; // Object.assign({}, entities[collection]);
@@ -94,8 +93,13 @@ function updateEntities (entities: UniEntities, update: EntitiesUpdate): UniEnti
         delete result[collection][id];
       }
     } else {
-      /* Otherwise, store the (id, value) pair in the collection. */
-      result[collection][id] = loadedEntity(id, value);
+      if (facet) {
+        /* Merge facet. */
+        result[collection][id] = updateEntity(result[collection][id], value);
+      } else {
+        /* Base facet, store the (id, value) pair in the collection. */
+        result[collection][id] = loadedEntity(id, value);
+      }
     }
   }
   /* Copy over any unchanged collections. */
@@ -107,9 +111,10 @@ function updateEntities (entities: UniEntities, update: EntitiesUpdate): UniEnti
   return result;
 }
 
-function splitEntityKey(key: string) : {collection: string, id: string} {
-  const [collection, ...idParts] = key.split('.');
-  return {collection, id: idParts.join('.')};
+function splitEntityKey(key: string) : {collection: string, facet: string | undefined, id: string} {
+  const [cf, id] = key.split(" ");
+  const [collection, facet] = cf.split("#");
+  return {collection, facet, id};
 }
 
 function matchIds(pattern: string, ids: string[]) {
