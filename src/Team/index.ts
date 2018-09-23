@@ -1,10 +1,10 @@
 
 import {Effect} from 'redux-saga';
-import {call, put} from 'redux-saga/effects';
+import {call, put, takeEvery} from 'redux-saga/effects';
 
 import {State, Actions, ActionTypes, actionCreators} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestTeam} from '../Backend';
+import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, changeTeamAccessCode} from '../Backend';
 
 import {TeamManagementParams} from './types';
 import TeamManagementPage from './TeamManagement';
@@ -19,7 +19,9 @@ export function teamReducer (state: State, action: Actions): State {
       break;
     }
     case ActionTypes.LEAVE_TEAM: {
-      state = {...state, teamId: 'unknown'};
+      /* XXX optimistic update is too early, should be done under the control
+         of monitorBackendTask so we can revert the state? */
+      state = {...state, teamId: null};
       break;
     }
     case ActionTypes.CHANGE_TEAM_ACCESS_CODE: {
@@ -38,6 +40,38 @@ function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<E
   yield call(monitorBackendTask, function* () {
     const {teamId} = yield call(loadContestTeam, params.contestId);
     yield put(actionCreators.teamChanged(teamId));
+  });
+  yield takeEvery(ActionTypes.CREATE_TEAM, function* (action: Actions) {
+    if (action.type !== ActionTypes.CREATE_TEAM) return; //@ts
+    yield call(monitorBackendTask, function* () {
+      const {contestId, teamName} = action.payload;
+      const result : {teamId: string | null} = yield call(createTeam, contestId, teamName);
+      if (result.teamId) {
+        yield put(actionCreators.teamChanged(result.teamId));
+      }
+    })
+  });
+  yield takeEvery(ActionTypes.JOIN_TEAM, function* (action: Actions) {
+    if (action.type !== ActionTypes.JOIN_TEAM) return; //@ts
+    yield call(monitorBackendTask, function* () {
+      const {contestId, accessCode} = action.payload;
+      const result : {teamId: string | null} = yield call(joinTeam, contestId, accessCode);
+      if (result.teamId) {
+        yield put(actionCreators.teamChanged(result.teamId));
+      }
+    });
+  })
+  yield takeEvery(ActionTypes.LEAVE_TEAM, function* (action: Actions) {
+    if (action.type !== ActionTypes.LEAVE_TEAM) return; //@ts
+    yield call(monitorBackendTask, function* () {
+      yield call(leaveTeam, action.payload.teamId);
+    });
+  })
+  yield takeEvery(ActionTypes.CHANGE_TEAM_ACCESS_CODE, function* (action: Actions) {
+    if (action.type !== ActionTypes.CHANGE_TEAM_ACCESS_CODE) return; //@ts
+    yield call(monitorBackendTask, function* () {
+      yield call(changeTeamAccessCode, action.payload.teamId);
+    });
   });
 }
 

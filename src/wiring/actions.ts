@@ -41,9 +41,12 @@ export const actionCreators = {
   teamChanged: (teamId: string) => createAction(ActionTypes.TEAM_CHANGED, {teamId}),
   chainListChanged: (chainIds: string[]) => createAction(ActionTypes.CHAIN_LIST_CHANGED, {chainIds}),
 
-  changeTeamAccessCode: () => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {}),
-  leaveTeam: () => createAction(ActionTypes.LEAVE_TEAM, {}),
-  changeTeamOpen: (isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_OPEN, {isOpen}),
+  // team management
+  createTeam: (contestId: string, teamName: string) => createAction(ActionTypes.CREATE_TEAM, {contestId, teamName}),
+  joinTeam: (contestId: string, accessCode: string) => createAction(ActionTypes.JOIN_TEAM, {contestId, accessCode}),
+  leaveTeam: (teamId: string) => createAction(ActionTypes.LEAVE_TEAM, {teamId}),
+  changeTeamAccessCode: (teamId: string) => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {teamId}),
+  changeTeamOpen: (teamId: string, isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_OPEN, {teamId, isOpen}),
 
 };
 

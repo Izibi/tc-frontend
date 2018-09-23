@@ -1,28 +1,27 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
-import {Button, Switch, Icon} from "@blueprintjs/core";
-import {Moment} from 'moment';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
 import {Entity, EntityState, Contest, Team, User} from '../types';
 import {Spinner, Json} from '../components';
 import {selectors} from '../Backend';
+import CreateJoinScreen from './CreateJoinScreen';
+import ManageTeamScreen from './ManageTeamScreen';
 //import {Link} from '../router';
-
-import {TeamManagementParams} from './types';
 
 type StoreProps = {
   loading: boolean,
   user: Entity<User>,
+  contestId: string,
   contest: Entity<Contest>,
   team: Entity<Team>,
 }
 
-type Props = TeamManagementParams & StoreProps & DispatchProp
+type Props = StoreProps & DispatchProp
 
-function mapStateToProps (state: State, props: TeamManagementParams): StoreProps {
+function mapStateToProps (state: State): StoreProps {
   const {userId, contestId, teamId} = state;
   const user = selectors.getUser(state, userId);
   const contest = selectors.getContest(state, contestId);
@@ -31,14 +30,13 @@ function mapStateToProps (state: State, props: TeamManagementParams): StoreProps
     user.state === EntityState.Loading ||
     contest.state === EntityState.Loading ||
     team.state === EntityState.Loading;
-  return {loading, user, contest, team};
+  return {loading, user, contestId, contest, team};
 }
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
-    let teamMembers : JSX.Element[] | undefined;
     const {loading, user, contest, team} = this.props;
-    const contestInfos = 'value' in contest &&
+    const contestInfos = 'value' in contest ?
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
         <p>
@@ -47,11 +45,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
           {" at "}
           {contest.value.registrationClosesAt.format('LT')}
         </p>
-      </div>;
-    if ('value' in team && team.value.members !== undefined) {
-      teamMembers = team.value.members.map((member, index) =>
-        <TeamMember key={index} user={member.user} joinedAt={member.joinedAt} isCreator={member.isCreator} />);
-    }
+      </div> : null;
     return (
       <div>
         <ContestHeader/>
@@ -59,79 +53,15 @@ class TeamManagementPage extends React.PureComponent<Props> {
 
           {loading && <Spinner/>}
 
-          {team.state === EntityState.Null && <div>
-            <div style={{fontSize: "18px", marginBottom: "1em"}}>
-              {"Get started in a team!"}
-            </div>
-            {contestInfos}
-            <div className="flexRow notInTeam">
-              <div className="teamSection creation">
-                <div>
-                  <div className="sectionTitle">{"Create new team"}</div>
-                  <div><input type="text" placeholder="Team name"/> <Button text="Create"/></div>
-                </div>
-              </div>
-              <div className="teamSection join">
-                <div>
-                  <div className="sectionTitle">{"Join an existing team"}</div>
-                  <div><input type="text" placeholder="Team code"/> <Button text="Join"/></div>
-                </div>
-              </div>
-            </div>
-          </div>}
+          {team.state === EntityState.Null &&
+            <CreateJoinScreen infos={contestInfos}
+              onCreate={this.handleCreateTeam} onJoin={this.handleJoinTeam} />}
 
           {'value' in team &&
-            <div className="hasTeam">
-              {contestInfos}
-              <div className="sectionTitle">{"Team name"}</div>
-              <div className="teamName">{team.value.name}</div>
-              <div className="flexRow">
-                <div className="teamSection members">
-                  <div>
-                    <div className="sectionTitle">{"Your team members"}</div>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Login</th>
-                          <th>Firstname Lastname</th>
-                          <th>Status</th>
-                          <th>Member since</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {teamMembers}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div className="teamSection code">
-                  <div>
-                    <div className="sectionTitle">{"Team access code"}</div>
-                    <div className="teamCodeFrame">
-                      <div className="teamCode">{team.value.accessCode}</div>
-                      <Button type="button" text="Change code" onClick={this.handleChangeAccessCode} />
-                    </div>
-                    <div className="lightText">
-                      {`Give this code to each person you want to invite to your team.`}
-                    </div>
-                  </div>
-                </div>
-                <div className="teamSection leave">
-                  <div>
-                    <div className="sectionTitle">{"Leave this team"}</div>
-                    <Button type="button" className="leaveTeam" onClick={this.handleLeaveTeam} >
-                      <Icon icon="arrow-right" iconSize={40} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div className="teamStatus">
-                <Switch alignIndicator="right" large inline
-                  checked={team.value.isOpen} onChange={this.handleChangeTeamOpen}
-                  label="Accept new members" />
-              </div>
-            </div>
-          }
+            <ManageTeamScreen infos={contestInfos} team={team.value}
+              onChangeAccessCode={this.handleChangeAccessCode}
+              onLeaveTeam={this.handleLeaveTeam}
+              onChangeTeamIsOpen={this.handleChangeTeamOpen} />}
         </div>
         <Json value={user}/>
         <Json value={contest}/>
@@ -139,39 +69,27 @@ class TeamManagementPage extends React.PureComponent<Props> {
       </div>
     );
   }
+  handleCreateTeam = (teamName: string) => {
+    this.props.dispatch(actionCreators.createTeam(this.props.contestId, teamName));
+  };
+  handleJoinTeam = (accessCode: string) => {
+    this.props.dispatch(actionCreators.joinTeam(this.props.contestId, accessCode));
+  };
   handleChangeAccessCode = () => {
-    this.props.dispatch(actionCreators.changeTeamAccessCode());
+    if ('value' in this.props.team) {
+      this.props.dispatch(actionCreators.changeTeamAccessCode(this.props.team.id));
+    }
   };
   handleLeaveTeam = () => {
-    this.props.dispatch(actionCreators.leaveTeam());
+    if ('value' in this.props.team) {
+      this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
+    }
   };
-  handleChangeTeamOpen = () => {
-    const {team} = this.props;
-    if ('value' in team) {
-      this.props.dispatch(actionCreators.changeTeamOpen(!team.value.isOpen));
+  handleChangeTeamOpen = (isOpen: boolean) => {
+    if ('value' in this.props.team) {
+      this.props.dispatch(actionCreators.changeTeamOpen(this.props.team.id, isOpen));
     }
   };
 }
-
-type TeamMembersProps = {
-  user: Entity<User>,
-  joinedAt: Moment,
-  isCreator: boolean,
-}
-
-const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
-  const {user, joinedAt, isCreator} = props;
-  if (!('value' in user)) return null;
-  const {username, firstname, lastname} = user.value;
-  return (
-    <tr>
-      <td>{username}</td>
-      <td>{firstname}{" "}{lastname}</td>
-      <td>{isCreator &&
-        <span>{"Creator"}</span>}</td>
-      <td>{joinedAt.format('YYYY-MM-DD, hh:mm a')}</td>
-    </tr>
-  );
-};
 
 export default connect(mapStateToProps)(TeamManagementPage);

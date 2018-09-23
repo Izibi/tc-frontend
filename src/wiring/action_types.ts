@@ -21,6 +21,8 @@ export const CONTEST_CHANGED = "[model] contest changed";
 export const TEAM_CHANGED = "[model] team changed";
 export const CHAIN_LIST_CHANGED = "[model] chain list changed";
 
-export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
+export const CREATE_TEAM = "[team] create";
+export const JOIN_TEAM = "[team] join";
 export const LEAVE_TEAM = "[team] leave";
+export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
 export const CHANGE_TEAM_OPEN = "[team] change is_open";

@@ -18,7 +18,7 @@ export type State =
     userId: string /* id of user logged in or 'unknonw' */,
     contestIds: string[] | undefined /* list of available contests, if loaded */,
     contestId: string /* id of current contest or 'unknown' */,
-    teamId: string /* id of user's team or 'unknown' */,
+    teamId: string | null /* id of user's team or null or 'unknown' */,
     chainId: string /* id of selected chain or 'unknown' */,
     blockHash: string /* hash of selected block or 'unknonw' */,
     taskResourceIndex: number /* index of resource selected in task tab */,
