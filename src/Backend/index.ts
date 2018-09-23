@@ -279,7 +279,7 @@ export function* joinTeam (contestId: string, accessCode: string): Saga {
 
 export function* leaveTeam (teamId: string): Saga {
   // result: {}
-  return yield call(backendPost, `Teams/${teamId}/Leave`, {teamId});
+  return yield call(backendPost, `Teams/${teamId}/Leave`, {});
 }
 
 export function* changeTeamAccessCode (teamId: string): Saga {
