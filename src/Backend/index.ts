@@ -1,19 +1,22 @@
 
-import {Effect, CANCEL} from 'redux-saga';
-import {fork, call, put} from 'redux-saga/effects';
+import {Effect, CANCEL} from "redux-saga";
+import {fork, call, put} from "redux-saga/effects";
 
-import {without} from '../utils';
-import {actionCreators, Actions, ActionTypes, AppToaster, State} from '../app';
+import {actionCreators, Actions, ActionTypes, AppToaster, State} from "../app";
+import {without} from "../utils";
 
-import {Entities, EntitiesUpdate} from './types';
-import * as _selectors from './selectors';
-import {loadedEntity} from './entities';
+import {Entity} from '../types';
+import {Entities, EntitiesUpdate} from "./types";
+import * as _selectors from "./selectors";
+import {loadedEntity, updateEntity} from "./entities";
 
-export {EntityMap, BackendState, EntitiesUpdate} from './types';
-export {default as BackendFeedback} from './Feedback';
+export {EntityMap, BackendState, EntitiesUpdate} from "./types";
+export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
 type Saga = IterableIterator<Effect>
+
+var csrfToken : string = "";
 
 // const keysOf = (Object.keys as <T>(o: T) => (keyof T)[]);
 
@@ -59,7 +62,7 @@ export function backendReducer (state: State, action: Actions): State {
     case ActionTypes.CONTEST_CHANGED: {
       const {contestId} = action.payload;
       // Teams are per-contest? so when the contest changes, forget the current team.
-      return {...state, contestId, teamId: 'unknown'};
+      return {...state, contestId, teamId: "unknown"};
     }
     case ActionTypes.TEAM_CHANGED: {
       let {teamId} = action.payload;
@@ -153,7 +156,36 @@ function loadEntities2<T>(values: T[], getId: (value: T) => string) : EntityMap<
 function fetchJson (url: string) {
   const controller = new AbortController();
   const promise = new Promise(function (resolve, reject) {
-    fetch(url, {credentials: 'include' /* XXX X-Csrf-Token */, signal: controller.signal}).then(function (req) {
+    const init : RequestInit = {
+      cache: "no-cache",
+      credentials: "include",
+      signal: controller.signal,
+    };
+    fetch(url, init).then(function (req) {
+      req.json().then(resolve).catch(reject);
+    }).catch(reject);
+  });
+  (promise as any)[CANCEL] = function () {
+    controller.abort();
+  };
+  return promise;
+}
+
+function postJson (url: string, body: any) {
+  const controller = new AbortController();
+  const promise = new Promise(function (resolve, reject) {
+    const init : RequestInit = {
+      method: "POST",
+      mode: "cors",
+      cache: "no-cache",
+      credentials: "include",
+      signal: controller.signal,
+      headers: {
+        "X-Csrf-Token": csrfToken
+      },
+      body: JSON.stringify(body),
+    };
+    fetch(url, init).then(function (req) {
       req.json().then(resolve).catch(reject);
     }).catch(reject);
   });
@@ -168,11 +200,15 @@ export function* monitorBackendTask (saga: any): Saga {
     task: undefined,
   };
   yield put(actionCreators.backendTaskStarted(taskRef));
+  /* TODO: save entities, enabling the saga to make eager updates while being
+     able to revert if the backend returns an error. */
   taskRef.task = yield fork(function* () {
     try {
       return yield call(saga);
     } catch (ex) {
       AppToaster.show({message: ex.toString()});
+      /* TODO: if an error happened before getting an error-free response from
+         the backend, revert to the saved entities. */
       yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
     } finally {
       yield put(actionCreators.backendTaskDone(taskRef));
@@ -180,34 +216,73 @@ export function* monitorBackendTask (saga: any): Saga {
   });
 }
 
-export function* getUser (): Saga {
-  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/User`);
-  if (entities) {
-    yield put(actionCreators.backendEntitiesLoaded(entities));
+function* backendGet (path: string) {
+  const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`);
+  if (response.csrfToken) {
+    if (csrfToken !== response.csrfToken) {
+      console.log('Received CSRF token', response.csrfToken);
+    }
+    csrfToken = response.csrfToken;
   }
-  return result ? result.userId : undefined;
+  if (response.error) {
+    AppToaster.show({className: 'error', message: response.error});
+    throw new Error('API error');
+  }
+  if (response.entities) {
+    yield put(actionCreators.backendEntitiesLoaded(response.entities));
+  }
+  return response.result;
+}
+
+function* backendPost (path: string, body: object | null) {
+  const response = yield call(postJson, `${process.env.BACKEND_URL}/${path}`, body);
+  console.log(response);
+  if (response.error) {
+    AppToaster.show({className: 'error', message: response.error});
+    throw new Error('API error');
+  }
+  if (response.entities) {
+    yield put(actionCreators.backendEntitiesLoaded(response.entities));
+  }
+  return response.result;
+}
+
+export function* getUser (): Saga {
+  // result: {userId: string, csrfToken: string}
+  return yield call(backendGet, 'User');
 }
 
 export function* loadAuthenticatedUserLanding (): Saga {
-  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/AuthenticatedUserLanding`);
-  if (entities) {
-    yield put(actionCreators.backendEntitiesLoaded(entities));
-  }
-  return result; // {userId: string, contestIds: string[]}
+  // result: {userId: string, contestIds: string[]}
+  return yield call(backendGet, `AuthenticatedUserLanding`);
 }
 
 export function* loadContest (contestId: string): Saga {
-  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}`);
-  if (entities) {
-    yield put(actionCreators.backendEntitiesLoaded(entities));
-  }
-  return result; // {}
+  // result: {}
+  return yield call(backendGet, `Contests/${contestId}`);
 }
 
 export function* loadContestTeam (contestId: string): Saga {
-  const {result, entities} = yield call(fetchJson, `${process.env.BACKEND_URL}/Contests/${contestId}/Team`);
-  if (entities) {
-    yield put(actionCreators.backendEntitiesLoaded(entities));
-  }
-  return result; // {teamId: string | null}
+  // result: {teamId: string | null}
+  return yield call(backendGet, `Contests/${contestId}/Team`);
+}
+
+export function* createTeam (contestId: string, teamName: string): Saga {
+  // result: {teamId: string | null}
+  return yield call(backendPost, `Contests/${contestId}/CreateTeam`, {teamName});
+}
+
+export function* joinTeam (contestId: string, accessCode: string): Saga {
+  // result: {teamId: string | null}
+  return yield call(backendPost, `Contests/${contestId}/JoinTeam`, {accessCode});
+}
+
+export function* leaveTeam (teamId: string): Saga {
+  // result: {}
+  return yield call(backendPost, `Teams/${teamId}/Leave`, {teamId});
+}
+
+export function* changeTeamAccessCode (teamId: string): Saga {
+  // result: {}
+  return yield call(backendPost, `Teams/${teamId}/AccessCode`, null);
 }

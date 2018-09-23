@@ -48,8 +48,8 @@ export function landingReducer (state: State, action: Actions): State {
 function* unauthenticatedUserSaga () : IterableIterator<Effect> {
   const currentUserId: string = yield select((state : State) => state.userId);
   if (currentUserId === 'unknown') {
-    const userId : string | undefined = yield call(getUser);
-    if (userId !== undefined) {
+    const {userId} = yield call(getUser);
+    if (userId) {
       /* See wiring/sagas.ts for handling of USER_LOGGED_IN,
          which causes a re-evaluation of the current route. */
       yield put(actionCreators.userLoggedIn(userId));
