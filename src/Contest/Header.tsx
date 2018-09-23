@@ -1,6 +1,6 @@
 
 import * as React from "react";
-import {Button} from "@blueprintjs/core";
+import {AnchorButton} from "@blueprintjs/core";
 import {connect} from "react-redux";
 
 import {actionCreators, DispatchProp, State} from "../app";
@@ -36,18 +36,29 @@ class Header extends React.PureComponent<Props> {
       <div>
         <div className="platformHeader">
           <div className="contestHead">
-            <div className="platformLogo"><span>{"T"}</span><span>{"C"}</span></div>
-            {'value' in contest && <div className="contestTitle">{contest.value.title}</div>}
+            <div className="platformLogo">
+              <span>{"T"}</span>
+              <span>{"C"}</span>
+            </div>
+            {'value' in contest &&
+              <div className="contestTitle">{contest.value.title}</div>}
           </div>
           <div className="chainHead">
             {'value' in contest && 'value' in contest.value.currentPeriod &&
-              <div className="contestPeriod">{"Day"}<span className="dayNumber">{contest.value.currentPeriod.value.dayNumber}</span></div>}
+              <div className="contestPeriod">
+                {"Day"}
+                <span className="dayNumber">
+                  {contest.value.currentPeriod.value.dayNumber}
+                </span>
+              </div>}
             <div className="chainStatus">
               <div className="day"></div>
               <div className="rounds"></div>
             </div>
             {'value' in user &&
-               <Button text={`Hello, ${user.value.firstname} ${user.value.lastname}`} onClick={this.handleLogout} className="logOut" rightIcon="log-out" />}
+              <AnchorButton href="https://home.epixode.fr/tezos/backend/Logout" target="login"
+                className="logOut"
+                text={`Hello, ${user.value.firstname} ${user.value.lastname}`} />}
           </div>
         </div>
         <div className="mainMenu">

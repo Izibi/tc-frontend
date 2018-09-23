@@ -4,8 +4,8 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, EntityState, Contest, Team, User} from '../types';
-import {Spinner, Json} from '../components';
+import {Entity, EntityState, Contest, Team} from '../types';
+import {Spinner} from '../components';
 import {selectors} from '../Backend';
 import CreateJoinScreen from './CreateJoinScreen';
 import ManageTeamScreen from './ManageTeamScreen';
@@ -13,7 +13,6 @@ import ManageTeamScreen from './ManageTeamScreen';
 
 type StoreProps = {
   loading: boolean,
-  user: Entity<User>,
   contestId: string,
   contest: Entity<Contest>,
   team: Entity<Team>,
@@ -22,20 +21,18 @@ type StoreProps = {
 type Props = StoreProps & DispatchProp
 
 function mapStateToProps (state: State): StoreProps {
-  const {userId, contestId, teamId} = state;
-  const user = selectors.getUser(state, userId);
+  const {contestId, teamId} = state;
   const contest = selectors.getContest(state, contestId);
   const team = selectors.getTeam(state, teamId);
   const loading =
-    user.state === EntityState.Loading ||
     contest.state === EntityState.Loading ||
     team.state === EntityState.Loading;
-  return {loading, user, contestId, contest, team};
+  return {loading, contestId, contest, team};
 }
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
-    const {loading, user, contest, team} = this.props;
+    const {loading, contest, team} = this.props;
     const contestInfos = 'value' in contest ?
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
@@ -63,9 +60,6 @@ class TeamManagementPage extends React.PureComponent<Props> {
               onLeaveTeam={this.handleLeaveTeam}
               onChangeTeamIsOpen={this.handleChangeTeamIsOpen} />}
         </div>
-        <Json value={user}/>
-        <Json value={contest}/>
-        {team && <Json value={team}/>}
       </div>
     );
   }
