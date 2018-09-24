@@ -70,10 +70,13 @@ function* messageListenerSaga () {
     if (message.type === "login") {
       const {userId} = message;
       yield put(actionCreators.userLoggedIn(userId));
-      // TODO: set csrfToken
     } else if (message.type === "logout") {
-      yield put(actionCreators.userLoggedOut());
-      // TODO: set csrfToken
+      /* Reload the page on logout, the session has been cleared and the CSRF
+         token is no longer valid.  Alternatively we could reload the CSRF
+         script from the backend, or receive a new CSRF token in the logout
+         message. */
+      // yield put(actionCreators.userLoggedOut());
+      location.reload();
     }
   }
 }

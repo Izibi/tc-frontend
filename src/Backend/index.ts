@@ -16,8 +16,6 @@ export const selectors = _selectors;
 
 type Saga = IterableIterator<Effect>
 
-var csrfToken : string = "";
-
 // const keysOf = (Object.keys as <T>(o: T) => (keyof T)[]);
 
 export function backendReducer (state: State, action: Actions): State {
@@ -182,7 +180,7 @@ function postJson (url: string, body: any) {
       credentials: "include",
       signal: controller.signal,
       headers: {
-        "X-Csrf-Token": csrfToken
+        "X-Csrf-Token": (<any>window).csrfToken
       },
       body: JSON.stringify(body),
     };
@@ -220,9 +218,6 @@ export function* monitorBackendTask (saga: any): Saga {
 
 function* backendGet (path: string) {
   const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`);
-  if (response.csrfToken) {
-    csrfToken = response.csrfToken;
-  }
   if (response.error) {
     throw new Error(response.error);
   }
@@ -244,7 +239,7 @@ function* backendPost (path: string, body: object | null) {
 }
 
 export function* getUser (): Saga {
-  // result: {userId: string, csrfToken: string}
+  // result: {userId: string}
   return yield call(backendGet, 'User');
 }
 

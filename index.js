@@ -48,6 +48,7 @@ app.use("/dist", function(req, res, next) {
 app.get("*", function (req, res) {
   res.render("index", {
     options: {mountPath},
+    csrfTokenUrl: `${process.env.BACKEND_URL}/CsrfToken.js`,
     distUrl: makeDistUrl,
   });
 });
