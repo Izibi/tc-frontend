@@ -23,23 +23,31 @@ type StoreProps = {
   chains: Entity<Chain>[],
   teams: Team[],
   chain: Entity<Chain>,
+  isOwner: boolean,
 }
 
 type Props = StoreProps & DispatchProp
 
 function mapStateToProps (state: State, _props: object): StoreProps {
-  const {route, contestId, chainIds, chainId, blockHash} = state;
+  const {route, teamId, contestId, chainIds, chainId, blockHash} = state;
   const here = route ? route.rule.name : '';
   const chains = chainIds.map(id => selectors.getChain(state, id));
   const chain = selectors.getChain(state, "1" /* XXX chainId*/);
   const teams = selectors.getTeams(state);
-  const loaded = 'value' in chain;
-  return {here, loaded, contestId, chainId, blockHash, chains, teams, chain};
+  let loaded = false;
+  let isOwner = false;
+  if ('value' in chain) {
+    loaded = true;
+    if (teamId !== null && chain.value.ownerId === teamId) {
+      isOwner = true;
+    }
+  }
+  return {here, loaded, contestId, chainId, blockHash, chains, teams, chain, isOwner};
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, contestId, chainId, loaded, chains, teams, chain} = this.props;
+    const {here, contestId, chainId, loaded, chains, teams, chain, isOwner} = this.props;
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
       <div className="chainsPage">
@@ -71,7 +79,7 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
             </div>
             <div>
-              {tab === 'chain' && <ChainTab chain={chain}/>}
+              {tab === 'chain' && 'value' in chain && <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
               {tab === 'block' && <BlockTab/>}
             </div>
           </div>

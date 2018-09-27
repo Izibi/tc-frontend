@@ -281,3 +281,8 @@ export function* changeTeamAccessCode (teamId: string): Saga {
   // result: {}
   return yield call(backendPost, `Teams/${teamId}/AccessCode`, null);
 }
+
+export function* loadContestChains (contestId: string, filters: object/* TODO */): Saga {
+  // result: {chainIds: string[]}
+  return yield call(backendGet, `Contests/${contestId}/Chains`);
+}

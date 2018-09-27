@@ -86,29 +86,24 @@ export type ChainStatus =
 
 export type Chain = {
   id: string,
-  contest: Entity<Contest>,
-  team: Entity<Team>,
-  parent: Entity<Chain>,
   createdAt: Moment,
   updatedAt: Moment,
+  contest: Entity<Contest>,
+  ownerId: string | null,
+  owner: Entity<Team>,
+  parent: Entity<Chain>,
   status: ChainStatus,
+  title: string,
+  description: string,
+  interfaceText: string,
+  implementationText: string,
+  protocolHash: string,
+  newProtocolHash: string,
+  currentGameKey: string,
+  currentRound: number,
+  nbVotesApprove: number,
   nbVotesReject: number,
   nbVotesUnknown: number,
-  nbVotesApprove: number,
-  title: string,
-  protocolHash: string,
-  newProtocol: Entity<Protocol>,
-  currentGame: Entity<Game>,
-  currentBlockHash: string,
-  currentRound: number,
-}
-
-export type Protocol = {
-  description: string,
-  interface: string,
-  implementation: string,
-  hash: string | undefined,
-  /* errors? */
 }
 
 export type Game = {

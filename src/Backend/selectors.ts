@@ -119,19 +119,18 @@ export function getTeamMembers (state: State, teamId: string): TeamMember[] {
 
 export function getChain (state: State, id: string | null): Entity<Chain> {
   return visitEntity(state, 'chains', id, (chain) => {
-    const contest = getContest(state, chain.contestId);
-    const team = getTeam(state, chain.teamId);
-    const parent = getChain(state, chain.parentId);
     const createdAt = moment(chain.createdAt);
     const updatedAt = moment(chain.updatedAt);
-    const newProtocol = nullEntity(); // TODO
-    const currentGame = nullEntity(); // TODO
-    const status = checkChainStatus(chain.status);
-    return {...chain, contest, team, parent, createdAt, updatedAt, status, newProtocol, currentGame};
+    const contest = getContest(state, chain.contestId);
+    const owner = getTeam(state, chain.ownerId);
+    const parent = getChain(state, chain.parentId);
+    const status : ChainStatus = "main"; // XXX getChainStatus(chain.statusId);
+    return {...chain, createdAt, updatedAt, contest, owner, parent, status};
   });
 }
 
-function checkChainStatus(status: string) : ChainStatus {
+/*
+function getChainStatus(statusId: string) : ChainStatus {
   switch (status) {
     case "private":
     case "public":
@@ -144,3 +143,4 @@ function checkChainStatus(status: string) : ChainStatus {
      return "invalid";
   }
 }
+*/

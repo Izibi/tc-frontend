@@ -1,11 +1,10 @@
 
 import {Effect} from 'redux-saga';
-//import {call, put} from 'redux-saga/effects';
+import {call, put} from 'redux-saga/effects';
 
-import {Actions, State} from '../app';
-
+import {Actions, State, actionCreators} from '../app';
 import {Rule} from '../router';
-// import {monitorBackendTask, loadContest, loadContestChains, loadContestTeams} from '../Backend';
+import {monitorBackendTask, loadContestChains} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -66,15 +65,14 @@ export function chainsReducer (state: State, action: Actions): State {
 }
 
 function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
-  /*
-  yield call(loadContest, params.contestId);
-  yield call(loadContestTeams, params.contestId);
-  const chainIds = yield call(loadContestChains, params.contestId, {/* filters go here * /});
-  yield put(actionCreators.chainListChanged(chainIds));
-  /* TODO: if params.chainId is undefined, find the id of the main chain (it
-           should always be included in the server's response), and put it in
-           the store. * /
-  /* TODO: if params.blockHash is undefined, find the hash of the last block
-           in the selected chain, and put it in the store. * /
-  */
+  yield call(monitorBackendTask, function* () {
+    const {chainIds} = yield call(loadContestChains, params.contestId, {});
+    yield put(actionCreators.chainListChanged(chainIds));
+    /* yield call(loadContestTeams, params.contestId); */
+    /* TODO: if params.chainId is undefined, find the id of the main chain (it
+             should always be included in the server's response), and put it in
+             the store. */
+    /* TODO: if params.blockHash is undefined, find the hash of the last block
+             in the selected chain, and put it in the store. */
+  });
 }
