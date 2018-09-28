@@ -43,6 +43,8 @@ body {
   .onehalf {
     flex: 1 1 50%;
     margin: 0 10px;
+    display: flex;
+    flex-direction: column;
   }
 }
 .flexColumn {
@@ -128,7 +130,7 @@ body {
   background-color: $secondaryBgColor;
   position: relative;
   border-radius: 0 $radiusLarge $radiusLarge $radiusLarge;
-  flex: 1 0 auto;
+  flex: 1 0 0;
   border: $tabsBorders;
   min-height: 500px;
   padding: 2em;
@@ -142,6 +144,9 @@ body {
     box-shadow: $boxShadow;
     margin-bottom: 1.5em;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
 
     .panelHeader {
       background: $themeColorLight;
@@ -150,6 +155,8 @@ body {
     }
     .panelBody {
       padding: 20px 10px;
+      flex-grow: 2;
+      position: relative;
     }
   }
 }

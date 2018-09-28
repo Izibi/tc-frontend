@@ -18,8 +18,9 @@ type ChainTabProps = {
 class ChainTab extends React.PureComponent<ChainTabProps> {
   render () {
     const {chain, isOwner} = this.props;
-    const ew = '515px', eh = '300px';
+    const ew = '100%', eh = '512px';
     return (
+      <div>
       <div className="flexRow">
         <div className="onehalf">
           <div className="panel">
@@ -35,12 +36,8 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
               </div>
             </div>
           </div>
-          <div className="panel">
-            <div className="panelHeader">{"Description of the code changes"}</div>
-            <div className="panelBody">
-              {chain.description}
-            </div>
-          </div>
+         </div>
+         <div className="onehalf">
           {isOwner &&
             <div className="panel">
               <div className="panelHeader">{"Restart the game"}</div>
@@ -59,21 +56,38 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
                 <Button text="Restart game"/>
               </div>
             </div>}
-         </div>
-         <div className="onehalf">
+        </div>
+      </div>
+      <div className="flexRow">
+        <div className="onehalf">
           <div className="panel">
-            <div className="panelHeader">{"OCaml interface for this chain"}</div>
-            <div className="panelBody" style={{width: ew, height: eh, padding: '0'}}>
-              <AceEditor mode="ocaml" theme="github" value={chain.interfaceText} onChange={this.handleInterfaceTextChange} readOnly={false && !isOwner} width={ew} height={eh} />
+            <div className="panelHeader">{"Description of the code changes"}</div>
+            <div className="panelBody" style={{flexBasis: '15em', overflow: 'auto'}}>
+              {chain.description}
             </div>
           </div>
           <div className="panel">
-            <div className="panelHeader">{"OCaml implementation for this chain"}</div>
-            <div className="panelBody" style={{width: ew, height: eh, padding: '0'}}>
-              <AceEditor mode="ocaml" theme="github" value={chain.implementationText} onChange={this.handleImplementationTextChange} readOnly={false && !isOwner} width={ew} height={eh} />
+            <div className="panelHeader">{"OCaml interface for this chain"}</div>
+            <div className="panelBody" style={{padding: '0'}}>
+              <AceEditor mode="ocaml" theme="github"
+                value={chain.interfaceText} onChange={this.handleInterfaceTextChange}
+                readOnly={false && !isOwner}
+                width={ew} height={eh} />
             </div>
           </div>
         </div>
+        <div className="onehalf">
+          <div className="panel">
+            <div className="panelHeader">{"OCaml implementation for this chain"}</div>
+            <div className="panelBody" style={{width: ew, padding: '0'}}>
+              <AceEditor mode="ocaml" theme="github"
+              value={chain.implementationText} onChange={this.handleImplementationTextChange}
+              readOnly={false && !isOwner}
+              width={ew} height={'773px'} minLines={20} />
+            </div>
+          </div>
+        </div>
+      </div>
       </div>
      );
   }
