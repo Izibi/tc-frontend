@@ -51,6 +51,15 @@ export function backendReducer (state: State, action: Actions): State {
         ...state,
         backend: {...state.backend, generation: state.backend.generation + 1},
         entities
+    }
+
+    case ActionTypes.EAGERLY_UPDATE_ENTITY: {
+      const {id, collection, changes} = action.payload;
+      const entities = update(state.entities, {[collection]: {[id]: {value: changes}}});
+      return {
+        ...state,
+        backend: flushSelectorCache(state.backend),
+        entities,
       };
     }
 

@@ -25,6 +25,9 @@ export const actionCreators = {
   sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
 
+  // model
+  eagerlyUpdateEntity: (collection: string, id: string, changes: object) => createAction(ActionTypes.EAGERLY_UPDATE_ENTITY, {collection, id, changes}),
+
   // backend
   backendTasksCleared: () => createAction(ActionTypes.BACKEND_TASKS_CLEARED, {}),
   backendTaskStarted: (task: object) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task}),
