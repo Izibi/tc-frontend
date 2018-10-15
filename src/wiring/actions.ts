@@ -50,6 +50,7 @@ export const actionCreators = {
   leaveTeam: (teamId: string) => createAction(ActionTypes.LEAVE_TEAM, {teamId}),
   changeTeamAccessCode: (teamId: string) => createAction(ActionTypes.CHANGE_TEAM_ACCESS_CODE, {teamId}),
   changeTeamIsOpen: (teamId: string, isOpen: boolean) => createAction(ActionTypes.CHANGE_TEAM_IS_OPEN, {teamId, isOpen}),
+  changeTeamKey: (teamId: string, publicKey: string) => createAction(ActionTypes.CHANGE_TEAM_KEY, {teamId, publicKey}),
 
   // protocol edition
   interfaceTextChanged: (text: string) => createAction(ActionTypes.INTERFACE_TEXT_CHANGED, {text}),

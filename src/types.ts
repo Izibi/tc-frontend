@@ -37,6 +37,7 @@ export type Team = {
   isOpen: boolean /* can new users join the team? */,
   isLocked: boolean /* contest started, team cannot be changed */,
   members?: TeamMember[],
+  publicKey: string,
 }
 
 export type TeamMember = {
