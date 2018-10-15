@@ -32,7 +32,7 @@ function mapStateToProps (state: State): StoreProps {
 
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
-    const {loading, contest, team} = this.props;
+    const {loading, contest, team, dispatch} = this.props;
     const contestInfos = 'value' in contest ?
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
@@ -55,10 +55,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
               onCreate={this.handleCreateTeam} onJoin={this.handleJoinTeam} />}
 
           {'value' in team &&
-            <ManageTeamScreen infos={contestInfos} team={team.value}
-              onChangeAccessCode={this.handleChangeAccessCode}
-              onLeaveTeam={this.handleLeaveTeam}
-              onChangeTeamIsOpen={this.handleChangeTeamIsOpen} />}
+            <ManageTeamScreen infos={contestInfos} team={team.value} dispatch={dispatch} />}
         </div>
       </div>
     );
@@ -68,21 +65,6 @@ class TeamManagementPage extends React.PureComponent<Props> {
   };
   handleJoinTeam = (accessCode: string) => {
     this.props.dispatch(actionCreators.joinTeam(this.props.contestId, accessCode));
-  };
-  handleChangeAccessCode = () => {
-    if ('value' in this.props.team) {
-      this.props.dispatch(actionCreators.changeTeamAccessCode(this.props.team.id));
-    }
-  };
-  handleLeaveTeam = () => {
-    if ('value' in this.props.team) {
-      this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
-    }
-  };
-  handleChangeTeamIsOpen = (isOpen: boolean) => {
-    if ('value' in this.props.team) {
-      this.props.dispatch(actionCreators.changeTeamIsOpen(this.props.team.id, isOpen));
-    }
   };
 }
 

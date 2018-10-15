@@ -1,17 +1,15 @@
 
 import * as React from 'react';
-import {Button, Switch, Icon} from "@blueprintjs/core";
+import {Button, Icon, InputGroup, Switch} from "@blueprintjs/core";
 import {Moment} from 'moment';
 
+import {actionCreators, DispatchProp} from '../app';
 import {Entity, Team, User} from '../types';
 
 type Props = {
   infos: JSX.Element | null,
   team: Team,
-  onChangeAccessCode: () => void,
-  onLeaveTeam: () => void,
-  onChangeTeamIsOpen: (isOpen: boolean) => void,
-}
+} & DispatchProp
 
 type State = {
 }
@@ -20,7 +18,6 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
   render() {
     const {infos, team} = this.props;
     let teamMembers : JSX.Element[] | undefined;
-    console.log(team.members);
     if (team.members !== undefined) {
       teamMembers = team.members.map((member, index) =>
         <TeamMember key={index} user={member.user} joinedAt={member.joinedAt} isCreator={member.isCreator} />);
@@ -75,17 +72,26 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
             checked={team.isOpen} onChange={this.handleChangeTeamOpen}
             label="Accept new members" />
         </div>
+        <div className="teamKey">
+          <InputGroup leftIcon='key' placeholder="Enter your public team key here"
+            value={team.publicKey} onChange={this.handleChangeTeamKey} />
+        </div>
       </div>
     );
   }
   handleChangeAccessCode = () => {
-    this.props.onChangeAccessCode();
+    this.props.dispatch(actionCreators.changeTeamAccessCode(this.props.team.id));
   };
   handleLeaveTeam = () => {
-    this.props.onLeaveTeam();
+    this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
   };
   handleChangeTeamOpen = () => {
-    this.props.onChangeTeamIsOpen(!this.props.team.isOpen);
+    const isOpen = !this.props.team.isOpen;
+    this.props.dispatch(actionCreators.changeTeamIsOpen(this.props.team.id, isOpen));
+  };
+  handleChangeTeamKey = (ev: React.FormEvent<HTMLInputElement>) => {
+    const teamKey = ev.currentTarget.value;
+    this.props.dispatch(actionCreators.changeTeamKey(this.props.team.id, teamKey));
   };
 }
 

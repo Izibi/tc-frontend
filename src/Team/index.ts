@@ -1,6 +1,6 @@
 
-import {Effect} from 'redux-saga';
-import {call, put, takeEvery} from 'redux-saga/effects';
+import {Effect, delay} from 'redux-saga';
+import {call, put, takeEvery, takeLatest} from 'redux-saga/effects';
 
 import {State, Actions, ActionTypes, actionCreators} from '../app';
 import {Rule} from '../router';
@@ -75,8 +75,19 @@ function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<E
   });
   yield takeEvery(ActionTypes.CHANGE_TEAM_IS_OPEN, function* (action: Actions) {
     if (action.type !== ActionTypes.CHANGE_TEAM_IS_OPEN) return; //@ts
+    const {teamId, isOpen} = action.payload;
+    yield put(actionCreators.eagerlyUpdateEntity('teams', teamId, {isOpen: {$set: isOpen}}));
     yield call(monitorBackendTask, function* () {
-      yield call(updateTeam, action.payload.teamId, {isOpen: action.payload.isOpen});
+      yield call(updateTeam, teamId, {isOpen: isOpen});
+    });
+  });
+  yield takeLatest(ActionTypes.CHANGE_TEAM_KEY, function* (action: Actions) {
+    if (action.type !== ActionTypes.CHANGE_TEAM_KEY) return; //@ts
+    const {teamId, publicKey} = action.payload;
+    yield put(actionCreators.eagerlyUpdateEntity('teams', teamId, {publicKey: {$set: publicKey}}));
+    yield call(delay, 250);
+    yield call(monitorBackendTask, function* () {
+      yield call(updateTeam, teamId, {publicKey});
     });
   });
 }
