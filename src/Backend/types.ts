@@ -1,5 +1,7 @@
 
-import {Entity} from '../types';
+import * as Immutable from 'immutable';
+
+import {Entity, Block} from '../types';
 
 export interface EntityMap<T> {
   [key: string]: Entity<T>;
@@ -12,6 +14,12 @@ export type BackendState = {
     tasks: object[],
   },
   entities: Entities,
+  games: Immutable.Map<string, GameInfo> /* game key -> sparse list of blocks */,
+}
+
+export type GameInfo = {
+  game: Game,
+  blocks: Immutable.List<Block>,
 }
 
 export type Entities = {
@@ -109,4 +117,17 @@ export type Chain = {
   nbVotesApprove: number,
   nbVotesReject: number,
   nbVotesUnknown: number,
+}
+
+export type Game = {
+  key: string,
+  createdAt: string,
+  updatedAt: string,
+  startedAt: string | null,
+  roundEndsAt: string | null,
+  ownerId: string,
+  currentRound: number,
+  isLocked: boolean,
+  firstBlock: string,
+  lastBlock: string,
 }

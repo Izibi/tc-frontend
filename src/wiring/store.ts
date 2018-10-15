@@ -1,6 +1,7 @@
 
-import {Actions} from '../app';
+import * as Immutable from 'immutable';
 
+import {Actions} from '../app';
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
 import {BackendState, backendReducer} from '../Backend';
@@ -23,6 +24,10 @@ export type State =
     blockHash: string /* hash of selected block or 'unknonw' */,
     taskResourceIndex: number /* index of resource selected in task tab */,
     chainIds: string[] /* list of chains to display */,
+    chainList: {
+      firstVisible: number,
+      lastVisible: number,
+    },
   }
 
 export const initialState : State = {
@@ -46,6 +51,7 @@ export const initialState : State = {
     teamMembers: {},
     chains: {},
   },
+  games: Immutable.Map(),
 
   userId: 'unknown',
   contestIds: undefined,
@@ -55,7 +61,10 @@ export const initialState : State = {
   blockHash: 'unknown',
   taskResourceIndex: 0,
   chainIds: [],
-
+  chainList: {
+    firstVisible: 0,
+    lastVisible: -1,
+  },
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {

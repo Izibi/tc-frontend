@@ -1,6 +1,8 @@
 
 import {Route} from '../router';
+import {Block} from '../types';
 import {EntitiesUpdate} from '../Backend';
+import {Game} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
 
@@ -56,11 +58,14 @@ export const actionCreators = {
   interfaceTextChanged: (text: string) => createAction(ActionTypes.INTERFACE_TEXT_CHANGED, {text}),
   implementationTextChanged: (text: string) => createAction(ActionTypes.IMPLEMENTATION_TEXT_CHANGED, {text}),
 
+  // chain list
+  chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
+  gameLoaded: (gameKey: string, game: Game, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
+
 };
 
 type FunctionType = (...args: any[]) => any;
 type ActionCreatorMapObject = {[actionCreator: string]: FunctionType};
 type ActionsUnion<A extends ActionCreatorMapObject> = ReturnType<A[keyof A]>;
 export type Actions = ActionsUnion<typeof actionCreators>;
-
-// export type GetAction<T: string> = {}
+export type ActionsOfType<T extends string> = Extract<Actions, {type: T}>;

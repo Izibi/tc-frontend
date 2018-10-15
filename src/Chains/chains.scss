@@ -85,11 +85,25 @@
       white-space: nowrap;
     }
 
-    .chainListItems .chainListItem {
-      padding: 20px 0;
-      color: $lighterTextColor;
-      background: $themeColorLight;
-      border-radius: 27px;
+    .chainListItems {
+      /* no padding, margin, borders on this element */
+      max-height: 46px * 6;
+      overflow-y: scroll;
+      .chainListItem {
+        /* no padding, margin, borders on this element */
+        height: 44px;
+      }
+      .chainListItemContent {
+        line-height: 40px;
+        padding: 2px 0;
+        color: $lighterTextColor;
+        background: $themeColorLight;
+        border-radius: 27px;
+        margin-bottom: 2px;
+      }
+      .chainListItemContent:last-child {
+        margin-bottom: 0;
+      }
     }
 
   }
@@ -102,5 +116,20 @@
     .flexRow {
       margin: 0 -10px;
     }
+  }
+
+  .chainBlocks {
+    width: 670px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .chainBlocks > * {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+  .chainBlocks > :first-child {
+    margin-left: 0;
   }
 }

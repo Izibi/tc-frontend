@@ -1,16 +1,18 @@
 
+import * as Immutable from 'immutable';
 import {Effect, CANCEL} from "redux-saga";
 import {fork, call, put} from "redux-saga/effects";
+import update from 'immutability-helper';
 
 import {actionCreators, Actions, ActionTypes, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Entity} from '../types';
-import {Entities, EntitiesUpdate} from "./types";
+import {Entity, Block} from '../types';
+import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
 import {loadedEntity, updateEntity} from "./entities";
 
-export {EntityMap, BackendState, EntitiesUpdate} from "./types";
+export {EntityMap, BackendState, EntitiesUpdate, Game} from "./types";
 export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
@@ -49,8 +51,25 @@ export function backendReducer (state: State, action: Actions): State {
       const entities = <Entities>updateEntities(state.entities, action.payload.entities);
       return {
         ...state,
-        backend: {...state.backend, generation: state.backend.generation + 1},
-        entities
+        backend: flushSelectorCache(state.backend),
+        entities,
+      };
+    }
+    case ActionTypes.GAME_LOADED: {
+      const {gameKey, game, blocks: newBlocks} = action.payload;
+      const prevGI : GameInfo | undefined = state.games.get(gameKey);
+      let blocks : Immutable.List<Block> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
+      if (newBlocks !== null) {
+        for (let block of newBlocks) {
+          blocks = blocks.set(block.sequence, block);
+        }
+      }
+      state = {
+        ...state,
+        backend: flushSelectorCache(state.backend),
+        games: state.games.set(gameKey, {game, blocks}),
+      };
+      break;
     }
 
     case ActionTypes.EAGERLY_UPDATE_ENTITY: {
@@ -83,6 +102,10 @@ export function backendReducer (state: State, action: Actions): State {
 
   }
   return state;
+}
+
+function flushSelectorCache(backend: State['backend']): State['backend'] {
+  return {...backend, generation: backend.generation + 1};
 }
 
 export type UniEntities = {[collection: string]: {[id: string]: Entity<object>}}
@@ -282,7 +305,7 @@ export function* leaveTeam (teamId: string): Saga {
   return yield call(backendPost, `Teams/${teamId}/Leave`, {});
 }
 
-export function* updateTeam (teamId: string, arg: {isOpen: boolean}): Saga {
+export function* updateTeam (teamId: string, arg: {isOpen?: boolean, publicKey?: string}): Saga {
   return yield call(backendPost, `Teams/${teamId}/Update`, arg);
 }
 
@@ -294,4 +317,12 @@ export function* changeTeamAccessCode (teamId: string): Saga {
 export function* loadContestChains (contestId: string, filters: object/* TODO */): Saga {
   // result: {chainIds: string[]}
   return yield call(backendGet, `Contests/${contestId}/Chains`);
+}
+
+export function* loadGameHead (gameKey: string): Saga {
+  return yield call(backendGet, `Games/${gameKey}`);
+}
+
+export function* loadGamePage (gameKey: string, page: number): Saga {
+  return yield call(backendGet, `Games/${gameKey}/Index/${page}`);
 }

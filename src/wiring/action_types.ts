@@ -28,7 +28,10 @@ export const JOIN_TEAM = "[team] join";
 export const LEAVE_TEAM = "[team] leave";
 export const CHANGE_TEAM_ACCESS_CODE = "[team] change access code";
 export const CHANGE_TEAM_IS_OPEN = "[team] change is_open";
+export const CHANGE_TEAM_KEY = "[team] change key";
 
 export const INTERFACE_TEXT_CHANGED = "[protocol] interface changed";
 export const IMPLEMENTATION_TEXT_CHANGED = "[buffer] implementation changed";
 
+export const CHAIN_LIST_SCROLLED = "[chains] list scrolled";
+export const GAME_LOADED = "[game] loaded";

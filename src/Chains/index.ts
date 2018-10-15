@@ -1,10 +1,12 @@
 
 import {Effect} from 'redux-saga';
-import {call, put} from 'redux-saga/effects';
+import {call, put, select, takeLatest} from 'redux-saga/effects';
 
-import {Actions, State, actionCreators} from '../app';
+import {Entity, Chain} from '../types';
+import {Actions, State, actionCreators, ActionTypes, ActionsOfType} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestChains} from '../Backend';
+import {monitorBackendTask, loadContestChains, loadGameHead} from '../Backend';
+import {selectors} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -61,10 +63,34 @@ export const routes : Rule<any>[] = [
 ];
 
 export function chainsReducer (state: State, action: Actions): State {
+  switch (action.type) {
+    case ActionTypes.CHAIN_LIST_SCROLLED: {
+      const {first, last} = action.payload;
+      state = {...state, chainList: {firstVisible: first, lastVisible: last}};
+      break;
+    }
+  }
   return state;
 }
 
 function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
+  /* TODO: maintain subscriptions to the visible games */
+  yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
+    function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : IterableIterator<Effect> {
+      const {first, last} = action.payload;
+      const chains: Entity<Chain>[] = yield select((state : State) =>
+        state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
+      // XXX when a chain was visible before being, we may fail to load its game
+      for (let chain of chains) {
+        if ('value' in chain) {
+          const gameKey = chain.value.currentGameKey;
+          const {game, blocks} = yield call(loadGameHead, gameKey);
+          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+          // console.log('chain', chain.id, chain.value.currentGameKey, game, page, blocks);
+        }
+      }
+    }
+  );
   yield call(monitorBackendTask, function* () {
     const {chainIds} = yield call(loadContestChains, params.contestId, {});
     yield put(actionCreators.chainListChanged(chainIds));

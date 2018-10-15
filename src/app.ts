@@ -1,6 +1,6 @@
 
 export {State} from './wiring/store';
-export {Actions, actionCreators} from './wiring/actions';
+export {Actions, ActionsOfType, actionCreators} from './wiring/actions';
 
 import * as _ActionTypes from './wiring/action_types';
 export const ActionTypes = _ActionTypes;

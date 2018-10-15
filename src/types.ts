@@ -1,5 +1,6 @@
 
 import {Moment} from 'moment';
+import * as Immutable from 'immutable';
 
 export enum EntityState {
   Null,
@@ -105,12 +106,25 @@ export type Chain = {
   nbVotesApprove: number,
   nbVotesReject: number,
   nbVotesUnknown: number,
+  game: Game | null,
 }
 
 export type Game = {
   key: string,
-  startsAt: Moment,
-  startedAt: Moment | undefined,
-  ownerTeam: Entity<Team>,
-  protocolHash: string,
+  createdAt: Moment,
+  updatedAt: Moment,
+  startedAt: Moment | null,
+  roundEndsAt: Moment | null,
+  owner: Entity<Team>,
+  currentRound: number,
+  isLocked: boolean,
+  firstBlock: string,
+  lastBlock: string,
+  blocks: Immutable.List<Block>,
+}
+
+export type Block = {
+  hash: string,
+  type: "root" | "task" | "protocol" | "setup" | "command",
+  sequence: number,
 }
