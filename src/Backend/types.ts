@@ -13,6 +13,10 @@ export type BackendState = {
     lastError: string | undefined,
     tasks: object[],
   },
+  eventSource: {
+    key: string,
+    channels: string[],
+  },
   entities: Entities,
   games: Immutable.Map<string, GameInfo> /* game key -> sparse list of blocks */,
 }

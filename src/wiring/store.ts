@@ -40,6 +40,10 @@ export const initialState : State = {
     lastError: undefined,
     tasks: [],
   },
+  eventSource: {
+    key: "",
+    channels: [],
+  },
 
   entities: {
     users: {},

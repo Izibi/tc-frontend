@@ -35,3 +35,6 @@ export const IMPLEMENTATION_TEXT_CHANGED = "[buffer] implementation changed";
 
 export const CHAIN_LIST_SCROLLED = "[chains] list scrolled";
 export const GAME_LOADED = "[game] loaded";
+
+export const EVENTSOURCE_KEY_CHANGED = "[EventSource] key changed";
+export const EVENTSOURCE_SUBS_CHANGED = "[EventSource] subscriptions changed";

@@ -1,6 +1,4 @@
 
-import {eventChannel, END, Channel} from 'redux-saga';
-
 export function without<T> (items: T[], item: T) {
   const index = items.indexOf(item);
   if (index !== -1) {
@@ -40,27 +38,6 @@ export async function apiPost (path: string, input: object) : Promise<object> {
     throw new Error("server error");
   }
   return await response.json();
-}
-
-export function channelOfEventSource (path: string) : Channel<object> {
-  const source = new EventSource(`${process.env.MOUNT_PATH}${path}`);
-  return eventChannel(function (emitter) {
-    source.onmessage = function (msg) {
-      try {
-        emitter(JSON.parse(msg.data));
-      } catch (ex) {
-        console.error('bad message', msg.data);
-        emitter(END);
-      }
-    };
-    source.onerror = function () {
-      console.error('error from event source');
-      emitter(END);
-    };
-    return function () {
-      source.close();
-    };
-  });
 }
 
 /*

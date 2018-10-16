@@ -11,6 +11,7 @@ export default function* () {
     yield all([
       call(function () { console.log('sagas are running'); }),
       call(require('../router').saga),
+      call(require('../Backend').saga),
       call(reloadOnUserLogin),
       call(navigateOnUserLogout),
       call(messageListenerSaga),

@@ -37,6 +37,10 @@ export const actionCreators = {
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
   backendEntitiesLoaded: (entities: EntitiesUpdate) => createAction(ActionTypes.BACKEND_ENTITIES_LOADED, {entities}),
 
+  // eventsource
+  eventSourceKeyChanged: (key: string) => createAction(ActionTypes.EVENTSOURCE_KEY_CHANGED, {key}),
+  eventSourceSubsChanged: (channels: string[]) => createAction(ActionTypes.EVENTSOURCE_SUBS_CHANGED, {channels}),
+
   // login
   userLoggedOut: () => createAction(ActionTypes.USER_LOGGED_OUT, {}),
   userLoggedIn: (userId: string) => createAction(ActionTypes.USER_LOGGED_IN, {userId}),

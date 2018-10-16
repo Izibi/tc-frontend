@@ -74,13 +74,20 @@ export function chainsReducer (state: State, action: Actions): State {
 }
 
 function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
-  /* TODO: maintain subscriptions to the visible games */
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
     function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : IterableIterator<Effect> {
       const {first, last} = action.payload;
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
-      // XXX when a chain was visible before being, we may fail to load its game
+      /* TODO: update subscriptions to the visible games */
+      const channels = [];
+      for (let chain of chains) {
+        if ('value' in chain) {
+          channels.push(`games/${chain.value.currentGameKey}`)
+        }
+      }
+      yield put(actionCreators.eventSourceSubsChanged(channels));
+      // XXX if a chain was visible before being loaded, its game will not be loaded
       for (let chain of chains) {
         if ('value' in chain) {
           const gameKey = chain.value.currentGameKey;

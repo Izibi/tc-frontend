@@ -1,7 +1,7 @@
 
 import * as Immutable from 'immutable';
-import {Effect, CANCEL} from "redux-saga";
-import {fork, call, put} from "redux-saga/effects";
+import {Effect, eventChannel, Channel, END, CANCEL} from "redux-saga";
+import {call, fork, put, select, take, takeEvery} from "redux-saga/effects";
 import update from 'immutability-helper';
 
 import {actionCreators, Actions, ActionTypes, AppToaster, State} from "../app";
@@ -99,9 +99,77 @@ export function backendReducer (state: State, action: Actions): State {
       let {chainIds} = action.payload;
       return {...state, chainIds};
     }
+    case ActionTypes.EVENTSOURCE_KEY_CHANGED: {
+      const {key} = action.payload;
+      return {...state, eventSource: {key, channels: []}};
+    }
+    case ActionTypes.EVENTSOURCE_SUBS_CHANGED: {
+      const {channels} = action.payload;
+      return {...state, eventSource: {...state.eventSource, channels}};
+    }
 
   }
   return state;
+}
+
+type Message = {
+  channel: string,
+  payload: string,
+}
+
+export function* saga(): Saga {
+  const events = yield call(channelOfEventSource, 'Events');
+  let key : string = "";
+  let channels : string[] = [];
+  yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
+  function* syncSubscriptions (): Saga {
+    const newChannels = yield select((state: State) => state.eventSource.channels);
+    const subscribe = difference(newChannels, channels);
+    const unsubscribe = difference(channels, newChannels);
+    console.log(channels, '->', newChannels, '+', subscribe, '-', unsubscribe);
+    const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${key}`, {subscribe, unsubscribe});
+    if ('error' in resp) {
+      console.log("Error updating subscriptions:", resp);
+      return;
+    }
+    if (resp.result === true) {
+      channels = newChannels;
+    }
+  }
+  while (true) {
+    let event : Message | END = yield take(events);
+    console.log('event', event);
+    if ('type' in event && event.type === END.type) {
+      console.log('event stream has ended');
+      break; // XXX should re-open the event stream?
+    }
+    if ('channel' in event) {
+      if (event.channel === 'key') {
+        key = event.payload;
+        yield put(actionCreators.eventSourceKeyChanged(key));
+        yield call(syncSubscriptions);
+        continue;
+      }
+      let md = /^games\/(.*)$/.exec(event.channel);
+      if (md !== null) {
+        const gameKey = md[1];
+        // event.payload === "block …"
+        const {game, blocks} = yield call(loadGameHead, gameKey);
+        yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+      }
+      continue;
+    }
+  }
+}
+
+function difference(xs: string[], ys: string[]): string[] {
+  const result = [];
+  for (let x of xs) {
+    if (ys.indexOf(x) === -1) {
+      result.push(x);
+    }
+  }
+  return result;
 }
 
 function flushSelectorCache(backend: State['backend']): State['backend'] {
@@ -225,6 +293,29 @@ function postJson (url: string, body: any) {
   };
   return promise;
 }
+
+export function channelOfEventSource (path: string) : Channel<object> {
+  const source = new EventSource(`${process.env.BACKEND_URL}/${path}`);
+  // TODO: save first origin and check that subsequent messages match
+  return eventChannel(function (emitter) {
+    // source.addEventListener('open', function (e) {…}, false);
+    source.addEventListener('message', function (e: Event) {
+      const msg = e as MessageEvent;
+      try {
+        emitter(JSON.parse(msg.data));
+      } catch (ex) {
+        emitter(END);
+      }
+    }, false);
+    source.addEventListener('error', function () {
+      emitter(END);
+    }, false);
+    return function () {
+      source.close();
+    };
+  });
+}
+
 
 export function* monitorBackendTask (saga: any): Saga {
   const taskRef = {
