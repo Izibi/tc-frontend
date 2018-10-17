@@ -34,10 +34,20 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
                 {"Last updated "}
                 {chain.updatedAt.format('YYYY-MM-DD, hh:mm a')}
               </div>
+              <div>
+                {"Current game "}
+                <span className="gameKey">{chain.currentGameKey}</span>
+              </div>
             </div>
           </div>
          </div>
          <div className="onehalf">
+          <div className="panel">
+            <div className="panelHeader">{"Actions"}</div>
+            <div className="panelBody">
+              <Button icon='fork' text="Fork this chain" onClick={this.handleForkChain} />
+            </div>
+          </div>
           {isOwner &&
             <div className="panel">
               <div className="panelHeader">{"Restart the game"}</div>
@@ -98,6 +108,9 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
   };
   handleInterfaceTextChange = (value: string) => {
     this.props.dispatch(actionCreators.interfaceTextChanged(value));
+  };
+  handleForkChain = () => {
+    this.props.dispatch(actionCreators.forkChain(this.props.chain.id));
   };
 }
 

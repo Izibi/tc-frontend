@@ -5,7 +5,7 @@ import {call, put, select, takeLatest} from 'redux-saga/effects';
 import {Entity, Chain} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestChains, loadGameHead} from '../Backend';
+import {monitorBackendTask, loadContestChains, loadGameHead, forkChain} from '../Backend';
 import {selectors} from '../Backend';
 
 import ChainsPage from './ChainsPage';
@@ -102,6 +102,13 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
           }
         }
       }
+    }
+  );
+  yield takeLatest(ActionTypes.FORK_CHAIN,
+    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
+      yield call(monitorBackendTask, function* () {
+        yield call(forkChain, action.payload.chainId);
+      });
     }
   );
   yield call(monitorBackendTask, function* () {

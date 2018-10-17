@@ -7,7 +7,7 @@ import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
 import {Entity, Chain, Team} from '../types';
 import {Link} from '../router';
-import {Slot, Spinner} from '../components';
+import {Spinner} from '../components';
 import {selectors} from '../Backend';
 import ChainFilters from './ChainFilters';
 import ChainItem from './ChainItem';
@@ -35,7 +35,7 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const {firstVisible, lastVisible} = state.chainList;
   const here = route ? route.rule.name : '';
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
-  const chain = selectors.getChain(state, "1" /* XXX chainId*/);
+  const chain = selectors.getChain(state, chainId);
   const teams = selectors.getTeams(state);
   let loaded = false;
   let isOwner = false;
@@ -68,8 +68,8 @@ class ChainsPage extends React.PureComponent<Props> {
             <div className="chainListTitle chainRejected">{"Rejected"}</div>
           </div>
           <div className="chainListItems" ref={this.refList} onScroll={this.handleChainListScroll}>
-            {chains && chains.map((chain, index) =>
-              <Slot<Chain> key={index} entity={chain} component={ChainItem} />)}
+            {chains && chains.map((item, index) =>
+              <ChainItem key={index} item={item} selected={item === chain} onSelect={this.handleSelectChain} />)}
           </div>
         </div>
         <div className="tabLayout">
@@ -114,6 +114,9 @@ class ChainsPage extends React.PureComponent<Props> {
   };
   handleChainListScroll = (event: React.UIEvent<HTMLDivElement>) => {
     this.updateVisibleRange();
+  };
+  handleSelectChain = (chain: Chain) => {
+    console.log('select', chain);
   };
 }
 
