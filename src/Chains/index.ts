@@ -3,7 +3,7 @@ import {Effect} from 'redux-saga';
 import {call, put, select, takeLatest} from 'redux-saga/effects';
 
 import {Entity, Chain} from '../types';
-import {Actions, State, actionCreators, ActionTypes, ActionsOfType} from '../app';
+import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule} from '../router';
 import {monitorBackendTask, loadContestChains, loadGameHead} from '../Backend';
 import {selectors} from '../Backend';
@@ -75,25 +75,31 @@ export function chainsReducer (state: State, action: Actions): State {
 
 function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
-    function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : IterableIterator<Effect> {
+    function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
       const {first, last} = action.payload;
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
       /* TODO: update subscriptions to the visible games */
       const channels = [];
       for (let chain of chains) {
-        if ('value' in chain) {
+        if (chain.isLoaded && chain.value.currentGameKey !== "") {
           channels.push(`games/${chain.value.currentGameKey}`)
         }
       }
       yield put(actionCreators.eventSourceSubsChanged(channels));
       // XXX if a chain was visible before being loaded, its game will not be loaded
       for (let chain of chains) {
-        if ('value' in chain) {
+        if (chain.isLoaded) {
           const gameKey = chain.value.currentGameKey;
-          const {game, blocks} = yield call(loadGameHead, gameKey);
-          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
-          // console.log('chain', chain.id, chain.value.currentGameKey, game, page, blocks);
+          if (gameKey !== "") {
+            try {
+              const {game, blocks} = yield call(loadGameHead, gameKey);
+              yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+              // console.log('chain', chain.id, chain.value.currentGameKey, game, page, blocks);
+            } catch (ex) {
+              console.log("failed to load game?", gameKey);
+            }
+          }
         }
       }
     }

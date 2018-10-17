@@ -27,7 +27,7 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
             <div className="panelHeader">{"Chain information"}</div>
             <div className="panelBody">
               <div>{"Name "}{chain.title}</div>
-              {'value' in chain.owner &&
+              {chain.owner.isLoaded &&
                 <div>{"By team "}{chain.owner.value.name}</div>}
               {"Status "}{chain.status}
               <div>

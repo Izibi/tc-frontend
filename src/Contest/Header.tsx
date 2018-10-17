@@ -40,11 +40,11 @@ class Header extends React.PureComponent<Props> {
               <span>{"T"}</span>
               <span>{"C"}</span>
             </div>
-            {'value' in contest &&
+            {contest.isLoaded &&
               <div className="contestTitle">{contest.value.title}</div>}
           </div>
           <div className="chainHead">
-            {'value' in contest && 'value' in contest.value.currentPeriod &&
+            {contest.isLoaded && contest.value.currentPeriod.isLoaded &&
               <div className="contestPeriod">
                 {"Day"}
                 <span className="dayNumber">
@@ -55,7 +55,7 @@ class Header extends React.PureComponent<Props> {
               <div className="day"></div>
               <div className="rounds"></div>
             </div>
-            {'value' in user &&
+            {user.isLoaded &&
               <AnchorButton href={`${process.env.BACKEND_URL}/Logout`} target="login"
                 className="logOut"
                 text={`Hello, ${user.value.firstname} ${user.value.lastname}`} />}

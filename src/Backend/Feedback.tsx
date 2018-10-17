@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import {connect} from 'react-redux';
+import {Icon} from "@blueprintjs/core";
 
 import {DispatchProp} from '../app';
 import {Spinner} from '../components';
@@ -28,7 +29,7 @@ class BackendFeedback extends React.PureComponent<Props> {
     return (
       <div style={{position: 'fixed', top: '10px', right: '10px'}}>
         {busy && <Spinner/>}
-        {error && <p>{error}</p>}
+        {error && <span title={error}><Icon icon="warning-sign"/></span>}
       </div>
     );
   }

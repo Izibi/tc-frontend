@@ -2,22 +2,8 @@
 import {Moment} from 'moment';
 import * as Immutable from 'immutable';
 
-export enum EntityState {
-  Null,
-  Thunk,
-  Loading,
-  Loaded,
-  Reloading,
-  Error
-}
-
-export type Entity<T> =
-  {state: EntityState.Null} |
-  {state: EntityState.Thunk, id: string} |
-  {state: EntityState.Loading, id: string} |
-  {state: EntityState.Loaded, id: string, value: T} |
-  {state: EntityState.Reloading, id: string, value: T} |
-  {state: EntityState.Error, id: string}
+export {Entity, EntityState} from './Backend/entities';
+import {Entity} from './Backend/entities';
 
 export type AnyAction = {
   type: string,

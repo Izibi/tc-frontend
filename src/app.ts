@@ -15,4 +15,7 @@ import {DispatchProp as DispatchProp_} from 'react-redux';
 import {Actions} from './wiring/actions';
 export type DispatchProp = DispatchProp_<Actions>;
 
+import {Effect} from 'redux-saga';
+export type Saga = IterableIterator<Effect>;
+
 import 'twix';

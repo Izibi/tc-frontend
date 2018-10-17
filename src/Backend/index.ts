@@ -10,7 +10,7 @@ import {without} from "../utils";
 import {Entity, Block} from '../types';
 import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
-import {loadedEntity, updateEntity} from "./entities";
+import {loadedEntity, modifiedEntity} from "./entities";
 
 export {EntityMap, BackendState, EntitiesUpdate, Game} from "./types";
 export {default as BackendFeedback} from "./Feedback";
@@ -48,7 +48,7 @@ export function backendReducer (state: State, action: Actions): State {
     }
 
     case ActionTypes.BACKEND_ENTITIES_LOADED: {
-      const entities = <Entities>updateEntities(state.entities, action.payload.entities);
+      const entities = <Entities>updateEntities(<UniEntities>state.entities, action.payload.entities);
       return {
         ...state,
         backend: flushSelectorCache(state.backend),
@@ -197,7 +197,7 @@ function updateEntities (entities: UniEntities, update: EntitiesUpdate): UniEnti
     } else {
       if (facet) {
         /* Merge facet. */
-        result[collection][id] = updateEntity(result[collection][id], value);
+        result[collection][id] = modifiedEntity(result[collection][id], value);
       } else {
         /* Base facet, store the (id, value) pair in the collection. */
         result[collection][id] = loadedEntity(id, value);
@@ -261,7 +261,18 @@ function fetchJson (url: string) {
       signal: controller.signal,
     };
     fetch(url, init).then(function (req) {
-      req.json().then(resolve).catch(reject);
+      const ct = req.headers.get('Content-Type') || '';
+      if (!/^application\/json/.test(ct)) {
+        req.text().then(function (body) {
+          reject(new Error("unexpected response from server: " + body));
+        }).catch(function (err) {
+          reject(new Error("failed to read server response: " + err));
+        });
+        return;
+      }
+      req.json().then(resolve).catch(function (err) {
+        reject(new Error("bad response from server: " + err));
+      });
     }).catch(reject);
   });
   (promise as any)[CANCEL] = function () {
@@ -285,7 +296,18 @@ function postJson (url: string, body: any) {
       body: JSON.stringify(body),
     };
     fetch(url, init).then(function (req) {
-      req.json().then(resolve).catch(reject);
+      const ct = req.headers.get('Content-Type') || '';
+      if (!/^application\/json/.test(ct)) {
+        req.text().then(function (body) {
+          reject(new Error("unexpected response from server: " + body));
+        }).catch(function (err) {
+          reject(new Error("failed to read server response: " + err));
+        });
+        return;
+      }
+      req.json().then(resolve).catch(function (err) {
+        reject(new Error("bad response from server: " + err));
+      });
     }).catch(reject);
   });
   (promise as any)[CANCEL] = function () {
@@ -416,4 +438,8 @@ export function* loadGameHead (gameKey: string): Saga {
 
 export function* loadGamePage (gameKey: string, page: number): Saga {
   return yield call(backendGet, `Games/${gameKey}/Index/${page}`);
+}
+
+export function* forkChain (chainId: string): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Fork`, null);
 }

@@ -33,7 +33,7 @@ function mapStateToProps (state: State): StoreProps {
 class TeamManagementPage extends React.PureComponent<Props> {
   render () {
     const {loading, contest, team, dispatch} = this.props;
-    const contestInfos = 'value' in contest ?
+    const contestInfos = contest.isLoaded ?
       <div>
         <p>{"You may participate individually, or as a team of 1 to 3"}</p>
         <p>
@@ -54,7 +54,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
             <CreateJoinScreen infos={contestInfos}
               onCreate={this.handleCreateTeam} onJoin={this.handleJoinTeam} />}
 
-          {'value' in team &&
+          {team.isLoaded &&
             <ManageTeamScreen infos={contestInfos} team={team.value} dispatch={dispatch} />}
         </div>
       </div>

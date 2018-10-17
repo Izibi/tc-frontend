@@ -91,18 +91,22 @@
       overflow-y: scroll;
       .chainListItem {
         /* no padding, margin, borders on this element */
+        height: 46px;
+      }
+      .chainListItem:last-child {
         height: 44px;
       }
       .chainListItemContent {
         line-height: 40px;
         padding: 2px 0;
+        border-radius: 27px;
+      }
+      .chainListItem.selectable .chainListItemContent {
+        cursor: pointer;
+      }
+      .chainListItem.selected .chainListItemContent {
         color: $lighterTextColor;
         background: $themeColorLight;
-        border-radius: 27px;
-        margin-bottom: 2px;
-      }
-      .chainListItemContent:last-child {
-        margin-bottom: 0;
       }
     }
 
@@ -131,5 +135,12 @@
   }
   .chainBlocks > :first-child {
     margin-left: 0;
+  }
+  .gameKey {
+    font-size: 12px;
+    font-family: monospace;
+    color: #246;
+    background-color: #EEF;
+    padding: 0 2px;
   }
 }

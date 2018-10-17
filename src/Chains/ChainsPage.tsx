@@ -39,7 +39,7 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const teams = selectors.getTeams(state);
   let loaded = false;
   let isOwner = false;
-  if ('value' in chain) {
+  if (chain.isLoaded) {
     loaded = true;
     if (teamId !== null && chain.value.ownerId === teamId) {
       isOwner = true;
@@ -85,7 +85,7 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
             </div>
             <div>
-              {tab === 'chain' && 'value' in chain && <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
+              {tab === 'chain' && chain.isLoaded && <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
               {tab === 'block' && <BlockTab/>}
             </div>
           </div>

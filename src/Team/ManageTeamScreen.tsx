@@ -103,7 +103,7 @@ type TeamMembersProps = {
 
 const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
   const {user, joinedAt, isCreator} = props;
-  if (!('value' in user)) return null;
+  if (!user.isLoaded) return null;
   const {username, firstname, lastname} = user.value;
   return (
     <tr>

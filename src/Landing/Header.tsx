@@ -32,7 +32,7 @@ class Header extends React.PureComponent<Props> {
         <div className="landingTitle">
           {"Tezos Contests"}
         </div>
-        {'value' in user &&
+        {user.isLoaded &&
           <AnchorButton href={`${process.env.BACKEND_URL}/Logout`} target="login"
             className="logOut"
             text={`Hello, ${user.value.firstname} ${user.value.lastname}`} />}

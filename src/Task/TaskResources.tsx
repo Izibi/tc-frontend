@@ -21,7 +21,7 @@ function mapStateToProps (state: State): StoreProps {
   const contest = selectors.getContest(state, state.contestId);
   let resources: Entity<TaskResource>[] | undefined;
   let currentResource: Entity<TaskResource> | undefined;
-  if ('value' in contest && 'value' in contest.value.task) {
+  if (contest.isLoaded && contest.value.task.isLoaded) {
     resources = contest.value.task.value.resources;
     currentResource = resources[taskResourceIndex];
   }
@@ -45,9 +45,9 @@ class TaskResourcesPage extends React.PureComponent<Props> {
             {resourceOptions}
           </div>
           <div className="pageContent">
-            {currentResource && 'value' in currentResource && currentResource.value.url !== undefined &&
+            {currentResource && currentResource.isLoaded && currentResource.value.url !== undefined &&
               <iframe src={currentResource.value.url} />}
-            {currentResource && 'value' in currentResource && currentResource.value.html !== undefined &&
+            {currentResource && currentResource.isLoaded && currentResource.value.html !== undefined &&
               <iframe srcDoc={currentResource.value.html}/>}
           </div>
         </div>
@@ -64,7 +64,7 @@ type TaskResourceOptionProps = {
 }
 const TaskResourceOption : React.StatelessComponent<TaskResourceOptionProps> = (props) => {
   const {index, contestId, selected, resource} = props;
-  if (!('value' in resource)) return null;
+  if (!resource.isLoaded) return null;
   return (
     <div className={selected ? "selected" : ""} title={resource.value.description}>
       <Link to="TaskResources" params={{contestId: contestId, resourceIndex: index}} text={resource.value.title} />

@@ -24,20 +24,20 @@ function visitEntity<K extends keyof Entities, T>(state: State, collection: K, i
   if (cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
-  const result = {} as Entity<T> /* result will be an Entity<T> after Object.assign below */;
+  const result: Entity<T> = id === null ? nullEntity() : thunkEntity(id);
   cache.set(cacheKey, result);
-  const entity = get(state, collection, id) as Entity<ValueOf<K>>;
-  Object.assign(result, projectEntity(entity, func));
+  const entity = get(state, collection, id) as any; // Entity<ValueOf<K>>
+  result.assign(projectEntity(entity, func));
   return result;
 }
 
 function get<K extends keyof Entities>(state: State, collection: K, id: string | null): Entities[K][string] {
-  if (id === null) return nullEntity();
+  if (id === null) return nullEntity<User>();
   const entities = state.entities[collection];
   if (id in entities) {
     return entities[id]
   } else {
-    return thunkEntity(id);
+    return thunkEntity<User>(id);
   }
 }
 
@@ -58,12 +58,12 @@ export function getTaskResources(state: State, taskId: string): Entity<TaskResou
   for (let id of ids) {
     results.push(visitEntity(state, 'taskResources', id, (resource) => {
       if (resource.html !== null) {
-        return {...resource, html: resource.html, url: undefined};
-      } else if (resource.url !== null) {
-        return {...resource, url: resource.url, html: undefined};
-      } else {
-        throw new Error('malformed task resource');
+        return <TaskResource>{...resource, html: resource.html, url: undefined};
       }
+      if (resource.url !== null) {
+        return <TaskResource>{...resource, url: resource.url, html: undefined};
+      }
+      throw new Error('malformed task resource');
     }));
   }
   return results;
@@ -72,11 +72,12 @@ export function getTaskResources(state: State, taskId: string): Entity<TaskResou
 export function getContest (state: State, id: string | null): Entity<Contest> {
   return visitEntity(state, 'contests', id, (contest) => {
     const task = getTask(state, contest.taskId);
-    const currentPeriod = getContestPeriod(state, contest.currentPeriodId);
+    //const currentPeriod = getContestPeriod(state, contest.currentPeriodId);
+    const currentPeriod = nullEntity<ContestPeriod>(); // XXX
     const startsAt = moment(contest.startsAt);
     const endsAt = moment(contest.endsAt);
     const registrationClosesAt = moment(contest.registrationClosesAt);
-    return {...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt};
+    return <Contest>{...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt};
   });
 }
 
@@ -84,7 +85,7 @@ export function getContestPeriod (state: State, id: string | null): Entity<Conte
   return visitEntity(state, 'contestPeriods', id, (period) => {
     const mainChain = getChain(state, period.mainChainId);
     const chainElectionAt = moment(period.chainElectionAt);
-    return {...period, mainChain, chainElectionAt};
+    return <ContestPeriod>{...period, mainChain, chainElectionAt};
   });
 }
 
@@ -102,7 +103,7 @@ export function getTeams (state: State /* TODO: filter */): Team[] {
 export function getTeam (state: State, id: string | null): Entity<Team> {
   return visitEntity(state, 'teams', id, (team) => {
     const members = getTeamMembers(state, team.id);
-    return {...team, members};
+    return <Team>{...team, members};
   });
 }
 
@@ -130,7 +131,7 @@ export function getChain (state: State, id: string | null): Entity<Chain> {
     const parent = getChain(state, chain.parentId);
     const status : ChainStatus = "main"; // XXX getChainStatus(chain.statusId);
     const game = getGame(state, chain.currentGameKey);
-    return {...chain, createdAt, updatedAt, contest, owner, parent, status, game};
+    return <Chain>{...chain, createdAt, updatedAt, contest, owner, parent, status, game};
   });
 }
 
