@@ -64,6 +64,14 @@ export const routes : Rule<any>[] = [
 
 export function chainsReducer (state: State, action: Actions): State {
   switch (action.type) {
+    case ActionTypes.CHAIN_LIST_CHANGED: {
+      let {chainIds} = action.payload;
+      let chainId = state.chainId;
+      if (-1 === chainIds.indexOf(chainId) && chainIds.length > 0) {
+        chainId = chainIds[0];
+      }
+      return {...state, chainIds, chainId};
+    }
     case ActionTypes.CHAIN_LIST_SCROLLED: {
       const {first, last} = action.payload;
       state = {...state, chainList: {firstVisible: first, lastVisible: last}};
