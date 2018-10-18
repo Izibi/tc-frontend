@@ -68,6 +68,7 @@ export const actionCreators = {
 
   // chains action
   forkChain: (chainId: string) => createAction(ActionTypes.FORK_CHAIN, {chainId}),
+  deleteChain: (chainId: string) => createAction(ActionTypes.DELETE_CHAIN, {chainId}),
 
 };
 

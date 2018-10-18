@@ -46,6 +46,7 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
             <div className="panelHeader">{"Actions"}</div>
             <div className="panelBody">
               <Button icon='fork' text="Fork this chain" onClick={this.handleForkChain} />
+              <Button icon='trash' text="Delete this chain" onClick={this.handleDeleteChain} disabled={chain.status !== "private test"}/>
             </div>
           </div>
           {isOwner &&
@@ -111,6 +112,9 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
   };
   handleForkChain = () => {
     this.props.dispatch(actionCreators.forkChain(this.props.chain.id));
+  };
+  handleDeleteChain = () => {
+    this.props.dispatch(actionCreators.deleteChain(this.props.chain.id));
   };
 }
 

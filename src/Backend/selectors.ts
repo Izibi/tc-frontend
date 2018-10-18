@@ -129,7 +129,7 @@ export function getChain (state: State, id: string | null): Entity<Chain> {
     const contest = getContest(state, chain.contestId);
     const owner = getTeam(state, chain.ownerId);
     const parent = getChain(state, chain.parentId);
-    const status : ChainStatus = "main"; // XXX getChainStatus(chain.statusId);
+    const status : ChainStatus = getChainStatus(chain.statusId);
     const game = getGame(state, chain.currentGameKey);
     return <Chain>{...chain, createdAt, updatedAt, contest, owner, parent, status, game};
   });
@@ -157,21 +157,17 @@ function getGame(state: State, gameKey: string): Game | null {
   };
 }
 
-/*
 function getChainStatus(statusId: string) : ChainStatus {
-  switch (status) {
-    case "private":
-    case "public":
-    case "candidate":
-    case "main":
-    case "past":
-    case "invalid":
-      return status;
-   default:
-     return "invalid";
+  switch (statusId) {
+    case "1": return "private test";
+    case "2": return "public test";
+    case "3": return "candidate";
+    case "4": return "main";
+    case "5": return "past";
+    case "6": return "invalid";
+    default: return "invalid";
   }
 }
-*/
 
 function nullMoment(s: string | null): moment.Moment | null {
   return s === null ? null : moment(s);

@@ -5,7 +5,7 @@ import {call, put, select, takeLatest} from 'redux-saga/effects';
 import {Entity, Chain} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestChains, loadGameHead, forkChain} from '../Backend';
+import {monitorBackendTask, loadContestChains, loadGameHead, forkChain, deleteChain} from '../Backend';
 import {selectors} from '../Backend';
 
 import ChainsPage from './ChainsPage';
@@ -69,6 +69,14 @@ export function chainsReducer (state: State, action: Actions): State {
       state = {...state, chainList: {firstVisible: first, lastVisible: last}};
       break;
     }
+    case ActionTypes.DELETE_CHAIN: {
+      const chainIds = state.chainIds.slice();
+      const i = chainIds.indexOf(action.payload.chainId);
+      if (i !== -1) {
+        chainIds.splice(i, 1);
+        state = {...state, chainIds};
+      }
+    }
   }
   return state;
 }
@@ -108,6 +116,15 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
       yield call(monitorBackendTask, function* () {
         yield call(forkChain, action.payload.chainId);
+      });
+    }
+  );
+  yield takeLatest(ActionTypes.DELETE_CHAIN,
+    function* (action: ActionsOfType<typeof ActionTypes.DELETE_CHAIN>) : Saga {
+      yield call(monitorBackendTask, function* () {
+        /* The action's reducer eagerly removed the id from the list. */
+        yield call(deleteChain, action.payload.chainId);
+        /* An event posted to the team's channel will reload the chain list. */
       });
     }
   );

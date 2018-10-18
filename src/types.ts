@@ -70,7 +70,7 @@ export type ContestPeriod = {
 }
 
 export type ChainStatus =
-  "private" | "public" | "candidate" | "main" | "past" | "invalid";
+  "private test" | "public test" | "candidate" | "main" | "past" | "invalid";
 
 export type Chain = {
   id: string,

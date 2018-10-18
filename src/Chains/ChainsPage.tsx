@@ -6,8 +6,7 @@ import {connect} from 'react-redux';
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
 import {Entity, Chain, Team} from '../types';
-import {Link} from '../router';
-import {Spinner} from '../components';
+import {Link, navigate} from '../router';
 import {selectors} from '../Backend';
 import ChainFilters from './ChainFilters';
 import ChainItem from './ChainItem';
@@ -16,7 +15,6 @@ import BlockTab from './BlockTab';
 
 type StoreProps = {
   here: string,
-  loaded: boolean,
   contestId: string,
   chainId: string,
   blockHash: string,
@@ -31,34 +29,31 @@ type StoreProps = {
 type Props = StoreProps & DispatchProp
 
 function mapStateToProps (state: State, _props: object): StoreProps {
-  const {route, teamId, contestId, chainIds, chainId, blockHash} = state;
+  let {route, teamId, contestId, chainIds, chainId, blockHash} = state;
   const {firstVisible, lastVisible} = state.chainList;
   const here = route ? route.rule.name : '';
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
   const chain = selectors.getChain(state, chainId);
   const teams = selectors.getTeams(state);
-  let loaded = false;
   let isOwner = false;
   if (chain.isLoaded) {
-    loaded = true;
     if (teamId !== null && chain.value.ownerId === teamId) {
       isOwner = true;
     }
   }
   return {
-    here, loaded, contestId, chainId, blockHash, chains, teams, chain, isOwner,
+    here, contestId, chainId, blockHash, chains, teams, chain, isOwner,
     firstVisible, lastVisible
   };
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, contestId, chainId, loaded, chains, teams, chain, isOwner} = this.props;
+    const {here, contestId, chainId, chains, teams, chain, isOwner} = this.props;
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
       <div className="chainsPage">
         <ContestHeader/>
-        {!loaded && <Spinner/>}
         <ChainFilters teams={teams}/>
         <div className="chainList">
           <div className="flexRow">
@@ -116,7 +111,7 @@ class ChainsPage extends React.PureComponent<Props> {
     this.updateVisibleRange();
   };
   handleSelectChain = (chain: Chain) => {
-    console.log('select', chain);
+    navigate("ChainPage", {contestId: chain.contest.id, chainId: chain.id});
   };
 }
 

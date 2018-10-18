@@ -95,10 +95,6 @@ export function backendReducer (state: State, action: Actions): State {
       let {teamId} = action.payload;
       return {...state, teamId};
     }
-    case ActionTypes.CHAIN_LIST_CHANGED: {
-      let {chainIds} = action.payload;
-      return {...state, chainIds};
-    }
     case ActionTypes.EVENTSOURCE_KEY_CHANGED: {
       const {key} = action.payload;
       return {...state, eventSource: {key, channels: []}};
@@ -442,4 +438,8 @@ export function* loadGamePage (gameKey: string, page: number): Saga {
 
 export function* forkChain (chainId: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Fork`, null);
+}
+
+export function* deleteChain (chainId: string): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Delete`, null);
 }
