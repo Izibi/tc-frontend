@@ -4,8 +4,8 @@ import {call, put, select, takeLatest} from 'redux-saga/effects';
 
 import {Entity, Chain} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
-import {Rule} from '../router';
-import {monitorBackendTask, loadContestChains, loadGameHead, forkChain, deleteChain} from '../Backend';
+import {Rule, navigate} from '../router';
+import {monitorBackendTask, loadContestTeam, loadContestChains, loadGameHead, forkChain, deleteChain} from '../Backend';
 import {selectors} from '../Backend';
 
 import ChainsPage from './ChainsPage';
@@ -96,10 +96,10 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
       /* TODO: update subscriptions to the visible games */
-      const channels = [];
+      const channels = [`contest:${params.contestId}`];
       for (let chain of chains) {
         if (chain.isLoaded && chain.value.currentGameKey !== "") {
-          channels.push(`games/${chain.value.currentGameKey}`)
+          channels.push(`game:${chain.value.currentGameKey}`)
         }
       }
       yield put(actionCreators.eventSourceSubsChanged(channels));
@@ -123,7 +123,8 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
       yield call(monitorBackendTask, function* () {
-        yield call(forkChain, action.payload.chainId);
+        const chainId: string = yield call(forkChain, action.payload.chainId);
+        yield call(navigate, "ChainPage", {contestId: params.contestId, chainId});
       });
     }
   );
@@ -133,10 +134,15 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
         /* The action's reducer eagerly removed the id from the list. */
         yield call(deleteChain, action.payload.chainId);
         /* An event posted to the team's channel will reload the chain list. */
+        /* The chain being deleted was (probably) the current chain, so clear
+           the selection by navigating to the list of chains. */
+        yield call(navigate, "ChainsPage", {contestId: params.contestId});
       });
     }
   );
   yield call(monitorBackendTask, function* () {
+    const {teamId} = yield call(loadContestTeam, params.contestId);
+    yield put(actionCreators.teamChanged(teamId));
     const {chainIds} = yield call(loadContestChains, params.contestId, {});
     yield put(actionCreators.chainListChanged(chainIds));
     /* yield call(loadContestTeams, params.contestId); */
