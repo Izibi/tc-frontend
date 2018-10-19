@@ -46,7 +46,7 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
     console.log("chain", chain);
     if (chain.game !== null) {
       const maxSeq = chain.game.blocks.size - 1;
-      const nBlocks = Math.min(maxSeq, 16);
+      const nBlocks = 16;
       const maxRound = chain.game.currentRound;
       for (let i = 0; i < nBlocks; i++) {
         const block : Block = chain.game.blocks.get(maxSeq - i);
