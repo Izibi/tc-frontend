@@ -168,9 +168,9 @@ export function modifiedEntity<T extends object>(entity: Entity<T>, value: T): E
     case EntityState.Loading:
       return loadingEntity(entity.id);
     case EntityState.Loaded:
-      return loadedEntity(entity.id, value);
+      return loadedEntity(entity.id, Object.assign({}, entity.value, value));
     case EntityState.Reloading:
-      return reloadingEntity(entity.id, value);
+      return reloadingEntity(entity.id, Object.assign({}, entity.value, value));
     case EntityState.Error:
       return errorEntity(entity.id);
   }
