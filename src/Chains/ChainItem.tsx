@@ -51,7 +51,7 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
       for (let i = 0; i < nBlocks; i++) {
         const block : Block = chain.game.blocks.get(maxSeq - i);
         if (block && maxRound - i >= 0) {
-          blocks[nBlocks - i - 1] = <img key={i} className={classnames(["chainBlock", "pixelated", `block-${maxRound - i}`])} src={`${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`} title={`${maxRound - i}`} />
+          blocks[nBlocks - i - 1] = <img key={i} className={classnames(["chainBlock", "pixelated", `block-${maxRound - i}`, `seq-${maxSeq - i}`])} src={`${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`} title={`${maxRound - i}`} />
         } else {
           blocks[nBlocks - i - 1] = <div key={i} className={classnames(["chainBlock", "placeholder", `block-${maxRound - i}`])}/>
         }
