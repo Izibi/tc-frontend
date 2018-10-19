@@ -1,10 +1,10 @@
 
 import * as Immutable from 'immutable';
 import {Effect, eventChannel, Channel, END, CANCEL} from "redux-saga";
-import {call, fork, put, select, take, takeEvery} from "redux-saga/effects";
+import {call, fork, put, select, take, takeEvery, takeLatest} from "redux-saga/effects";
 import update from 'immutability-helper';
 
-import {actionCreators, Actions, ActionTypes, AppToaster, State} from "../app";
+import {actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
 import {Entity, Block} from '../types';
@@ -113,49 +113,59 @@ type Message = {
   payload: string,
 }
 
+type ApiResponse<T> = {result?: T} | {error: string, details?: string}
+
 export function* saga(): Saga {
-  const events = yield call(channelOfEventSource, 'Events');
-  let key : string = "";
-  let channels : string[] = [];
-  yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
-  function* syncSubscriptions (): Saga {
-    const newChannels = yield select((state: State) => state.eventSource.channels);
-    const subscribe = difference(newChannels, channels);
-    const unsubscribe = difference(channels, newChannels);
-    console.log(channels, '->', newChannels, '+', subscribe, '-', unsubscribe);
-    const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${key}`, {subscribe, unsubscribe});
+  yield takeLatest(ActionTypes.USER_LOGGED_IN, function* (): Saga {
+    const resp : ApiResponse<string> = yield call(postJson, `${process.env.BACKEND_URL}/Events`, null);
     if ('error' in resp) {
-      console.log("Error updating subscriptions:", resp);
+      console.log('failed to create event stream', resp);
       return;
     }
-    if (resp.result === true) {
-      channels = newChannels;
+    const streamKey = resp.result;
+    let channels : string[] = [];
+    yield takeLatest(ActionTypes.CONTEST_CHANGED, function* (action: ActionsOfType<typeof ActionTypes.CONTEST_CHANGED>): Saga {
+      console.log('CONTEST CHANGED', action.payload.contestId);
+    });
+    yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
+    function* syncSubscriptions (): Saga {
+      const newChannels = yield select((state: State) => state.eventSource.channels);
+      const subscribe = difference(newChannels, channels);
+      const unsubscribe = difference(channels, newChannels);
+      console.log(channels, '->', newChannels, '+', subscribe, '-', unsubscribe);
+      const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
+      if ('error' in resp) {
+        console.log("Error updating subscriptions:", resp);
+        return;
+      }
+      if (resp.result === true) {
+        channels = newChannels;
+      }
     }
-  }
-  while (true) {
-    let event : Message | END = yield take(events);
-    console.log('event', event);
-    if ('type' in event && event.type === END.type) {
-      console.log('event stream has ended');
-      break; // XXX should re-open the event stream?
-    }
-    if ('channel' in event) {
-      if (event.channel === 'key') {
-        key = event.payload;
-        yield put(actionCreators.eventSourceKeyChanged(key));
-        yield call(syncSubscriptions);
+    const events = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
+    while (true) {
+      let event : Message | END = yield take(events);
+      console.log('event', event);
+      if ('type' in event && event.type === END.type) {
+        console.log('event stream has ended');
+        break; // XXX should re-open the event stream?
+      }
+      if ('channel' in event) {
+        // XXX do not leak channel to client?
+        // event.channel == 'team'
+        // event.channel == 'contest'
+        let md = /^game:(.*)$/.exec(event.channel);
+        if (md !== null) {
+          const gameKey = md[1];
+          // event.payload === "block …"
+          const {game, blocks} = yield call(loadGameHead, gameKey);
+          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+        }
         continue;
       }
-      let md = /^games\/(.*)$/.exec(event.channel);
-      if (md !== null) {
-        const gameKey = md[1];
-        // event.payload === "block …"
-        const {game, blocks} = yield call(loadGameHead, gameKey);
-        yield put(actionCreators.gameLoaded(gameKey, game, blocks));
-      }
-      continue;
     }
-  }
+  });
+
 }
 
 function difference(xs: string[], ys: string[]): string[] {
@@ -312,8 +322,8 @@ function postJson (url: string, body: any) {
   return promise;
 }
 
-export function channelOfEventSource (path: string) : Channel<object> {
-  const source = new EventSource(`${process.env.BACKEND_URL}/${path}`);
+export function channelOfEventSource (url: string) : Channel<object> {
+  const source = new EventSource(url);
   // TODO: save first origin and check that subsequent messages match
   return eventChannel(function (emitter) {
     // source.addEventListener('open', function (e) {…}, false);
