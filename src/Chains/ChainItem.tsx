@@ -42,13 +42,21 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
     );
   }
   renderContent (chain: Chain) {
-    const blocks : JSX.Element[] = chain.game === null ? [] : chain.game.blocks.map((block: Block | undefined, key: number | undefined) => {
-      if (block) {
-        return <img key={key} className="chainBlock pixelated" src={`${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`}/>
-      } else {
-        return <div key={key} className="chainBlock placeholder"/>
+    const blocks : JSX.Element[] = [];
+    console.log("chain", chain);
+    if (chain.game !== null) {
+      const nBlocks = 16;
+      const maxSeq = chain.game.blocks.size - 1;
+      const maxRound = chain.game.currentRound;
+      for (let i = 0; i < nBlocks; i++) {
+        const block : Block = chain.game.blocks.get(maxSeq - i);
+        if (block) {
+          blocks[nBlocks - i - 1] = <img key={i} className={classnames(["chainBlock", "pixelated", `block-${maxRound - i}`])} src={`${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`} title={`${maxRound - i}`} />
+        } else {
+          blocks[nBlocks - i - 1] = <div key={i} className={classnames(["chainBlock", "placeholder", `block-${maxRound - i}`])}/>
+        }
       }
-    }).toArray();
+    }
     return (
       <div className="chainListItemContent flexRow">
         <div className="chainName">
