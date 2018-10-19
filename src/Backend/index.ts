@@ -154,14 +154,27 @@ export function* saga(): Saga {
         // XXX do not leak channel to client?
         // event.channel == 'team'
         // event.channel == 'contest'
-        let md = /^game:(.*)$/.exec(event.channel);
-        if (md !== null) {
-          const gameKey = md[1];
-          // event.payload === "block …"
-          const {game, blocks} = yield call(loadGameHead, gameKey);
-          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+        if (/^contest:/.test(event.channel)) {
+          let md = /chain (.*) created/.exec(event.payload);
+          if (md) {
+            yield put(actionCreators.chainCreated(md[1]));
+            continue;
+          }
+          md = /chain (.*) deleted/.exec(event.payload);
+          if (md) {
+            yield put(actionCreators.chainDeleted(md[1]));
+            continue;
+          }
+        } else {
+          let md = /^game:(.*)$/.exec(event.channel);
+          if (md !== null) {
+            const gameKey = md[1];
+            // event.payload === "block …"
+            const {game, blocks} = yield call(loadGameHead, gameKey);
+            yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+          }
+          continue;
         }
-        continue;
       }
     }
   });

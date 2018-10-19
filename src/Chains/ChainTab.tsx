@@ -35,8 +35,8 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
                 {chain.updatedAt.format('YYYY-MM-DD, hh:mm a')}
               </div>
               <div>
-                {"Current game "}
-                <span className="gameKey">{chain.currentGameKey}</span>
+                {"Game key "}
+                <input type="text" className="bp3-input gameKey" value={chain.currentGameKey} onClick={this.handleGameKeyClick}/>
               </div>
             </div>
           </div>
@@ -115,6 +115,9 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
   };
   handleDeleteChain = () => {
     this.props.dispatch(actionCreators.deleteChain(this.props.chain.id));
+  };
+  handleGameKeyClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    event.currentTarget.select();
   };
 }
 

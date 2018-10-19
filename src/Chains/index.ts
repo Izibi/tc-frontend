@@ -140,6 +140,17 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
       });
     }
   );
+  yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
+    const {chainIds} = yield call(loadContestChains, params.contestId, {});
+    yield put(actionCreators.chainListChanged(chainIds));
+  });
+  yield takeLatest(ActionTypes.CHAIN_DELETED, function*(action: ActionsOfType<typeof ActionTypes.CHAIN_DELETED>): Saga {
+    const {chainIds} = yield call(loadContestChains, params.contestId, {});
+    yield put(actionCreators.chainListChanged(chainIds));
+    if (params.chainId == action.payload.chainId) {
+      yield call(navigate, "ChainsPage", {contestId: params.contestId});
+    }
+  });
   yield call(monitorBackendTask, function* () {
     const {teamId} = yield call(loadContestTeam, params.contestId);
     yield put(actionCreators.teamChanged(teamId));

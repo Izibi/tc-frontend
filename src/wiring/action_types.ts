@@ -34,8 +34,10 @@ export const INTERFACE_TEXT_CHANGED = "[protocol] interface changed";
 export const IMPLEMENTATION_TEXT_CHANGED = "[buffer] implementation changed";
 
 export const CHAIN_LIST_SCROLLED = "[chains] list scrolled";
-export const FORK_CHAIN = "[chains] fork";
-export const DELETE_CHAIN = "[chains] delete";
+export const CHAIN_CREATED = "[chains] chain created";
+export const CHAIN_DELETED = "[chains] chain deleted";
+export const FORK_CHAIN = "[chains] fork chain";
+export const DELETE_CHAIN = "[chains] delete chain";
 export const GAME_LOADED = "[game] loaded";
 
 export const EVENTSOURCE_KEY_CHANGED = "[EventSource] key changed";

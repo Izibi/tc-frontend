@@ -66,9 +66,14 @@ export const actionCreators = {
   chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
   gameLoaded: (gameKey: string, game: Game, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
 
-  // chains action
+  // chain actions
   forkChain: (chainId: string) => createAction(ActionTypes.FORK_CHAIN, {chainId}),
   deleteChain: (chainId: string) => createAction(ActionTypes.DELETE_CHAIN, {chainId}),
+
+  // chain events
+  chainCreated: (chainId: string) => createAction(ActionTypes.CHAIN_CREATED, {chainId}),
+  chainDeleted: (chainId: string) => createAction(ActionTypes.CHAIN_DELETED, {chainId}),
+
 
 };
 
