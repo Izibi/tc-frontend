@@ -6,12 +6,17 @@ import {linkTo, navigate} from './core';
 
 export class Link extends React.PureComponent<LinkProps> {
   static defaultProps = {
-    params: {}
+    params: {},
+    inline: true,
   };
   render () {
-    const {to, params, text, children, className} = this.props;
-    if (text && childrenEmpty(children)) {
-      return <a href={linkTo(to, params)} onClick={this.handleClick} className={className}>{text}</a>;
+    const {to, params, text, children, className, inline} = this.props;
+    if (inline) {
+      return (
+        <a href={linkTo(to, params)} onClick={this.handleClick} className={className}>
+          {childrenEmpty(children)  ? text : children}
+        </a>
+      );
     } else {
       let Component = this.props.component || "div";
       return <Component onClick={this.handleClick} className={className} style={{cursor: 'pointer'}}>{children}</Component>;
@@ -26,6 +31,7 @@ export class Link extends React.PureComponent<LinkProps> {
       !isModifiedEvent(event) // ignore clicks with modifier keys
     ) {
       event.preventDefault();
+      event.stopPropagation()
       /* XXX TODO handle replace prop */
       navigate(this.props.to, this.props.params);
     }

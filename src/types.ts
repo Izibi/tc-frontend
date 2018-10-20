@@ -106,11 +106,24 @@ export type Game = {
   isLocked: boolean,
   firstBlock: string,
   lastBlock: string,
-  blocks: Immutable.List<Block>,
+  blocks: Immutable.List<BlockInfo>,
 }
 
-export type Block = {
+export type BlockInfo = {
   hash: string,
   type: "root" | "task" | "protocol" | "setup" | "command",
   sequence: number,
 }
+
+type BlockBase = {
+  hash: string /* added when we load the block */,
+  type: string,
+  parent: string,
+  sequence: number,
+}
+type RootBlock = {type: "root"}
+type TaskBlock = {type: "task", identifier: string}
+type ProtocolBlock = {type: "protocol", task: string, interface: string, implementation: string}
+type SetupBlock = {type: "setup", task: string, protocol: string, params: string}
+type CommandBlock = {type: "command", task: string, protocol: string}
+export type Block = BlockBase & (RootBlock | TaskBlock | ProtocolBlock | SetupBlock | CommandBlock)

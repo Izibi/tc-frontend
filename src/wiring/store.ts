@@ -10,6 +10,7 @@ import {landingReducer} from '../Landing';
 import {teamReducer} from '../Team';
 import {taskReducer} from '../Task';
 import {chainsReducer} from '../Chains';
+import {Block} from '../types';
 
 export type State =
   ErrorsState &
@@ -28,6 +29,7 @@ export type State =
       firstVisible: number,
       lastVisible: number,
     },
+    blocks: Immutable.Map<string, Block>,
   }
 
 export const initialState : State = {
@@ -69,6 +71,8 @@ export const initialState : State = {
     firstVisible: 0,
     lastVisible: -1,
   },
+  blocks: Immutable.Map(),
+
 };
 
 export function reducer (state: State | undefined, action: Actions) : State {

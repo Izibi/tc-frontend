@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, Chain, Team} from '../types';
+import {Entity, Chain, Team, Block} from '../types';
 import {Link, navigate} from '../router';
 import {selectors} from '../Backend';
 import ChainFilters from './ChainFilters';
@@ -18,6 +18,7 @@ type StoreProps = {
   contestId: string,
   chainId: string,
   blockHash: string,
+  block: Block | undefined,
   chains: Entity<Chain>[],
   teams: Team[],
   chain: Entity<Chain>,
@@ -35,6 +36,7 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
   const chain = selectors.getChain(state, chainId);
   const teams = selectors.getTeams(state);
+  const block = blockHash ? state.blocks.get(blockHash) : undefined;
   let isOwner = false;
   if (chain.isLoaded) {
     if (teamId !== null && chain.value.ownerId === teamId) {
@@ -42,14 +44,14 @@ function mapStateToProps (state: State, _props: object): StoreProps {
     }
   }
   return {
-    here, contestId, chainId, blockHash, chains, teams, chain, isOwner,
+    here, contestId, chainId, blockHash, block, chains, teams, chain, isOwner,
     firstVisible, lastVisible
   };
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, contestId, chainId, chains, teams, chain, isOwner} = this.props;
+    const {here, contestId, chainId, chains, teams, chain, isOwner, block} = this.props;
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
       <div className="chainsPage">
@@ -81,7 +83,7 @@ class ChainsPage extends React.PureComponent<Props> {
             </div>
             <div>
               {tab === 'chain' && chain.isLoaded && <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
-              {tab === 'block' && <BlockTab/>}
+              {tab === 'block' && <BlockTab block={block} />}
             </div>
           </div>
           </div>

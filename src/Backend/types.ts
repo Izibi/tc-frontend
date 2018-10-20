@@ -1,7 +1,7 @@
 
 import * as Immutable from 'immutable';
 
-import {Entity, Block} from '../types';
+import {Entity, BlockInfo} from '../types';
 
 export interface EntityMap<T> {
   [key: string]: Entity<T>;
@@ -23,7 +23,7 @@ export type BackendState = {
 
 export type GameInfo = {
   game: Game,
-  blocks: Immutable.List<Block>,
+  blocks: Immutable.List<BlockInfo>,
 }
 
 export type Entities = {

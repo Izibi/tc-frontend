@@ -7,7 +7,7 @@ import update from 'immutability-helper';
 import {actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Entity, Block} from '../types';
+import {Entity, BlockInfo} from '../types';
 import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
 import {loadedEntity, modifiedEntity} from "./entities";
@@ -58,7 +58,7 @@ export function backendReducer (state: State, action: Actions): State {
     case ActionTypes.GAME_LOADED: {
       const {gameKey, game, blocks: newBlocks} = action.payload;
       const prevGI : GameInfo | undefined = state.games.get(gameKey);
-      let blocks : Immutable.List<Block> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
+      let blocks : Immutable.List<BlockInfo> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
       if (newBlocks !== null) {
         for (let block of newBlocks) {
           blocks = blocks.set(block.sequence, block);
@@ -465,4 +465,10 @@ export function* forkChain (chainId: string): Saga {
 
 export function* deleteChain (chainId: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Delete`, null);
+}
+
+export function* loadBlock (hash: string): Saga {
+  const resp: Response = yield call(fetch, `${process.env.BLOCKSTORE_URL}/${hash}/block.json`);
+  const data: object = yield call([resp, resp.json]);
+  return {hash, ...data};
 }

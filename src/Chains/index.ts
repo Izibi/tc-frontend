@@ -1,11 +1,13 @@
 
 import {Effect} from 'redux-saga';
-import {call, put, select, takeLatest} from 'redux-saga/effects';
+import {call, put, select, takeLatest, fork} from 'redux-saga/effects';
 
-import {Entity, Chain} from '../types';
+//import {spawnWorker} from '../worker';
+
+import {Entity, Chain, Block} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
-import {monitorBackendTask, loadContestTeam, loadContestChains, loadGameHead, forkChain, deleteChain} from '../Backend';
+import {monitorBackendTask, loadContestTeam, loadContestChains, loadGameHead, forkChain, deleteChain, loadBlock} from '../Backend';
 import {selectors} from '../Backend';
 
 import ChainsPage from './ChainsPage';
@@ -57,7 +59,7 @@ export const routes : Rule<any>[] = [
         blockHash: params.blockHash
       }),
     component: ChainsPage,
-    saga: chainsPageSaga,
+    saga: blockPageSaga,
   },
 
 ];
@@ -84,12 +86,79 @@ export function chainsReducer (state: State, action: Actions): State {
         chainIds.splice(i, 1);
         state = {...state, chainIds};
       }
+      break;
+    }
+    case ActionTypes.BLOCK_LOADED: {
+      const {hash, block} = action.payload;
+      state = {...state, blocks: state.blocks.set(hash, block)};
+      break;
     }
   }
   return state;
 }
 
-function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
+function* chainsPageSaga (params: Params) : Saga {
+  yield fork(chainListSaga, params);
+  yield takeLatest(ActionTypes.FORK_CHAIN,
+    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
+      yield call(monitorBackendTask, function* () {
+        const chainId: string = yield call(forkChain, action.payload.chainId);
+        yield call(navigate, "ChainPage", {contestId: params.contestId, chainId});
+      });
+    }
+  );
+  yield takeLatest(ActionTypes.DELETE_CHAIN,
+    function* (action: ActionsOfType<typeof ActionTypes.DELETE_CHAIN>) : Saga {
+      yield call(monitorBackendTask, function* () {
+        /* The action's reducer eagerly removed the id from the list. */
+        yield call(deleteChain, action.payload.chainId);
+        /* An event posted to the team's channel will reload the chain list. */
+        /* The chain being deleted was (probably) the current chain, so clear
+           the selection by navigating to the list of chains. */
+        yield call(navigate, "ChainsPage", {contestId: params.contestId});
+      });
+    }
+  );
+  yield call(monitorBackendTask, function* () {
+    const {teamId} = yield call(loadContestTeam, params.contestId);
+    yield put(actionCreators.teamChanged(teamId));
+    const {chainIds} = yield call(loadContestChains, params.contestId, {});
+    yield put(actionCreators.chainListChanged(chainIds));
+    /* yield call(loadContestTeams, params.contestId); */
+    /* TODO: if params.blockHash is undefined, find the hash of the last block
+             in the selected chain, and put it in the store. */
+  });
+}
+
+function* blockPageSaga (params: Params) : IterableIterator<Effect> {
+  if (!params.blockHash) {
+    yield call(navigate, "ChainsPage", {contestId: params.contestId, chainId: params.chainId});
+    return;
+  }
+  yield fork(chainListSaga, params);
+  yield call(monitorBackendTask, function* () {
+    if (params.blockHash) {
+      /* Ensure the block is loaded. */
+      let maybeBlock: Block | undefined;
+      yield select((state: State) => {
+        maybeBlock = state.blocks.get(params.blockHash as string);
+      });
+      if (!maybeBlock) {
+        const block = yield call(loadBlock, params.blockHash);
+        yield put(actionCreators.blockLoaded(params.blockHash, block));
+      }
+    }
+    // const {round, nb_players} = state;
+    // - need a creation timestamp
+    // - computer per-player nb. commands, nb. changes, score
+    const {teamId} = yield call(loadContestTeam, params.contestId);
+    yield put(actionCreators.teamChanged(teamId));
+    const {chainIds} = yield call(loadContestChains, params.contestId, {});
+    yield put(actionCreators.chainListChanged(chainIds));
+  });
+}
+
+function* chainListSaga (params: Params) : Saga {
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
     function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
       const {first, last} = action.payload;
@@ -120,26 +189,6 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
       }
     }
   );
-  yield takeLatest(ActionTypes.FORK_CHAIN,
-    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
-      yield call(monitorBackendTask, function* () {
-        const chainId: string = yield call(forkChain, action.payload.chainId);
-        yield call(navigate, "ChainPage", {contestId: params.contestId, chainId});
-      });
-    }
-  );
-  yield takeLatest(ActionTypes.DELETE_CHAIN,
-    function* (action: ActionsOfType<typeof ActionTypes.DELETE_CHAIN>) : Saga {
-      yield call(monitorBackendTask, function* () {
-        /* The action's reducer eagerly removed the id from the list. */
-        yield call(deleteChain, action.payload.chainId);
-        /* An event posted to the team's channel will reload the chain list. */
-        /* The chain being deleted was (probably) the current chain, so clear
-           the selection by navigating to the list of chains. */
-        yield call(navigate, "ChainsPage", {contestId: params.contestId});
-      });
-    }
-  );
   yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
     const {chainIds} = yield call(loadContestChains, params.contestId, {});
     yield put(actionCreators.chainListChanged(chainIds));
@@ -150,17 +199,5 @@ function* chainsPageSaga (params: Params) : IterableIterator<Effect> {
     if (params.chainId == action.payload.chainId) {
       yield call(navigate, "ChainsPage", {contestId: params.contestId});
     }
-  });
-  yield call(monitorBackendTask, function* () {
-    const {teamId} = yield call(loadContestTeam, params.contestId);
-    yield put(actionCreators.teamChanged(teamId));
-    const {chainIds} = yield call(loadContestChains, params.contestId, {});
-    yield put(actionCreators.chainListChanged(chainIds));
-    /* yield call(loadContestTeams, params.contestId); */
-    /* TODO: if params.chainId is undefined, find the id of the main chain (it
-             should always be included in the server's response), and put it in
-             the store. */
-    /* TODO: if params.blockHash is undefined, find the hash of the last block
-             in the selected chain, and put it in the store. */
   });
 }

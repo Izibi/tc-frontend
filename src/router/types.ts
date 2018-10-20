@@ -37,6 +37,7 @@ export type LinkProps = {
   component?: React.ReactType,
   children?: React.ReactNode,
   className?: string,
+  inline: boolean,
 }
 
 export type RouterState = {
