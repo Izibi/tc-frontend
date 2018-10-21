@@ -107,6 +107,7 @@ export type Game = {
   isLocked: boolean,
   firstBlock: string,
   lastBlock: string,
+  nbCyclesPerRound: number,
   blocks: Immutable.List<BlockInfo>,
 }
 

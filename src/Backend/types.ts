@@ -132,8 +132,9 @@ export type Game = {
   startedAt: string | null,
   roundEndsAt: string | null,
   ownerId: string,
-  currentRound: number,
   isLocked: boolean,
   firstBlock: string,
   lastBlock: string,
+  currentRound: number,
+  nbCyclesPerRound: number,
 }

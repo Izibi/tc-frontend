@@ -153,6 +153,7 @@ function getGame(state: State, gameKey: string): Game | null {
     isLocked: game.isLocked,
     firstBlock: game.firstBlock,
     lastBlock: game.lastBlock,
+    nbCyclesPerRound: game.nbCyclesPerRound,
     blocks,
   };
 }
