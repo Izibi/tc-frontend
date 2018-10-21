@@ -84,6 +84,9 @@
       overflow: hidden;
       white-space: nowrap;
     }
+    .chainTeam.chainDeleted {
+      text-decoration: line-through;
+    }
 
     .chainListItems {
       /* no padding, margin, borders on this element */

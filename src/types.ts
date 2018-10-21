@@ -20,6 +20,7 @@ export type User = {
 export type Team = {
   id: string,
   name: string,
+  deletedAt?: string,
   accessCode: string,
   isOpen: boolean /* can new users join the team? */,
   isLocked: boolean /* contest started, team cannot be changed */,

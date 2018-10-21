@@ -67,7 +67,7 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
         <div className="chainName">
           <Link to="ChainPage" text={chain.title} params={{contestId: chain.contest.id, chainId: chain.id}}/>
         </div>
-        <div className="chainTeam">
+        <div className={classnames(["chainTeam", chain.owner.isLoaded && chain.owner.value.deletedAt && 'chainDeleted'])}>
           {chain.owner.isLoaded
             ? chain.owner.value.name
             : 'unknown'}

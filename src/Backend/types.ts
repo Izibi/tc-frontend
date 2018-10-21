@@ -51,6 +51,8 @@ export type User = {
 export type Team = {
   id: string,
   createdAt: string,
+  updatedAt: string,
+  deletedAt?: string,
   accessCode: string,
   contestId: string,
   isOpen: boolean,
