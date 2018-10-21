@@ -10,15 +10,15 @@ export class Link extends React.PureComponent<LinkProps> {
     inline: true,
   };
   render () {
-    const {to, params, text, children, className, inline} = this.props;
-    if (inline) {
+    const {to, params, text, children, className, inline, component} = this.props;
+    if (inline && !component) {
       return (
         <a href={linkTo(to, params)} onClick={this.handleClick} className={className}>
           {childrenEmpty(children)  ? text : children}
         </a>
       );
     } else {
-      let Component = this.props.component || "div";
+      let Component = component || "div";
       return <Component onClick={this.handleClick} className={className} style={{cursor: 'pointer'}}>{children}</Component>;
     }
   }
