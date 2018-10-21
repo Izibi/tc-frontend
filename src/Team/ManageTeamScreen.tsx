@@ -83,7 +83,10 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
     this.props.dispatch(actionCreators.changeTeamAccessCode(this.props.team.id));
   };
   handleLeaveTeam = () => {
-    this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
+    let message = "Are you sure you want to leave the team?";
+    if (confirm(message)) {
+      this.props.dispatch(actionCreators.leaveTeam(this.props.team.id));
+    }
   };
   handleChangeTeamOpen = () => {
     const isOpen = !this.props.team.isOpen;
