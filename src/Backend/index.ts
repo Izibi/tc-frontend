@@ -197,36 +197,30 @@ function flushSelectorCache(backend: State['backend']): State['backend'] {
 
 export type UniEntities = {[collection: string]: {[id: string]: Entity<object>}}
 
-function updateEntities (entities: UniEntities, update: EntitiesUpdate): UniEntities {
-  const result : UniEntities = {};
-  for (let key of Object.keys(update)) {
-    const value = update[key];
+function updateEntities (entities: UniEntities, changes: EntitiesUpdate): UniEntities {
+  let result : UniEntities = entities;
+  for (let key of Object.keys(changes)) {
+    const value = changes[key];
     const {collection, facet, id} = splitEntityKey(key);
-    // Ensure the collection has been copied.
+    // Ensure the collection exists.
     if (!(collection in result)) {
-      result[collection] = {}; // Object.assign({}, entities[collection]);
+      result = update(result, {[collection]: {$set: {}}});
     }
     if (value == null) {
       /* If value is null, purge from the collection all bindings matching the
          pattern given by `id`. */
       const ids = matchIds(id, Object.keys(result[collection]));
-      for (let id of ids) {
-        delete result[collection][id];
-      }
+      result = update(result, {[collection]: {$unset: ids}});
     } else {
       if (facet) {
         /* Merge facet. */
-        result[collection][id] = modifiedEntity(result[collection][id], value);
+        result = update(result, {[collection]: {[id]: {$apply:
+          (oldEntity: Entity<object>) => modifiedEntity(oldEntity, value)}}});
       } else {
         /* Base facet, store the (id, value) pair in the collection. */
-        result[collection][id] = loadedEntity(id, value);
+        result = update(result, {[collection]: {[id]: {$set:
+          loadedEntity(id, value)}}});
       }
-    }
-  }
-  /* Copy over any unchanged collections. */
-  for (let collection of Object.keys(entities)) {
-    if (!(collection in result)) {
-      result[collection] = entities[collection];
     }
   }
   return result;
