@@ -36,13 +36,22 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
   const chain = selectors.getChain(state, chainId);
   const teams = selectors.getTeams(state);
-  const block = blockHash ? state.blocks.get(blockHash) : undefined;
   let isOwner = false;
   if (chain.isLoaded) {
     if (teamId !== null && chain.value.ownerId === teamId) {
       isOwner = true;
     }
+    if (blockHash === 'last') {
+      if (chain.value.game) {
+        blockHash = chain.value.game.lastBlock;
+        console.log('mapStateToProps, last block', blockHash);
+      } else {
+        blockHash = "";
+        console.log('game not loaded, cannot display last block ');
+      }
+    }
   }
+  const block = blockHash ? state.blocks.get(blockHash) : undefined;
   return {
     here, contestId, chainId, blockHash, block, chains, teams, chain, isOwner,
     firstVisible, lastVisible
@@ -72,7 +81,7 @@ class ChainsPage extends React.PureComponent<Props> {
         <div className="tabLayout">
           <div className="tabSelector">
             <div className={tab === 'block' ? "selected" : ""}>
-              <Link to="BlockPage" text="Block" params={{contestId, chainId, blockHash: 'unknown'}}/>
+              <Link to="BlockPage" text="Block" params={{contestId, chainId, blockHash: 'last'}}/>
             </div>
             <div className={tab === 'chain' ? "selected" : ""}>
               <Link to="ChainPage" text="Chain" params={{contestId, chainId}}/>
