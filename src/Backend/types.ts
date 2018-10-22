@@ -92,8 +92,8 @@ export type TaskResource = {
   rank: number,
   title: string,
   description: string,
-  url: string | null,
-  html: string | null,
+  url: string,
+  html: string,
 }
 
 export type ContestPeriod = {

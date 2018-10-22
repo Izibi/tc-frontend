@@ -54,16 +54,16 @@ export function getTask(state: State, id: string | null): Entity<Task> {
 
 export function getTaskResources(state: State, taskId: string): Entity<TaskResource>[] {
   const results: Entity<TaskResource>[] = [];
-  const ids = ["1", "2", "3", "4", "5"]; // XXX
+  const ids = Object.keys(state.entities.taskResources);
   for (let id of ids) {
     results.push(visitEntity(state, 'taskResources', id, (resource) => {
-      if (resource.html !== null) {
+      if (resource.html !== "") {
         return <TaskResource>{...resource, html: resource.html, url: undefined};
       }
-      if (resource.url !== null) {
+      if (resource.url !== "") {
         return <TaskResource>{...resource, url: resource.url, html: undefined};
       }
-      throw new Error('malformed task resource');
+      return <TaskResource>{...resource, html: undefined, url: undefined};
     }));
   }
   return results;

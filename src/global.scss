@@ -135,8 +135,10 @@ body {
   min-height: 500px;
   padding: 2em;
 
-  iframe{
+  iframe {
     border: none;
+    width: 100%;
+    height: 438px;
   }
 
   .panel {
