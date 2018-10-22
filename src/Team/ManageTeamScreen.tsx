@@ -73,6 +73,7 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
             checked={team.isOpen} onChange={this.handleChangeTeamOpen}
             label="Accept new members" />
         </div>
+        <div className="sectionTitle">{"Team public key"}</div>
         <div className="teamKey">
           <InputGroup leftIcon='key' placeholder="Enter your public team key here"
             value={team.publicKey} onChange={this.handleChangeTeamKey}
