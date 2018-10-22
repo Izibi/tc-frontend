@@ -12,7 +12,7 @@ import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
 import {loadedEntity, modifiedEntity} from "./entities";
 
-export {EntityMap, BackendState, EntitiesUpdate, Game} from "./types";
+export {EntityMap, BackendState, Entities, EntitiesUpdate, EntityChange, Game} from "./types";
 export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
@@ -23,9 +23,6 @@ type Saga = IterableIterator<Effect>
 export function backendReducer (state: State, action: Actions): State {
   switch (action.type) {
 
-    case ActionTypes.BACKEND_TASKS_CLEARED: {
-      return {...state, backend: {generation: 0, tasks: [], lastError: undefined}};
-    }
     case ActionTypes.BACKEND_TASK_STARTED: {
       const {task} = action.payload;
       return {...state, backend: {
@@ -36,25 +33,28 @@ export function backendReducer (state: State, action: Actions): State {
     }
     case ActionTypes.BACKEND_TASK_FAILED: {
       const {task, error} = action.payload;
-      let {backend} = state;
-      let tasks = without(backend.tasks, task);
-      return {...state, backend: {...backend, tasks, lastError: error}};
+      state = update(state, {backend: {
+        tasks: {$apply: (tasks: object[]) => without(tasks, task)},
+        lastError: {$set: error},
+        localChanges: {$set: []}
+      }});
+      return flushSelectorCache(applyLocalChanges(state));
     }
     case ActionTypes.BACKEND_TASK_DONE: {
       const {task} = action.payload;
-      let {backend} = state;
-      let tasks = without(backend.tasks, task);
-      return {...state, backend: {...backend, tasks}};
+      state = update(state, {backend: {
+        tasks: {$apply: (tasks: object[]) => without(tasks, task)},
+        localChanges: {$set: []}
+      }});
+      return flushSelectorCache(applyLocalChanges(state));
+    }
+    case ActionTypes.BACKEND_ENTITIES_LOADED: {
+      let entities: Entities = state.backend.pristineEntities;
+      entities = <Entities>updateEntities(<UniEntities>entities, action.payload.entities);
+      state = update(state, {backend: {pristineEntities: {$set: entities}}})
+      return flushSelectorCache(applyLocalChanges(state));
     }
 
-    case ActionTypes.BACKEND_ENTITIES_LOADED: {
-      const entities = <Entities>updateEntities(<UniEntities>state.entities, action.payload.entities);
-      return {
-        ...state,
-        backend: flushSelectorCache(state.backend),
-        entities,
-      };
-    }
     case ActionTypes.GAME_LOADED: {
       const {gameKey, game, blocks: newBlocks} = action.payload;
       const prevGI : GameInfo | undefined = state.games.get(gameKey);
@@ -64,22 +64,17 @@ export function backendReducer (state: State, action: Actions): State {
           blocks = blocks.set(block.sequence, block);
         }
       }
-      state = {
+      state = flushSelectorCache({
         ...state,
-        backend: flushSelectorCache(state.backend),
         games: state.games.set(gameKey, {game, blocks}),
-      };
+      });
       break;
     }
 
-    case ActionTypes.EAGERLY_UPDATE_ENTITY: {
-      const {id, collection, changes} = action.payload;
-      const entities = update(state.entities, {[collection]: {[id]: {value: changes}}});
-      return {
-        ...state,
-        backend: flushSelectorCache(state.backend),
-        entities,
-      };
+    case ActionTypes.PUSH_LOCAL_CHANGES: {
+      const {items} = action.payload;
+      state = update(state, {backend: {localChanges: {$push: items}}});
+      return flushSelectorCache(applyLocalChanges(state));
     }
 
     case ActionTypes.CONTEST_LIST_CHANGED: {
@@ -191,8 +186,17 @@ function difference(xs: string[], ys: string[]): string[] {
   return result;
 }
 
-function flushSelectorCache(backend: State['backend']): State['backend'] {
-  return {...backend, generation: backend.generation + 1};
+function inc(n: number) { return n + 1; }
+function flushSelectorCache(state: State): State {
+  return update(state, {backend: {generation: {$apply: inc}}});
+}
+
+function applyLocalChanges(state: State): State {
+  let entities = state.backend.pristineEntities;
+  for (let ch of state.backend.localChanges) {
+    entities = update(entities, {[ch.collection]: {[ch.id]: {_value: ch.changes}}})
+  }
+  return {...state, entities};
 }
 
 export type UniEntities = {[collection: string]: {[id: string]: Entity<object>}}

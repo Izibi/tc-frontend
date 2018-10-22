@@ -2,7 +2,7 @@
 import {Effect, delay} from 'redux-saga';
 import {call, put, takeEvery, takeLatest} from 'redux-saga/effects';
 
-import {State, Actions, ActionTypes, actionCreators} from '../app';
+import {State, Actions, ActionTypes, actionCreators, AppToaster} from '../app';
 import {Rule} from '../router';
 import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, updateTeam, changeTeamAccessCode} from '../Backend';
 
@@ -76,18 +76,19 @@ function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<E
   yield takeEvery(ActionTypes.CHANGE_TEAM_IS_OPEN, function* (action: Actions) {
     if (action.type !== ActionTypes.CHANGE_TEAM_IS_OPEN) return; //@ts
     const {teamId, isOpen} = action.payload;
-    yield put(actionCreators.eagerlyUpdateEntity('teams', teamId, {isOpen: {$set: isOpen}}));
     yield call(monitorBackendTask, function* () {
+      yield put(actionCreators.pushLocalChanges([{collection: 'teams', id: teamId, changes: {isOpen: {$set: isOpen}}}]));
       yield call(updateTeam, teamId, {isOpen: isOpen});
     });
   });
   yield takeLatest(ActionTypes.CHANGE_TEAM_KEY, function* (action: Actions) {
     if (action.type !== ActionTypes.CHANGE_TEAM_KEY) return; //@ts
     const {teamId, publicKey} = action.payload;
-    yield put(actionCreators.eagerlyUpdateEntity('teams', teamId, {publicKey: {$set: publicKey}}));
-    yield call(delay, 250);
     yield call(monitorBackendTask, function* () {
+      yield put(actionCreators.pushLocalChanges([{collection: 'teams', id: teamId, changes: {publicKey: {$set: publicKey}}}]));
+      yield call(delay, 250);
       yield call(updateTeam, teamId, {publicKey});
+      AppToaster.show({message: "Team key updated"});
     });
   });
 }

@@ -12,6 +12,8 @@ export type BackendState = {
     generation: number,
     lastError: string | undefined,
     tasks: object[],
+    localChanges: EntityChange[],
+    pristineEntities: Entities,
   },
   eventSource: {
     key: string,
@@ -19,6 +21,12 @@ export type BackendState = {
   },
   entities: Entities,
   games: Immutable.Map<string, GameInfo> /* game key -> sparse list of blocks */,
+}
+
+export type EntityChange = {
+  id: string,
+  collection: string,
+  changes: object
 }
 
 export type GameInfo = {

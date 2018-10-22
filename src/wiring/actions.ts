@@ -1,7 +1,7 @@
 
 import {Route} from '../router';
 import {Block} from '../types';
-import {EntitiesUpdate} from '../Backend';
+import {EntitiesUpdate, EntityChange} from '../Backend';
 import {Game} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
@@ -27,15 +27,12 @@ export const actionCreators = {
   sagaError: (error: Error) => createAction(ActionTypes.SAGA_ERROR, {error}),
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
 
-  // model
-  eagerlyUpdateEntity: (collection: string, id: string, changes: object) => createAction(ActionTypes.EAGERLY_UPDATE_ENTITY, {collection, id, changes}),
-
   // backend
-  backendTasksCleared: () => createAction(ActionTypes.BACKEND_TASKS_CLEARED, {}),
   backendTaskStarted: (task: object) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task}),
   backendTaskFailed: (task: object, error: string) => createAction(ActionTypes.BACKEND_TASK_FAILED, {task, error}),
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
   backendEntitiesLoaded: (entities: EntitiesUpdate) => createAction(ActionTypes.BACKEND_ENTITIES_LOADED, {entities}),
+  pushLocalChanges: (items: EntityChange[]) => createAction(ActionTypes.PUSH_LOCAL_CHANGES, {items}),
 
   // eventsource
   eventSourceKeyChanged: (key: string) => createAction(ActionTypes.EVENTSOURCE_KEY_CHANGED, {key}),

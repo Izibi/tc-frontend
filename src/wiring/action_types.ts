@@ -10,10 +10,9 @@ export const CLEAR_ERROR = "[errors] clear";
 export const BACKEND_TASK_DONE = "[backend] task done";
 export const BACKEND_TASK_FAILED = "[backend] task failed";
 export const BACKEND_TASK_STARTED = "[backend] task started";
-export const BACKEND_TASKS_CLEARED = "[backend] tasks cleared";
 export const BACKEND_ENTITIES_LOADED = "[backend] entities loaded";
 
-export const EAGERLY_UPDATE_ENTITY = "[entity] eager update";
+export const PUSH_LOCAL_CHANGES = "[entity] push local changes";
 
 export const USER_LOGGED_OUT = "[login] user logged out";
 export const USER_LOGGED_IN = "[login] user logged in";
