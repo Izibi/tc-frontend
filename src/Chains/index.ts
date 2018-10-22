@@ -137,25 +137,56 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
   }
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
+    if (!params.chainId) return;
+    let refresh: boolean = true;
+    let chainId: string = params.chainId;
     if (params.blockHash) {
+      let blockHash : string = params.blockHash;
+      if (blockHash === 'last') {
+        console.log('Looking for last block on chain', chainId);
+        let chain: Entity<Chain>;
+        chain = yield select((state: State) => selectors.getChain(state, chainId));
+        if (!chain.isLoaded) {
+          console.log('Chain is not loaded, refreshing.');
+          yield call(blockPageRefresh, params);
+          refresh = false;
+          chain = yield select((state: State) => selectors.getChain(state, chainId));
+          if (!chain.isLoaded) {
+            console.log('Chain is still loaded, bailing out.');
+            return;
+          }
+        }
+        if (!chain.value.game) {
+          console.log('Chain found, but the game is not loaded.  Bailing out.');
+          // do we need to load it?
+          return;
+        }
+        blockHash = chain.value.game.lastBlock;
+        console.log('The last block hash is', blockHash);
+      }
       /* Ensure the block is loaded. */
       let maybeBlock: Block | undefined;
       yield select((state: State) => {
-        maybeBlock = state.blocks.get(params.blockHash as string);
+        maybeBlock = state.blocks.get(blockHash as string);
       });
       if (!maybeBlock) {
-        const block = yield call(loadBlock, params.blockHash);
-        yield put(actionCreators.blockLoaded(params.blockHash, block));
+        const block = yield call(loadBlock, blockHash);
+        yield put(actionCreators.blockLoaded(blockHash, block));
       }
+      // const {round, nb_players} = state;
+      // - need a creation timestamp
+      // - computer per-player nb. commands, nb. changes, score
     }
-    // const {round, nb_players} = state;
-    // - need a creation timestamp
-    // - computer per-player nb. commands, nb. changes, score
-    const {teamId} = yield call(loadContestTeam, params.contestId);
-    yield put(actionCreators.teamChanged(teamId));
-    const {chainIds} = yield call(loadContestChains, params.contestId, {});
-    yield put(actionCreators.chainListChanged(chainIds));
+    if (refresh) {
+      yield call(blockPageRefresh, params);
+    }
   });
+}
+function* blockPageRefresh(params: Params): Saga {
+  const {teamId} = yield call(loadContestTeam, params.contestId);
+  yield put(actionCreators.teamChanged(teamId));
+  const {chainIds} = yield call(loadContestChains, params.contestId, {});
+  yield put(actionCreators.chainListChanged(chainIds));
 }
 
 function* chainListSaga (params: Params) : Saga {
@@ -164,7 +195,7 @@ function* chainListSaga (params: Params) : Saga {
       const {first, last} = action.payload;
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
-      /* TODO: update subscriptions to the visible games */
+      /* Update subscriptions to the visible games. */
       const channels = [`contest:${params.contestId}`];
       for (let chain of chains) {
         if (chain.isLoaded && chain.value.currentGameKey !== "") {
@@ -172,7 +203,7 @@ function* chainListSaga (params: Params) : Saga {
         }
       }
       yield put(actionCreators.eventSourceSubsChanged(channels));
-      // XXX if a chain was visible before being loaded, its game will not be loaded
+      // XXX if a chain was visible before being loaded, its game will not be loaded?
       for (let chain of chains) {
         if (chain.isLoaded) {
           const gameKey = chain.value.currentGameKey;
