@@ -22,6 +22,7 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
       teamMembers = team.members.map((member, index) =>
         <TeamMember key={index} user={member.user} joinedAt={member.joinedAt} isCreator={member.isCreator} />);
     }
+    const isPublicKeyValid = /^[A-Za-z0-9/_]+=*.ed25519$/.test(team.publicKey);
     return (
       <div className="hasTeam">
         {infos}
@@ -74,7 +75,8 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
         </div>
         <div className="teamKey">
           <InputGroup leftIcon='key' placeholder="Enter your public team key here"
-            value={team.publicKey} onChange={this.handleChangeTeamKey} />
+            value={team.publicKey} onChange={this.handleChangeTeamKey}
+            intent={isPublicKeyValid ? "success" : "danger"} />
         </div>
       </div>
     );
@@ -93,7 +95,7 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
     this.props.dispatch(actionCreators.changeTeamIsOpen(this.props.team.id, isOpen));
   };
   handleChangeTeamKey = (ev: React.FormEvent<HTMLInputElement>) => {
-    const teamKey = ev.currentTarget.value;
+    const teamKey = ev.currentTarget.value.trim();
     this.props.dispatch(actionCreators.changeTeamKey(this.props.team.id, teamKey));
   };
 }
