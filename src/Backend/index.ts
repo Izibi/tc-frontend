@@ -7,7 +7,7 @@ import update from 'immutability-helper';
 import {actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Entity, BlockInfo} from '../types';
+import {Entity, Block, BlockInfo} from '../types';
 import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
 import {loadedEntity, modifiedEntity} from "./entities";
@@ -165,6 +165,12 @@ export function* saga(): Saga {
           if (md !== null) {
             const gameKey = md[1];
             // event.payload === "block …"
+            md = /^block (.*)$/.exec(event.payload);
+            if (md != null) {
+              const blockHash: string = md[1];
+              const block: Block = yield call(loadBlock, blockHash);
+              yield put(actionCreators.blockLoaded(blockHash, block));
+            }
             const {game, blocks} = yield call(loadGameHead, gameKey);
             yield put(actionCreators.gameLoaded(gameKey, game, blocks));
           }
