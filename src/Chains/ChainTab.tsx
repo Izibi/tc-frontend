@@ -56,7 +56,7 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
               <input className="bp3-input" type='text' value={newChainName} onChange={this.handleNewChainNameChange} />
               <Button icon='fork' text="Fork" onClick={this.handleForkChain} />
               <Button icon='trash' text="Delete" onClick={this.handleDeleteChain}
-                disabled={isOwner || chain.status !== "private test"}/>
+                disabled={!isOwner || chain.status !== "private test"}/>
               <Button icon='fast-backward' text="Restart" onClick={this.handleRestartGame} disabled={!isOwner} />
             </div>
           </div>
