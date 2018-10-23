@@ -1,10 +1,9 @@
 
 import * as React from 'react';
 import {Button, Icon, InputGroup, Switch} from "@blueprintjs/core";
-import {Moment} from 'moment';
 
 import {actionCreators, DispatchProp} from '../app';
-import {Entity, Team, User} from '../types';
+import {Team, TeamMember} from '../types';
 
 type Props = {
   infos: JSX.Element | null,
@@ -17,10 +16,12 @@ type State = {
 class ManageTeamScreen extends React.PureComponent<Props, State> {
   render() {
     const {infos, team} = this.props;
-    let teamMembers : JSX.Element[] | undefined;
-    if (team.members !== undefined) {
-      teamMembers = team.members.map((member, index) =>
-        <TeamMember key={index} user={member.user} joinedAt={member.joinedAt} isCreator={member.isCreator} />);
+    let teamMembers : JSX.Element[] = [];
+    if (team.members) {
+      team.members.forEach((member, index) =>
+        teamMembers.push(member.isLoaded
+          ? <TeamMember key={index} member={member.value} />
+          : <div/>));
     }
     const isPublicKeyValid = /^[A-Za-z0-9/_]+=*.ed25519$/.test(team.publicKey);
     return (
@@ -102,22 +103,20 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
 }
 
 type TeamMembersProps = {
-  user: Entity<User>,
-  joinedAt: Moment,
-  isCreator: boolean,
+  member: TeamMember,
 }
 
 const TeamMember : React.StatelessComponent<TeamMembersProps> = (props) => {
-  const {user, joinedAt, isCreator} = props;
-  if (!user.isLoaded) return null;
-  const {username, firstname, lastname} = user.value;
+  const {member} = props;
+  if (!member.user.isLoaded) return null;
+  const {username, firstname, lastname} = member.user.value;
   return (
     <tr>
       <td>{username}</td>
       <td>{firstname}{" "}{lastname}</td>
-      <td>{isCreator &&
+      <td>{member.isCreator &&
         <span>{"Creator"}</span>}</td>
-      <td>{joinedAt.format('YYYY-MM-DD, hh:mm a')}</td>
+      <td>{member.joinedAt.format('YYYY-MM-DD, hh:mm a')}</td>
     </tr>
   );
 };

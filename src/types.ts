@@ -24,12 +24,13 @@ export type Team = {
   accessCode: string,
   isOpen: boolean /* can new users join the team? */,
   isLocked: boolean /* contest started, team cannot be changed */,
-  members?: TeamMember[],
+  members: Entity<TeamMember>[] | undefined,
   publicKey: string,
 }
 
 export type TeamMember = {
   user: Entity<User>,
+  team: Entity<Team>,
   isCreator: boolean,
   joinedAt: Moment,
 }
@@ -45,6 +46,7 @@ export type Contest = {
   endsAt: Moment,
   task: Entity<Task>,
   currentPeriod: Entity<ContestPeriod>,
+  teams: Entity<Team>[] | undefined,
 }
 
 export type Task = {

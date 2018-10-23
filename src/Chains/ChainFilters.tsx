@@ -2,10 +2,10 @@
 import * as React from 'react';
 import {Button, InputGroup} from "@blueprintjs/core";
 
-import {Team} from '../types';
+import {Entity, Team} from '../types';
 
 type ChainFiltersProps = {
-  teams: Team[],
+  teams: Entity<Team>[] | undefined,
 }
 
 class ChainFilters extends React.PureComponent<ChainFiltersProps> {
@@ -33,8 +33,8 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
             </div>
             <div className="bp3-select">
               <select>
-                {teams.map(team =>
-                  <option key={team.id}>{team.name}</option>)}
+                {teams && teams.map(team =>
+                  <option key={team.id}>{team.isLoaded ? team.value.name : team.id}</option>)}
               </select>
             </div>
           </div>

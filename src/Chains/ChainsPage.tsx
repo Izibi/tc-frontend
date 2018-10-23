@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, Chain, Team, Block} from '../types';
+import {Entity, Chain, Block, Contest} from '../types';
 import {Link, navigate} from '../router';
 import {selectors} from '../Backend';
 import ChainFilters from './ChainFilters';
@@ -15,12 +15,13 @@ import BlockTab from './BlockTab';
 
 type StoreProps = {
   here: string,
+  teamId: string | null,
   contestId: string,
   chainId: string,
   blockHash: string,
   block: Block | undefined,
   chains: Entity<Chain>[],
-  teams: Team[],
+  contest: Entity<Contest>,
   chain: Entity<Chain>,
   isOwner: boolean,
   firstVisible: number,
@@ -35,7 +36,7 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const here = route ? route.rule.name : '';
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
   const chain = selectors.getChain(state, chainId);
-  const teams = selectors.getTeams(state);
+  const contest = selectors.getContest(state, contestId);
   let isOwner = false;
   if (chain.isLoaded) {
     if (teamId !== null && chain.value.ownerId === teamId) {
@@ -53,19 +54,22 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   }
   const block = blockHash ? state.blocks.get(blockHash) : undefined;
   return {
-    here, contestId, chainId, blockHash, block, chains, teams, chain, isOwner,
-    firstVisible, lastVisible
+    here, contestId, teamId, chainId, blockHash, block, chains, contest, chain,
+    isOwner, firstVisible, lastVisible
   };
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, contestId, chainId, chains, teams, chain, isOwner, block} = this.props;
+    const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, block} = this.props;
+    if (teamId === null) {
+      return <p>{"Join a team to access the chains."}</p>;
+    }
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
       <div className="chainsPage">
         <ContestHeader/>
-        <ChainFilters teams={teams}/>
+        {contest.isLoaded && <ChainFilters teams={contest.value.teams}/>}
         <div className="chainList">
           <div className="flexRow">
             <div className="chainListTitle chainName">{"Name"}</div>
@@ -91,7 +95,8 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
             </div>
             <div>
-              {tab === 'chain' && chain.isLoaded && <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
+              {tab === 'chain' && chain.isLoaded &&
+                <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
               {tab === 'block' && <BlockTab block={block} />}
             </div>
           </div>

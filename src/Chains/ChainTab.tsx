@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import {Button, Radio, RadioGroup} from "@blueprintjs/core";
+import {Button /*, Radio, RadioGroup*/} from "@blueprintjs/core";
 import AceEditor from 'react-ace';
 import 'brace';
 import 'brace/mode/ocaml';
@@ -15,9 +15,17 @@ type ChainTabProps = {
   isOwner: boolean,
 } & DispatchProp
 
-class ChainTab extends React.PureComponent<ChainTabProps> {
+type LocalState = {
+  newChainName: string
+}
+
+class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
+  state = {
+    newChainName: ""
+  }
   render () {
     const {chain, isOwner} = this.props;
+    const {newChainName} = this.state;
     const ew = '100%', eh = '512px';
     return (
       <div>
@@ -45,28 +53,13 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
           <div className="panel">
             <div className="panelHeader">{"Actions"}</div>
             <div className="panelBody">
-              <Button icon='fork' text="Fork this chain" onClick={this.handleForkChain} />
-              <Button icon='trash' text="Delete this chain" onClick={this.handleDeleteChain} disabled={chain.status !== "private test"}/>
+              <input className="bp3-input" type='text' value={newChainName} onChange={this.handleNewChainNameChange} />
+              <Button icon='fork' text="Fork" onClick={this.handleForkChain} />
+              <Button icon='trash' text="Delete" onClick={this.handleDeleteChain}
+                disabled={isOwner || chain.status !== "private test"}/>
+              <Button icon='fast-backward' text="Restart" onClick={this.handleRestartGame} disabled={!isOwner} />
             </div>
           </div>
-          {isOwner &&
-            <div className="panel">
-              <div className="panelHeader">{"Restart the game"}</div>
-              <div className="panelBody">
-                <p>{"Starting map:"}</p>
-                <RadioGroup
-                  onChange={this.handleStartingMapChange}
-                  selectedValue={"empty"} >
-                  <Radio label="Empty" value="empty" />
-                  <Radio label="From chain " value="block">
-                    {"[TODO: selector for all chains]"}
-                    {" "}
-                    {"[TODO: selector for selected chain's round]"}
-                  </Radio>
-                </RadioGroup>
-                <Button text="Restart game"/>
-              </div>
-            </div>}
         </div>
       </div>
       <div className="flexRow">
@@ -102,8 +95,6 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
       </div>
      );
   }
-  handleStartingMapChange = () => {
-  };
   handleImplementationTextChange = (value: string) => {
     this.props.dispatch(actionCreators.implementationTextChanged(value));
   };
@@ -114,11 +105,41 @@ class ChainTab extends React.PureComponent<ChainTabProps> {
     this.props.dispatch(actionCreators.forkChain(this.props.chain.id));
   };
   handleDeleteChain = () => {
-    this.props.dispatch(actionCreators.deleteChain(this.props.chain.id));
+    if (confirm("Are you sure you want to delete this chain?")) {
+      this.props.dispatch(actionCreators.deleteChain(this.props.chain.id));
+    }
   };
   handleGameKeyClick = (event: React.MouseEvent<HTMLInputElement>) => {
     event.currentTarget.select();
   };
+  handleNewChainNameChange = (event: React.FormEvent<HTMLInputElement>) => {
+    this.setState({newChainName: event.currentTarget.value});
+  };
+  handleRestartGame = (event: React.MouseEvent<HTMLElement>) => {
+    console.log('restart game');
+  };
+  /*handleStartingMapChange = () => {
+  };*/
 }
 
 export default ChainTab;
+
+/*
+          {isOwner &&
+            <div className="panel">
+              <div className="panelHeader">{"Restart the game"}</div>
+              <div className="panelBody">
+                <p>{"Starting map:"}</p>
+                <RadioGroup
+                  onChange={this.handleStartingMapChange}
+                  selectedValue={"empty"} >
+                  <Radio label="Empty" value="empty" />
+                  <Radio label="From chain " value="block">
+                    {"[TODO: selector for all chains]"}
+                    {" "}
+                    {"[TODO: selector for selected chain's round]"}
+                  </Radio>
+                </RadioGroup>
+              </div>
+            </div>}
+*/

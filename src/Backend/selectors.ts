@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {Entity, User, Contest, ContestPeriod, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game} from '../types';
 
 import {BackendState as State, Entities} from './types';
-import {nullEntity, projectEntity, thunkEntity, withEntityValue} from './entities';
+import {nullEntity, projectEntity, thunkEntity} from './entities';
 
 var cache : Map<string, any> = new Map();
 var cacheGeneration : number = -1;
@@ -47,26 +47,22 @@ export function getUser (state: State, id: string | null): Entity<User> {
 
 export function getTask(state: State, id: string | null): Entity<Task> {
   return visitEntity(state, 'tasks', id, task => {
-    const resources = getTaskResources(state, task.id);
-    return {...task, resources};
+    const resources = task.resourceIds.map(resourceId =>
+      getTaskResource(state, resourceId));
+    return <Task>{...task, resources};
   });
 }
 
-export function getTaskResources(state: State, taskId: string): Entity<TaskResource>[] {
-  const results: Entity<TaskResource>[] = [];
-  const ids = Object.keys(state.entities.taskResources);
-  for (let id of ids) {
-    results.push(visitEntity(state, 'taskResources', id, (resource) => {
-      if (resource.html !== "") {
-        return <TaskResource>{...resource, html: resource.html, url: undefined};
-      }
-      if (resource.url !== "") {
-        return <TaskResource>{...resource, url: resource.url, html: undefined};
-      }
-      return <TaskResource>{...resource, html: undefined, url: undefined};
-    }));
-  }
-  return results;
+export function getTaskResource(state: State, id: string | null): Entity<TaskResource> {
+  return visitEntity(state, 'taskResources', id, (resource) => {
+    if (resource.html !== "") {
+      return <TaskResource>{...resource, html: resource.html, url: undefined};
+    }
+    if (resource.url !== "") {
+      return <TaskResource>{...resource, url: resource.url, html: undefined};
+    }
+    return <TaskResource>{...resource, html: undefined, url: undefined};
+  })
 }
 
 export function getContest (state: State, id: string | null): Entity<Contest> {
@@ -77,7 +73,8 @@ export function getContest (state: State, id: string | null): Entity<Contest> {
     const startsAt = moment(contest.startsAt);
     const endsAt = moment(contest.endsAt);
     const registrationClosesAt = moment(contest.registrationClosesAt);
-    return <Contest>{...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt};
+    const teams = contest.teamIds ? contest.teamIds.map(teamId => getTeam(state, teamId)) : undefined;
+    return <Contest>{...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt, teams};
   });
 }
 
@@ -89,37 +86,22 @@ export function getContestPeriod (state: State, id: string | null): Entity<Conte
   });
 }
 
-export function getTeams (state: State /* TODO: filter */): Team[] {
-  const result: Team[] = [];
-  for (let entity of Object.values(state.entities.teams)) {
-    withEntityValue(entity, value => {
-      // TODO: test filter
-      result.push(value);
-    });
-  }
-  return result;
-}
-
 export function getTeam (state: State, id: string | null): Entity<Team> {
   return visitEntity(state, 'teams', id, (team) => {
-    const members = getTeamMembers(state, team.id);
+    const members = team.memberIds
+      ? team.memberIds.map(memberId => getTeamMember(state, memberId))
+      : undefined;
     return <Team>{...team, members};
   });
 }
 
-export function getTeamMembers (state: State, teamId: string): TeamMember[] {
-  const results: TeamMember[] = [];
-  for (let item of Object.values(state.entities.teamMembers)) {
-    withEntityValue(item, value => {
-      if (value.teamId === teamId) {
-        const user = getUser(state,  value.userId);
-        const joinedAt = moment(value.joinedAt);
-        const member = {...value, user, joinedAt};
-        results.push(member);
-      }
-    });
-  }
-  return results;
+export function getTeamMember (state: State, id: string | null): Entity<TeamMember> {
+  return visitEntity(state, 'teamMembers', id, (member) => {
+    const team = getTeam(state, member.teamId);
+    const user = getUser(state,  member.userId);
+    const joinedAt = moment(member.joinedAt);
+    return <TeamMember>{...member, team, user, joinedAt};
+  });
 }
 
 export function getChain (state: State, id: string | null): Entity<Chain> {

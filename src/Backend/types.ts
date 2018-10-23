@@ -67,6 +67,7 @@ export type Team = {
   isLocked: boolean,
   name: string,
   publicKey: string,
+  memberIds: string[] | undefined,
 }
 
 export type TeamMember = {
@@ -87,11 +88,15 @@ export type Contest = {
   endsAt: string,
   taskId: string,
   currentPeriodId: string,
+  teamIds: string[] | undefined,
 }
 
 export type Task = {
   id: string,
   title: string,
+  createdAt: string,
+  updatedAt: string,
+  resourceIds: string[],
 }
 
 export type TaskResource = {
