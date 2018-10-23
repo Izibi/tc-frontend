@@ -9,52 +9,60 @@ import {Saga, actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, S
 import {without} from "../utils";
 
 import {Block, BlockInfo, ChainFilters} from '../types';
-import {BackendState, PreEntities, PreGameInfo} from "./types";
+import {BackendState, PreEntities, PreGameInfo, OptimisticChange, Collection} from "./types";
 import * as _selectors from "./selectors";
 
 export {BackendState} from "./types";
 export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
+const initialEntities = {
+  users: {},
+  contests: {},
+  tasks: {},
+  taskResources: {},
+  teams: {},
+  teamMembers: {},
+  chains: {},
+};
+
 export const backendInit : BackendState = {
   backend: {
     generation: 0,
     lastError: undefined,
     tasks: [],
+    pristineEntities: initialEntities,
+    optimisticChanges: [],
   },
   eventSource: {
     key: "",
     channels: [],
   },
-  entities: {
-    users: {},
-    contests: {},
-    tasks: {},
-    taskResources: {},
-    teams: {},
-    teamMembers: {},
-    chains: {},
-  },
+  entities: initialEntities,
   games: Immutable.Map()
 };
 
 export function backendReducer (state: State, action: Actions): State {
   switch (action.type) {
 
+    /* XXX this is wrong, each task can have its set of optimistic changes;
+       but for now this is good enough. */
+
     case ActionTypes.BACKEND_TASK_STARTED: {
-      const {task} = action.payload;
-      return {...state, backend: {
-        ...state.backend,
-        tasks: [...state.backend.tasks, task],
-        lastError: undefined,
-      }};
+      const {task, optimisticChanges} = action.payload;
+      state = update(state, {backend: {
+        tasks: {$push: [task]},
+        lastError: {$set: undefined},
+        optimisticChanges: {$set: optimisticChanges || []},
+      }});
+      return flushSelectorCache(state);
     }
     case ActionTypes.BACKEND_TASK_FAILED: {
       const {task, error} = action.payload;
       state = update(state, {backend: {
         tasks: {$apply: (tasks: object[]) => without(tasks, task)},
         lastError: {$set: error},
-        localChanges: {$set: []}
+        optimisticChanges: {$set: []},
       }});
       return flushSelectorCache(state);
     }
@@ -62,14 +70,16 @@ export function backendReducer (state: State, action: Actions): State {
       const {task} = action.payload;
       state = update(state, {backend: {
         tasks: {$apply: (tasks: object[]) => without(tasks, task)},
-        localChanges: {$set: []}
+        optimisticChanges: {$set: []}
       }});
       return flushSelectorCache(state);
     }
     case ActionTypes.BACKEND_ENTITIES_LOADED: {
-      let entities: PreEntities = state.entities;
+      let entities: PreEntities = state.backend.pristineEntities;
       entities = updateEntities(entities, action.payload.entities);
-      state = update(state, {entities: {$set: entities}});
+      state = update(state, {backend: {
+        pristineEntities: {$set: entities},
+      }});
       return flushSelectorCache(state);
     }
 
@@ -87,12 +97,6 @@ export function backendReducer (state: State, action: Actions): State {
         games: state.games.set(gameKey, {game, blocks}),
       });
       break;
-    }
-
-    case ActionTypes.PUSH_LOCAL_CHANGES: {
-      const {items} = action.payload;
-      state = update(state, {backend: {localChanges: {$push: items}}});
-      return flushSelectorCache(state);
     }
 
     case ActionTypes.CONTEST_LIST_CHANGED: {
@@ -212,7 +216,10 @@ function difference(xs: string[], ys: string[]): string[] {
 
 function inc(n: number) { return n + 1; }
 function flushSelectorCache(state: State): State {
-  return update(state, {backend: {generation: {$apply: inc}}});
+  return update(state, {
+    backend: {generation: {$apply: inc}},
+    entities: {$set: applyOptimisticChanges(state.backend.pristineEntities, state.backend.optimisticChanges)}
+  });
 }
 
 function updateEntities (entities: PreEntities, changes: {[key: string]: object}): PreEntities {
@@ -232,6 +239,18 @@ function updateEntities (entities: PreEntities, changes: {[key: string]: object}
     }
   }
   return result;
+}
+
+export function optimisticChange<K extends Collection>(collection: K, id: string, change: OptimisticChange<K>['change']): OptimisticChange<K> {
+  return {collection, id, change};
+}
+
+function applyOptimisticChanges (entities: PreEntities, items: OptimisticChange<Collection>[]) {
+  for (let item of items) {
+    const {collection, id, change} = item;
+    entities = update(entities, {[collection]: {[id]: {'!': {$set: change}}}});
+  }
+  return entities;
 }
 
 function splitEntityKey(key: string) : {collection: string, facet: string, id: string} {
@@ -326,12 +345,14 @@ export function channelOfEventSource (url: string) : Channel<object> {
   });
 }
 
-export function* monitorBackendTask (saga: any): Saga {
+/* Arguments to call is invariant, otherwise this would be
+   (saga: Saga, optimisticChanges?: OptimisticChange<Collection>[]) */
+export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
   const taskRef = {
     task: undefined,
   };
   yield put(actionCreators.clearError());
-  yield put(actionCreators.backendTaskStarted(taskRef));
+  yield put(actionCreators.backendTaskStarted(taskRef, optimisticChanges || []));
   /* TODO: save entities, enabling the saga to make eager updates while being
      able to revert if the backend returns an error. */
   taskRef.task = yield fork(function* () {

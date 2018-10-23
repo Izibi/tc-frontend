@@ -3,9 +3,8 @@ import * as moment from 'moment';
 
 import {Entity, User, Contest, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game} from '../types';
 
-import {BackendState as State, PreEntities} from './types';
+import {BackendState as State, Collection, PreEntities} from './types';
 
-type Collection = keyof PreEntities
 export const selectors = {
   users: getUser,
   tasks: getTask,
@@ -146,7 +145,7 @@ export function getTeam (state: State, id: string | null): Entity<Team> {
     const members = facets.members
       ? facets.members.memberIds.map(memberId => getTeamMember(state, memberId))
       : undefined;
-    entity._value = <Team>{...team, members};
+    entity._value = <Team>{...team, members, ...facets['!']};
   });
 }
 

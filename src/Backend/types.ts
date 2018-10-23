@@ -5,6 +5,14 @@ import {BlockInfo} from '../types';
 
 /* Types of entities as they are received from the backend. */
 
+export type Collection = keyof PreEntities;
+
+export type OptimisticChange<K extends Collection> = {
+  collection: K,
+  id: string,
+  change: PreEntities[K][string] extends {"!": infer T} ? T : never
+};
+
 export type UserFacets = {
   "": {
     id: string,
@@ -73,8 +81,8 @@ export type TeamFacets = {
     memberIds: string[],
   },
   "!": {
-    isOpen: boolean,
-    publicKey: string,
+    isOpen?: boolean,
+    publicKey?: string,
   }
 }
 
@@ -150,6 +158,8 @@ export type BackendState = {
     generation: number,
     lastError: string | undefined,
     tasks: object[],
+    pristineEntities: PreEntities,
+    optimisticChanges: OptimisticChange<Collection>[],
   },
   eventSource: {
     key: string,
