@@ -23,7 +23,9 @@ function mapStateToProps (state: State): StoreProps {
   let currentResource: Entity<TaskResource> | undefined;
   if (contest.isLoaded && contest.value.task.isLoaded) {
     resources = contest.value.task.value.resources;
-    currentResource = resources[taskResourceIndex];
+    if (resources) {
+      currentResource = resources[taskResourceIndex];
+    }
   }
   return {contestId, resources, currentResource};
 }

@@ -96,7 +96,7 @@ export type Task = {
   title: string,
   createdAt: string,
   updatedAt: string,
-  resourceIds: string[],
+  resourceIds: string[] | undefined,
 }
 
 export type TaskResource = {

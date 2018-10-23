@@ -52,7 +52,7 @@ export type Contest = {
 export type Task = {
   id: string,
   title: string,
-  resources: Entity<TaskResource>[],
+  resources: Entity<TaskResource>[] | undefined,
 }
 
 export type TaskResource = {

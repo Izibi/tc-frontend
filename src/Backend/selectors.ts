@@ -47,8 +47,9 @@ export function getUser (state: State, id: string | null): Entity<User> {
 
 export function getTask(state: State, id: string | null): Entity<Task> {
   return visitEntity(state, 'tasks', id, task => {
-    const resources = task.resourceIds.map(resourceId =>
-      getTaskResource(state, resourceId));
+    const resources = task.resourceIds
+      ? task.resourceIds.map(resourceId => getTaskResource(state, resourceId))
+      : undefined;
     return <Task>{...task, resources};
   });
 }
