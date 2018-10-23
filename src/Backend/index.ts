@@ -298,7 +298,8 @@ function postJson (url: string, body: any) {
       credentials: "include",
       signal: controller.signal,
       headers: {
-        "X-Csrf-Token": (<any>window).csrfToken
+        "X-Csrf-Token": (<any>window).csrfToken,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     };
