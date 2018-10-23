@@ -53,7 +53,7 @@ export const initialState : State = {
     lastVisible: -1,
   },
   chainFilters: {
-    status: "",
+    status: "main",
   },
   blocks: Immutable.Map(),
 
