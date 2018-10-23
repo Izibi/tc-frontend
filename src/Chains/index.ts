@@ -9,8 +9,8 @@ import {Entity, Chain, Block} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
 import {
-  monitorBackendTask, selectors, loadContestTeam, loadContestChains, loadContest,
-  loadGameHead, forkChain, deleteChain, restartChain, loadBlock} from '../Backend';
+  monitorBackendTask, selectors, loadContestTeam, loadContest, loadContestChains,
+  loadChain, loadGameHead, forkChain, deleteChain, restartChain, loadBlock} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -110,6 +110,9 @@ function* chainsPageSaga (params: Params) : Saga {
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
     yield call(commonStartupSaga, params.contestId);
+    if (params.chainId) {
+      yield call(loadChain, params.chainId)
+    }
   });
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {

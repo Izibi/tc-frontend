@@ -465,6 +465,11 @@ export function* loadGamePage (gameKey: string, page: number): Saga {
   return yield call(backendGet, `Games/${gameKey}/Index/${page}`);
 }
 
+export function* loadChain (chainId: string): Saga {
+  // result: {}
+  return yield call(backendGet, `Chains/${chainId}`);
+}
+
 export function* forkChain (chainId: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Fork`, null);
 }
