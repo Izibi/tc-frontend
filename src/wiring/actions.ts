@@ -62,7 +62,7 @@ export const actionCreators = {
   gameLoaded: (gameKey: string, game: PreGame, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
 
   // chain actions
-  forkChain: (chainId: string) => createAction(ActionTypes.FORK_CHAIN, {chainId}),
+  forkChain: (chainId: string, title: string) => createAction(ActionTypes.FORK_CHAIN, {chainId, title}),
   deleteChain: (chainId: string) => createAction(ActionTypes.DELETE_CHAIN, {chainId}),
   restartChain: (chainId: string) => createAction(ActionTypes.RESTART_CHAIN, {chainId}),
 

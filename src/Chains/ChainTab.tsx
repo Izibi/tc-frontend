@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import {Button /*, Radio, RadioGroup*/} from "@blueprintjs/core";
+import {Button, ControlGroup/*, Radio, RadioGroup*/} from "@blueprintjs/core";
 import AceEditor from 'react-ace';
 import 'brace';
 import 'brace/mode/ocaml';
@@ -16,12 +16,14 @@ type ChainTabProps = {
 } & DispatchProp
 
 type LocalState = {
-  newChainName: string
+  chainId: string | null,
+  newChainName: string,
 }
 
 class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
   state = {
-    newChainName: ""
+    chainId: null,
+    newChainName: "",
   }
   render () {
     const {chain, isOwner} = this.props;
@@ -53,8 +55,10 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
           <div className="panel">
             <div className="panelHeader">{"Actions"}</div>
             <div className="panelBody">
-              <input className="bp3-input" type='text' value={newChainName} onChange={this.handleNewChainNameChange} />
-              <Button icon='fork' text="Fork" onClick={this.handleForkChain} />
+              <ControlGroup fill={true}>
+                <input className="bp3-input" type='text' value={newChainName} onChange={this.handleNewChainNameChange} />
+                <Button icon='fork' text="Fork" onClick={this.handleForkChain} style={{maxWidth: '80px'}}/>
+              </ControlGroup>
               <Button icon='trash' text="Delete" onClick={this.handleDeleteChain}
                 disabled={!isOwner || chain.status !== "private test"}/>
               <Button icon='fast-backward' text="Restart" onClick={this.handleRestartGame} disabled={!isOwner} />
@@ -102,7 +106,7 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
     this.props.dispatch(actionCreators.interfaceTextChanged(value));
   };
   handleForkChain = () => {
-    this.props.dispatch(actionCreators.forkChain(this.props.chain.id));
+    this.props.dispatch(actionCreators.forkChain(this.props.chain.id, this.state.newChainName));
   };
   handleDeleteChain = () => {
     if (confirm("Are you sure you want to delete this chain?")) {
@@ -122,6 +126,14 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
   };
   /*handleStartingMapChange = () => {
   };*/
+  static getDerivedStateFromProps(props: ChainTabProps, state: LocalState) {
+    const {chain} = props;
+    if (chain.id !== state.chainId) {
+      return {chainId: chain.id, newChainName: `fork of ${chain.title}`};
+    }
+    return null;
+  }
+
 }
 
 export default ChainTab;

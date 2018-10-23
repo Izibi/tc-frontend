@@ -455,8 +455,8 @@ export function* loadChain (chainId: string): Saga {
   return yield call(backendGet, `Chains/${chainId}`);
 }
 
-export function* forkChain (chainId: string): Saga {
-  return yield call(backendPost, `Chains/${chainId}/Fork`, null);
+export function* forkChain (chainId: string, title: string): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Fork`, {title});
 }
 
 export function* deleteChain (chainId: string): Saga {

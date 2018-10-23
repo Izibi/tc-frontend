@@ -118,8 +118,9 @@ function* chainsPageSaga (params: Params) : Saga {
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
       yield call(monitorBackendTask, function* () {
-        const chainId: string = yield call(forkChain, action.payload.chainId);
-        yield call(navigate, "ChainPage", {contestId: params.contestId, chainId});
+        const {chainId, title} = action.payload;
+        const newChainId: string = yield call(forkChain, chainId, title);
+        yield call(navigate, "ChainPage", {contestId: params.contestId, chainId: newChainId});
       });
     }
   );
