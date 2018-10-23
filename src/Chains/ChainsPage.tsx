@@ -63,7 +63,12 @@ class ChainsPage extends React.PureComponent<Props> {
   render () {
     const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, block} = this.props;
     if (teamId === null) {
-      return <p>{"Join a team to access the chains."}</p>;
+      return (
+        <div className="chainsPage">
+          <ContestHeader/>
+          <p>{"Join a team to access the chains."}</p>
+        </div>
+      );
     }
     const tab = here === 'BlockPage' ? 'block': 'chain';
     return (
