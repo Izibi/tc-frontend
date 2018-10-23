@@ -134,7 +134,10 @@ function* chainsPageSaga (params: Params) : Saga {
   yield takeLatest(ActionTypes.RESTART_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
       yield call(monitorBackendTask, function* () {
-        yield call(restartChain, action.payload.chainId);
+        const chainId = action.payload.chainId;
+        yield call(restartChain, chainId);
+        const chain = yield select((state: State) => selectors.getChain(state, chainId));
+        yield call(loadChainGame, chain);
       });
     }
   );
@@ -246,18 +249,20 @@ function* refreshChainList(contestId: string): Saga {
 
 function* loadChainGames(chains: Entity<Chain>[]): Saga {
   for (let chain of chains) {
-    /* XXX The game will not load if chain is not already loaded, so we should
-       retry loading games on visible chains when chains are loaded? */
-    if (chain.isLoaded) {
-      const gameKey = chain.value.currentGameKey;
-      if (gameKey !== "") {
-        try {
-          const {game, blocks} = yield call(loadGameHead, gameKey);
-          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
-          // TODO: load more pages if needed
-        } catch (ex) {
-          console.log("failed to load game?", gameKey);
-        }
+    yield call(loadChainGame, chain);
+  }
+}
+
+function* loadChainGame(chain: Entity<Chain>): Saga {
+  if (chain.isLoaded) {
+    const gameKey = chain.value.currentGameKey;
+    if (gameKey !== "") {
+      try {
+        const {game, blocks} = yield call(loadGameHead, gameKey);
+        yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+        // TODO: load more pages if needed
+      } catch (ex) {
+        console.log("failed to load game?", gameKey);
       }
     }
   }
