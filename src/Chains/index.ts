@@ -193,37 +193,19 @@ function* chainListSaga (params: Params) : Saga {
       yield call(refreshChainList, params.contestId);
     });
   });
-  yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
-    function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
-      const {first, last} = action.payload;
-      // console.log('scrolled', first, last);
-      const chains: Entity<Chain>[] = yield select((state : State) =>
-        state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
-      /* Update subscriptions to the visible games. */
-      const channels = [`contest:${params.contestId}`];
-      for (let chain of chains) {
-        if (chain.isLoaded && chain.value.currentGameKey !== "") {
-          channels.push(`game:${chain.value.currentGameKey}`)
-        }
-      }
-      yield put(actionCreators.eventSourceSubsChanged(channels));
-      // XXX if a chain was visible before being loaded, its game will not be loaded?
-      for (let chain of chains) {
-        if (chain.isLoaded) {
-          const gameKey = chain.value.currentGameKey;
-          if (gameKey !== "") {
-            try {
-              const {game, blocks} = yield call(loadGameHead, gameKey);
-              yield put(actionCreators.gameLoaded(gameKey, game, blocks));
-              // console.log('chain', chain.id, chain.value.currentGameKey, game, page, blocks);
-            } catch (ex) {
-              console.log("failed to load game?", gameKey);
-            }
-          }
-        }
+  yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED, function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
+    const chains: Entity<Chain>[] = yield select(getVisibleChains);
+    /* Update subscriptions to the visible games. */
+    const channels = [`contest:${params.contestId}`];
+    for (let chain of chains) {
+      if (chain.isLoaded && chain.value.currentGameKey !== "") {
+        channels.push(`game:${chain.value.currentGameKey}`)
       }
     }
-  );
+    yield put(actionCreators.eventSourceSubsChanged(channels));
+    /* Load the games on the visible chains. */
+    yield call(loadChainGames, chains);
+  });
   yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
     yield call(refreshChainList, params.contestId);
   });
@@ -258,9 +240,31 @@ function* refreshChainList(contestId: string): Saga {
   const filters = yield select((state: State) => state.chainFilters);
   const {chainIds} = yield call(loadContestChains, contestId, filters);
   yield put(actionCreators.chainListChanged(chainIds));
+  const chains: Entity<Chain>[] = yield select(getVisibleChains);
+  yield call(loadChainGames, chains);
 }
 
-/*
-  const {firstIndex, lastIndex} = yield select((state: State) => state.chainList);
-  yield put(actionCreators.chainListScrolled(firstIndex, lastIndex));
-*/
+function* loadChainGames(chains: Entity<Chain>[]): Saga {
+  for (let chain of chains) {
+    /* XXX The game will not load if chain is not already loaded, so we should
+       retry loading games on visible chains when chains are loaded? */
+    if (chain.isLoaded) {
+      const gameKey = chain.value.currentGameKey;
+      if (gameKey !== "") {
+        try {
+          const {game, blocks} = yield call(loadGameHead, gameKey);
+          yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+          // TODO: load more pages if needed
+        } catch (ex) {
+          console.log("failed to load game?", gameKey);
+        }
+      }
+    }
+  }
+}
+
+function getVisibleChains (state : State): Entity<Chain>[] {
+  const {firstVisible, lastVisible} = state.chainList;
+  const chainIds = state.chainIds.slice(firstVisible, lastVisible + 1);
+  return chainIds.map(id => selectors.getChain(state, id));
+}
