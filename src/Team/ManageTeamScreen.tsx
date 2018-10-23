@@ -23,7 +23,9 @@ class ManageTeamScreen extends React.PureComponent<Props, State> {
           ? <TeamMember key={index} member={member.value} />
           : <div/>));
     }
-    const isPublicKeyValid = /^[A-Za-z0-9/_]+=*.ed25519$/.test(team.publicKey);
+    const isPublicKeyValid =
+      /^[A-Za-z0-9+/]+=*.ed25519$/.test(team.publicKey) &&
+      team.publicKey.length === 52;
     return (
       <div className="hasTeam">
         {infos}
