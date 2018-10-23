@@ -3,11 +3,12 @@ import * as Immutable from 'immutable';
 import {Effect, eventChannel, Channel, END, CANCEL} from "redux-saga";
 import {call, fork, put, select, take, takeEvery, takeLatest} from "redux-saga/effects";
 import update from 'immutability-helper';
+import * as qs from 'querystring';
 
 import {actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Entity, Block, BlockInfo} from '../types';
+import {Entity, Block, BlockInfo, ChainFilters} from '../types';
 import {Entities, EntitiesUpdate, GameInfo} from "./types";
 import * as _selectors from "./selectors";
 import {loadedEntity, modifiedEntity} from "./entities";
@@ -450,9 +451,10 @@ export function* changeTeamAccessCode (teamId: string): Saga {
   return yield call(backendPost, `Teams/${teamId}/AccessCode`, null);
 }
 
-export function* loadContestChains (contestId: string, filters: object/* TODO */): Saga {
+export function* loadContestChains (contestId: string, filters: ChainFilters): Saga {
+  const search = qs.stringify({contestId, ...filters});
   // result: {chainIds: string[]}
-  return yield call(backendGet, `Contests/${contestId}/Chains`);
+  return yield call(backendGet, `Chains?${search}`);
 }
 
 export function* loadGameHead (gameKey: string): Saga {

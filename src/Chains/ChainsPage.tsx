@@ -5,10 +5,10 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, Chain, Block, Contest} from '../types';
+import {Entity, Chain, Block, Contest, ChainFilters} from '../types';
 import {Link, navigate} from '../router';
 import {selectors} from '../Backend';
-import ChainFilters from './ChainFilters';
+import ChainFilterControls from './ChainFilters';
 import ChainItem from './ChainItem';
 import ChainTab from './ChainTab';
 import BlockTab from './BlockTab';
@@ -21,6 +21,7 @@ type StoreProps = {
   blockHash: string,
   block: Block | undefined,
   chains: Entity<Chain>[],
+  filters: ChainFilters,
   contest: Entity<Contest>,
   chain: Entity<Chain>,
   isOwner: boolean,
@@ -31,7 +32,7 @@ type StoreProps = {
 type Props = StoreProps & DispatchProp
 
 function mapStateToProps (state: State, _props: object): StoreProps {
-  let {route, teamId, contestId, chainIds, chainId, blockHash} = state;
+  let {route, teamId, contestId, chainIds, chainId, blockHash, chainFilters} = state;
   const {firstVisible, lastVisible} = state.chainList;
   const here = route ? route.rule.name : '';
   const chains = chainIds.map(id => selectors.getChain(state, id)); /* XXX allocation */
@@ -55,13 +56,13 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const block = blockHash ? state.blocks.get(blockHash) : undefined;
   return {
     here, contestId, teamId, chainId, blockHash, block, chains, contest, chain,
-    isOwner, firstVisible, lastVisible
+    isOwner, firstVisible, lastVisible, filters: chainFilters
   };
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, block} = this.props;
+    const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, block, filters} = this.props;
     if (teamId === null) {
       return (
         <div className="chainsPage">
@@ -74,7 +75,7 @@ class ChainsPage extends React.PureComponent<Props> {
     return (
       <div className="chainsPage">
         <ContestHeader/>
-        {contest.isLoaded && <ChainFilters teams={contest.value.teams}/>}
+        {contest.isLoaded && <ChainFilterControls filters={filters} onChange={this.handleFilterChange} teams={contest.value.teams} />}
         <div className="chainList">
           <div className="flexRow">
             <div className="chainListTitle chainName">{"Name"}</div>
@@ -85,6 +86,8 @@ class ChainsPage extends React.PureComponent<Props> {
           <div className="chainListItems" ref={this.refList} onScroll={this.handleChainListScroll}>
             {chains && chains.map((item, index) =>
               <ChainItem key={index} item={item} selected={item === chain} onSelect={this.handleSelectChain} />)}
+            {(!chains || chains.length === 0) &&
+              <p className="noItems">{"No results"}</p>}
           </div>
         </div>
         <div className="tabLayout">
@@ -133,6 +136,9 @@ class ChainsPage extends React.PureComponent<Props> {
   };
   handleSelectChain = (chain: Chain) => {
     navigate("ChainPage", {contestId: chain.contest.id, chainId: chain.id});
+  };
+  handleFilterChange = (changes: object) => {
+    this.props.dispatch(actionCreators.chainFiltersChanged(changes));
   };
 }
 

@@ -70,6 +70,7 @@ export const actionCreators = {
   // chain events
   chainCreated: (chainId: string) => createAction(ActionTypes.CHAIN_CREATED, {chainId}),
   chainDeleted: (chainId: string) => createAction(ActionTypes.CHAIN_DELETED, {chainId}),
+  chainFiltersChanged: (changes: object) => createAction(ActionTypes.CHAIN_FILTERS_CHANGED, {changes}),
 
   // blocks
   blockLoaded: (hash: string, block: Block) => createAction(ActionTypes.BLOCK_LOADED, {hash, block}),

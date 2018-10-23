@@ -2,16 +2,19 @@
 import * as React from 'react';
 import {Button, InputGroup} from "@blueprintjs/core";
 
-import {Entity, Team} from '../types';
+import {ChainFilters, Entity, Team} from '../types';
 
 type ChainFiltersProps = {
+  filters: ChainFilters,
   teams: Entity<Team>[] | undefined,
+  onChange: (changes: object) => void,
 }
 
-class ChainFilters extends React.PureComponent<ChainFiltersProps> {
+class ChainFilterControls extends React.PureComponent<ChainFiltersProps> {
   render () {
-    const {teams} = this.props;
+    const {teams, filters} = this.props;
     const searchBtn = <Button icon="search" minimal/>;
+    const {status} = filters;
     return (
       <div className="chainFilters">
         <div className="flexRow">
@@ -20,11 +23,11 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
               {"Filter by Status"}
             </div>
             <div className="chainStatus">
-              <Button text="Active" />
-              <Button text="Private test" />
-              <Button text="Public test" />
-              <Button text="Candidate" />
-              <Button text="Past" />
+              <StatusButton label="Active" value="main" current={status} onChange={this.handleStatusChange} />
+              <StatusButton label="Private test" value="private_test" current={status} onChange={this.handleStatusChange} />
+              <StatusButton label="Public test" value="public_test" current={status} onChange={this.handleStatusChange} />
+              <StatusButton label="Candidate" value="candidate" current={status} onChange={this.handleStatusChange} />
+              <StatusButton label="Past" value="past" current={status} onChange={this.handleStatusChange} />
             </div>
           </div>
           <div>
@@ -48,6 +51,27 @@ class ChainFilters extends React.PureComponent<ChainFiltersProps> {
       </div>
     );
   }
+  handleStatusChange = (value: string, active: boolean) => {
+    this.props.onChange({status: {$set: active ? value : ""}});
+  };
 }
 
-export default ChainFilters;
+type StatusButtonProps = {
+  label: string,
+  value: string,
+  current: string,
+  onChange: (value: string, active: boolean) => void,
+}
+class StatusButton extends React.PureComponent<StatusButtonProps> {
+  render () {
+    const {label, value, current} = this.props;
+    return <Button text={label} onClick={this.onClick} active={value === current} />;
+  }
+  onClick = () => {
+    const {value, current, onChange} = this.props;
+    onChange(value, value !== current);
+  };
+}
+
+
+export default ChainFilterControls;

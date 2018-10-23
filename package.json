@@ -58,6 +58,7 @@
     "moment": "^2.22.2",
     "path-parser": "^4.2.0",
     "pug": "^2.0.3",
+    "querystring": "^0.2.0",
     "raf": "^3.4.0",
     "react": "^16.4.1",
     "react-ace": "^6.2.0",

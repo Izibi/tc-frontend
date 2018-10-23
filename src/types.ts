@@ -131,3 +131,7 @@ type ProtocolBlock = {type: "protocol", task: string, interface: string, impleme
 type SetupBlock = {type: "setup", task: string, protocol: string, params: string}
 type CommandBlock = {type: "command", task: string, protocol: string}
 export type Block = BlockBase & (RootBlock | TaskBlock | ProtocolBlock | SetupBlock | CommandBlock)
+
+export type ChainFilters = {
+  status: "" | "main" | "private_test" | "public_test" | "candidate" | "past",
+}

@@ -23,7 +23,7 @@
       border-radius: $radiusButton;
       box-shadow: none;
 
-      &.active {
+      &.bp3-active {
         color: $lighterTextColor;
         background: $themeColorLight;
       }
@@ -110,6 +110,10 @@
       .chainListItem.selected .chainListItemContent {
         color: $lighterTextColor;
         background: $themeColorLight;
+      }
+      .noItems {
+        font-style: italic;
+        margin-left: 20px;
       }
     }
 

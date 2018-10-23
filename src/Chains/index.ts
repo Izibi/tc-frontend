@@ -1,6 +1,7 @@
 
 import {Effect} from 'redux-saga';
 import {call, put, select, takeLatest, fork} from 'redux-saga/effects';
+import update from 'immutability-helper';
 
 //import {spawnWorker} from '../worker';
 
@@ -94,6 +95,11 @@ export function chainsReducer (state: State, action: Actions): State {
       state = {...state, blocks: state.blocks.set(hash, block)};
       break;
     }
+    case ActionTypes.CHAIN_FILTERS_CHANGED: {
+      const {changes} = action.payload;
+      state = update(state, {chainFilters: changes});
+      break;
+    }
   }
   return state;
 }
@@ -142,7 +148,7 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
     if (params.blockHash) {
       let blockHash : string = params.blockHash;
       if (blockHash === 'last') {
-        console.log('Looking for last block on chain', chainId);
+        // console.log('Looking for last block on chain', chainId);
         let chain: Entity<Chain>;
         chain = yield select((state: State) => selectors.getChain(state, chainId));
         if (!chain.isLoaded) {
@@ -156,7 +162,7 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
           return;
         }
         blockHash = chain.value.game.lastBlock;
-        console.log('The last block hash is', blockHash);
+        // console.log('The last block hash is', blockHash);
       }
       /* Ensure the block is loaded. */
       let maybeBlock: Block | undefined;
@@ -175,10 +181,15 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
 }
 
 function* chainListSaga (params: Params) : Saga {
+  yield takeLatest(ActionTypes.CHAIN_FILTERS_CHANGED, function*() {
+    yield call(monitorBackendTask, function* () {
+      yield call(refreshChainList, params.contestId);
+    });
+  });
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
     function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
       const {first, last} = action.payload;
-      console.log('scrolled', first, last);
+      // console.log('scrolled', first, last);
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
       /* Update subscriptions to the visible games. */
@@ -207,12 +218,10 @@ function* chainListSaga (params: Params) : Saga {
     }
   );
   yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
-    const {chainIds} = yield call(loadContestChains, params.contestId, {});
-    yield put(actionCreators.chainListChanged(chainIds));
+    yield call(refreshChainList, params.contestId);
   });
   yield takeLatest(ActionTypes.CHAIN_DELETED, function*(action: ActionsOfType<typeof ActionTypes.CHAIN_DELETED>): Saga {
-    const {chainIds} = yield call(loadContestChains, params.contestId, {});
-    yield put(actionCreators.chainListChanged(chainIds));
+    yield call(refreshChainList, params.contestId);
     if (params.chainId == action.payload.chainId) {
       yield call(navigate, "ChainsPage", {contestId: params.contestId});
     }
@@ -229,14 +238,19 @@ function* commonStartupSaga(contestId: string): Saga {
     const {teamId} = yield call(loadContestTeam, contestId);
     yield put(actionCreators.teamChanged(teamId));
   }
-  const {chainIds} = yield call(loadContestChains, contestId, {/* FILTERS */});
-  yield put(actionCreators.chainListChanged(chainIds));
+  yield call(refreshChainList, contestId);
   function isContestLoaded (state: State) {
     return selectors.getContest(state, contestId).isLoaded;
   }
   function isTeamLoaded (state: State) {
     return selectors.getTeam(state, state.teamId).isLoaded;
   }
+}
+
+function* refreshChainList(contestId: string): Saga {
+  const filters = yield select((state: State) => state.chainFilters);
+  const {chainIds} = yield call(loadContestChains, contestId, filters);
+  yield put(actionCreators.chainListChanged(chainIds));
 }
 
 /*
