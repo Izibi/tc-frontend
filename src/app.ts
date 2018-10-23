@@ -1,4 +1,6 @@
 
+import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
+
 export {State} from './wiring/store';
 export {Actions, ActionsOfType, actionCreators} from './wiring/actions';
 
