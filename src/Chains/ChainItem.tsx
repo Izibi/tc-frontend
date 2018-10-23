@@ -50,7 +50,7 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
     return (
       <div className="chainListItemContent flexRow">
         <div className="chainName">
-          <Link to="ChainPage" text={chain.title} params={{contestId: chain.contest.id, chainId: chain.id}}/>
+          <Link to="ChainPage" text={chain.title || 'unnamed'} params={{contestId: chain.contest.id, chainId: chain.id}}/>
         </div>
         <div className={classnames(["chainTeam", chain.owner.isLoaded && chain.owner.value.deletedAt && 'chainDeleted'])}>
           {chain.owner.isLoaded
