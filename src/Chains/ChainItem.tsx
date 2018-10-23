@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as classnames from 'classnames';
 
 import {Link} from '../router';
-import {BlockInfo, Chain, Entity, EntityState} from '../types';
+import {BlockInfo, Chain, Entity} from '../types';
 
 type ChainItemProps = {
   item: Entity<Chain>,
@@ -15,28 +15,13 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
   render () {
     const {item, selected} = this.props;
     let body: JSX.Element | null = null;
-    let loading =  false;
-    switch (item.state) {
-      case EntityState.Null:
-        body = <p>{"null"}</p>;
-        break;
-      case EntityState.Thunk:
-      case EntityState.Loading:
-        body = <p>{"loading"}</p>;
-        loading = true;
-        break;
-      case EntityState.Loaded:
-        body = this.renderContent(item.value);
-        break;
-      case EntityState.Reloading:
-        body = this.renderContent(item.value);
-        loading = true;
-        break;
-      case EntityState.Error:
-        return <p>{"error"}</p>;
+    if (item.isLoaded) {
+      body = this.renderContent(item.value);
+    } else {
+      body = <p>{"loading"}</p>;
     }
     return (
-      <div className={classnames(["chainListItem", selected ? "selected" : "selectable", loading && "loading"])} onClick={this.handleClick}>
+      <div className={classnames(["chainListItem", selected ? "selected" : "selectable", item.isLoading && "loading"])} onClick={this.handleClick}>
         {body}
       </div>
     );

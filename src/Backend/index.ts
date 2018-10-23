@@ -1,25 +1,42 @@
 
 import * as Immutable from 'immutable';
-import {Effect, eventChannel, Channel, END, CANCEL} from "redux-saga";
+import {eventChannel, Channel, END, CANCEL} from "redux-saga";
 import {call, fork, put, select, take, takeEvery, takeLatest} from "redux-saga/effects";
 import update from 'immutability-helper';
 import * as qs from 'querystring';
 
-import {actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
+import {Saga, actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Entity, Block, BlockInfo, ChainFilters} from '../types';
-import {Entities, EntitiesUpdate, GameInfo} from "./types";
+import {Block, BlockInfo, ChainFilters} from '../types';
+import {BackendState, PreEntities, PreGameInfo} from "./types";
 import * as _selectors from "./selectors";
-import {loadedEntity, modifiedEntity} from "./entities";
 
-export {EntityMap, BackendState, Entities, EntitiesUpdate, EntityChange, Game} from "./types";
+export {BackendState} from "./types";
 export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
-type Saga = IterableIterator<Effect>
-
-// const keysOf = (Object.keys as <T>(o: T) => (keyof T)[]);
+export const backendInit : BackendState = {
+  backend: {
+    generation: 0,
+    lastError: undefined,
+    tasks: [],
+  },
+  eventSource: {
+    key: "",
+    channels: [],
+  },
+  entities: {
+    users: {},
+    contests: {},
+    tasks: {},
+    taskResources: {},
+    teams: {},
+    teamMembers: {},
+    chains: {},
+  },
+  games: Immutable.Map()
+};
 
 export function backendReducer (state: State, action: Actions): State {
   switch (action.type) {
@@ -39,7 +56,7 @@ export function backendReducer (state: State, action: Actions): State {
         lastError: {$set: error},
         localChanges: {$set: []}
       }});
-      return flushSelectorCache(applyLocalChanges(state));
+      return flushSelectorCache(state);
     }
     case ActionTypes.BACKEND_TASK_DONE: {
       const {task} = action.payload;
@@ -47,18 +64,18 @@ export function backendReducer (state: State, action: Actions): State {
         tasks: {$apply: (tasks: object[]) => without(tasks, task)},
         localChanges: {$set: []}
       }});
-      return flushSelectorCache(applyLocalChanges(state));
+      return flushSelectorCache(state);
     }
     case ActionTypes.BACKEND_ENTITIES_LOADED: {
-      let entities: Entities = state.backend.pristineEntities;
-      entities = <Entities>updateEntities(<UniEntities>entities, action.payload.entities);
-      state = update(state, {backend: {pristineEntities: {$set: entities}}})
-      return flushSelectorCache(applyLocalChanges(state));
+      let entities: PreEntities = state.entities;
+      entities = updateEntities(entities, action.payload.entities);
+      state = update(state, {entities: {$set: entities}});
+      return flushSelectorCache(state);
     }
 
     case ActionTypes.GAME_LOADED: {
       const {gameKey, game, blocks: newBlocks} = action.payload;
-      const prevGI : GameInfo | undefined = state.games.get(gameKey);
+      const prevGI : PreGameInfo | undefined = state.games.get(gameKey);
       let blocks : Immutable.List<BlockInfo> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
       if (newBlocks !== null) {
         for (let block of newBlocks) {
@@ -75,7 +92,7 @@ export function backendReducer (state: State, action: Actions): State {
     case ActionTypes.PUSH_LOCAL_CHANGES: {
       const {items} = action.payload;
       state = update(state, {backend: {localChanges: {$push: items}}});
-      return flushSelectorCache(applyLocalChanges(state));
+      return flushSelectorCache(state);
     }
 
     case ActionTypes.CONTEST_LIST_CHANGED: {
@@ -198,83 +215,30 @@ function flushSelectorCache(state: State): State {
   return update(state, {backend: {generation: {$apply: inc}}});
 }
 
-function applyLocalChanges(state: State): State {
-  let entities = state.backend.pristineEntities;
-  for (let ch of state.backend.localChanges) {
-    entities = update(entities, {[ch.collection]: {[ch.id]: {_value: ch.changes}}})
-  }
-  return {...state, entities};
-}
-
-export type UniEntities = {[collection: string]: {[id: string]: Entity<object>}}
-
-function updateEntities (entities: UniEntities, changes: EntitiesUpdate): UniEntities {
-  let result : UniEntities = entities;
+function updateEntities (entities: PreEntities, changes: {[key: string]: object}): PreEntities {
+  let result : PreEntities = entities;
   for (let key of Object.keys(changes)) {
     const value = changes[key];
     const {collection, facet, id} = splitEntityKey(key);
-    // Ensure the collection exists.
-    if (!(collection in result)) {
-      result = update(result, {[collection]: {$set: {}}});
-    }
-    if (value == null) {
-      /* If value is null, purge from the collection all bindings matching the
-         pattern given by `id`. */
-      const ids = matchIds(id, Object.keys(result[collection]));
-      result = update(result, {[collection]: {$unset: ids}});
-    } else {
-      if (facet) {
-        /* Merge facet. */
-        result = update(result, {[collection]: {[id]: {$apply:
-          (oldEntity: Entity<object>) => modifiedEntity(oldEntity, value)}}});
+    if (collection in result) {
+      const col = <keyof PreEntities>collection;
+      if (id in result[col]) {
+        result = update(result, {[collection]: {[id]: {[facet]: {$set: value}}}});
       } else {
-        /* Base facet, store the (id, value) pair in the collection. */
-        result = update(result, {[collection]: {[id]: {$set:
-          loadedEntity(id, value)}}});
+        result = update(result, {[collection]: {[id]: {$set: {[facet]: value}}}});
       }
+    } else {
+      console.log('update for unknown collection', collection, facet, id, value);
     }
   }
   return result;
 }
 
-function splitEntityKey(key: string) : {collection: string, facet: string | undefined, id: string} {
+function splitEntityKey(key: string) : {collection: string, facet: string, id: string} {
   const [cf, id] = key.split(" ");
   const [collection, facet] = cf.split("#");
-  return {collection, facet, id};
+  return {collection, facet: facet || "", id};
 }
-
-function matchIds(pattern: string, ids: string[]) {
-  const result : string[] = [];
-  for (let id of ids) {
-    if (matchId(pattern, id)) {
-      result.push(id);
-    }
-  }
-  return result;
-}
-
-function matchId(pattern: string, id: string) {
-  return true; // TODO: implement
-}
-
-/*
-function loadEntities<T extends {id: string}>(values: T[]) : EntityMap<T> {
-  const result: EntityMap<T> = {};
-  for (let value of values) {
-    const {id} = value;
-    result[id] = loadedEntity(id, value);
-  }
-  return result;
-}
-function loadEntities2<T>(values: T[], getId: (value: T) => string) : EntityMap<T> {
-  const result: EntityMap<T> = {};
-  for (let value of values) {
-    const id = getId(value);
-    result[id] = loadedEntity(id, value);
-  }
-  return result;
-}
-*/
 
 function fetchJson (url: string) {
   const controller = new AbortController();
@@ -361,7 +325,6 @@ export function channelOfEventSource (url: string) : Channel<object> {
     };
   });
 }
-
 
 export function* monitorBackendTask (saga: any): Saga {
   const taskRef = {

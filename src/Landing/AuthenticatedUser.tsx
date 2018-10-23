@@ -3,7 +3,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 
 import {DispatchProp} from '../app';
-import {Slot, Spinner} from '../components';
+import {Spinner} from '../components';
 import {Link} from '../router';
 import {Entity, Contest} from '../types';
 import {selectors} from '../Backend';
@@ -37,8 +37,8 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
       contestList =
         <ul className="contestList">
           {contests.map((contest, index) =>
-            'id' in contest
-              ? <Slot<Contest> key={contest.id} component={ContestItem} entity={contest} />
+            contest.isLoaded
+              ? <ContestItem value={contest.value} reloading={contest.isLoading} />
               : null)}
         </ul>
     } else {

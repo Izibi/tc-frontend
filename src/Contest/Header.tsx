@@ -44,13 +44,13 @@ class Header extends React.PureComponent<Props> {
               <div className="contestTitle">{contest.value.title}</div>}
           </div>
           <div className="chainHead">
-            {contest.isLoaded && contest.value.currentPeriod.isLoaded &&
+            {/*contest.isLoaded && contest.value.currentPeriod.isLoaded &&
               <div className="contestPeriod">
                 {"Day"}
                 <span className="dayNumber">
                   {contest.value.currentPeriod.value.dayNumber}
                 </span>
-              </div>}
+              </div>*/}
             <div className="chainStatus">
               <div className="day"></div>
               <div className="rounds"></div>

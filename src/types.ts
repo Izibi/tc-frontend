@@ -2,12 +2,17 @@
 import {Moment} from 'moment';
 import * as Immutable from 'immutable';
 
-export {Entity, EntityState} from './Backend/entities';
-import {Entity} from './Backend/entities';
-
 export type AnyAction = {
   type: string,
   payload: object,
+}
+
+export interface Entity<T> {
+  readonly isNull: boolean,
+  readonly isLoading: boolean,
+  readonly isLoaded: boolean,
+  readonly id: string,
+  readonly value: T,
 }
 
 export type User = {
@@ -45,7 +50,7 @@ export type Contest = {
   startsAt: Moment,
   endsAt: Moment,
   task: Entity<Task>,
-  currentPeriod: Entity<ContestPeriod>,
+  // currentPeriod: Entity<ContestPeriod>,
   teams: Entity<Team>[] | undefined,
 }
 

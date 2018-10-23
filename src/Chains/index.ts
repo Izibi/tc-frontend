@@ -109,10 +109,11 @@ function* chainsPageSaga (params: Params) : Saga {
      and load the games that are visible. */
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
-    yield call(commonStartupSaga, params.contestId);
     if (params.chainId) {
-      yield call(loadChain, params.chainId)
+      /* Load chain details in parallel with chain list & blocks.*/
+      yield fork(loadChain, params.chainId)
     }
+    yield call(commonStartupSaga, params.contestId);
   });
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
@@ -246,6 +247,15 @@ function* refreshChainList(contestId: string): Saga {
   const filters = yield select((state: State) => state.chainFilters);
   const {chainIds} = yield call(loadContestChains, contestId, filters);
   yield put(actionCreators.chainListChanged(chainIds));
+  const {chainId, isLoaded} : {chainId: string | null, isLoaded: boolean}
+    = yield select((state: State) => {
+      const {chainId} = state;
+      const {isLoaded} = selectors.getChain(state, state.chainId);
+      return {chainId, isLoaded};
+    });
+  if (!isLoaded && chainId !== null) {
+    yield fork(loadChain, chainId);
+  }
   const chains: Entity<Chain>[] = yield select(getVisibleChains);
   yield call(loadChainGames, chains);
 }

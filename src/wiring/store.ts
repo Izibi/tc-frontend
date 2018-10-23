@@ -4,7 +4,7 @@ import * as Immutable from 'immutable';
 import {Actions} from '../app';
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
-import {BackendState, backendReducer, Entities} from '../Backend';
+import {BackendState, backendReducer, backendInit} from '../Backend';
 import {contestReducer} from '../Contest';
 import {landingReducer} from '../Landing';
 import {teamReducer} from '../Team';
@@ -33,36 +33,12 @@ export type State =
     blocks: Immutable.Map<string, Block>,
   }
 
-const initialEntities : Entities = {
-  users: {},
-  contests: {},
-  tasks: {},
-  taskResources: {},
-  contestPeriods: {},
-  teams: {},
-  teamMembers: {},
-  chains: {},
-};
-
 export const initialState : State = {
 
   path: '/',
   route: undefined,
   lastError: undefined,
-  backend: {
-    generation: 0,
-    lastError: undefined,
-    tasks: [],
-    localChanges: [],
-    pristineEntities: initialEntities,
-  },
-  eventSource: {
-    key: "",
-    channels: [],
-  },
-
-  entities: initialEntities,
-  games: Immutable.Map(),
+  ...backendInit,
 
   userId: 'unknown',
   contestIds: undefined,

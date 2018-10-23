@@ -1,144 +1,132 @@
 
 import * as Immutable from 'immutable';
 
-import {Entity, BlockInfo} from '../types';
-
-export interface EntityMap<T> {
-  [key: string]: Entity<T>;
-}
-
-export type BackendState = {
-  backend: {
-    generation: number,
-    lastError: string | undefined,
-    tasks: object[],
-    localChanges: EntityChange[],
-    pristineEntities: Entities,
-  },
-  eventSource: {
-    key: string,
-    channels: string[],
-  },
-  entities: Entities,
-  games: Immutable.Map<string, GameInfo> /* game key -> sparse list of blocks */,
-}
-
-export type EntityChange = {
-  id: string,
-  collection: string,
-  changes: object
-}
-
-export type GameInfo = {
-  game: Game,
-  blocks: Immutable.List<BlockInfo>,
-}
-
-export type Entities = {
-  users: EntityMap<User>,
-  contests: EntityMap<Contest>,
-  tasks: EntityMap<Task>,
-  taskResources: EntityMap<TaskResource>,
-  contestPeriods: EntityMap<ContestPeriod>,
-  teams: EntityMap<Team>,
-  teamMembers: EntityMap<TeamMember>,
-  chains: EntityMap<Chain>,
-}
-
-export type EntitiesUpdate = {[key: string]: object | null}
+import {BlockInfo} from '../types';
 
 /* Types of entities as they are received from the backend. */
 
-export type User = {
-  id: string,
-  username: string,
-  firstname: string,
-  lastname: string,
+export type UserFacets = {
+  "": {
+    id: string,
+    username: string,
+    firstname: string,
+    lastname: string,
+  }
 }
 
-export type Team = {
-  id: string,
-  createdAt: string,
-  updatedAt: string,
-  deletedAt?: string,
-  accessCode: string,
-  contestId: string,
-  isOpen: boolean,
-  isLocked: boolean,
-  name: string,
-  publicKey: string,
-  memberIds: string[] | undefined,
+export type ContestFacets = {
+  "": {
+    id: string,
+    title: string,
+    description: string,
+    logoUrl: string,
+    registrationOpen: boolean,
+    registrationClosesAt: string,
+    startsAt: string,
+    endsAt: string,
+    taskId: string,
+    currentPeriodId: string,
+  },
+  "teams": {
+    teamIds: string[],
+  }
 }
 
-export type TeamMember = {
-  teamId: string,
-  userId: string,
-  joinedAt: string,
-  isCreator: boolean,
+export type TaskFacets = {
+  "": {
+    id: string,
+    title: string,
+    createdAt: string,
+    updatedAt: string,
+  },
+  "resources": {
+    resourceIds: string[],
+  }
 }
 
-export type Contest = {
-  id: string,
-  title: string,
-  description: string,
-  logoUrl: string,
-  registrationOpen: boolean,
-  registrationClosesAt: string,
-  startsAt: string,
-  endsAt: string,
-  taskId: string,
-  currentPeriodId: string,
-  teamIds: string[] | undefined,
+export type TaskResourceFacets = {
+  "": {
+    id: string,
+    taskId: string,
+    rank: number,
+    title: string,
+    description: string,
+    url: string,
+    html: string,
+  }
 }
 
-export type Task = {
-  id: string,
-  title: string,
-  createdAt: string,
-  updatedAt: string,
-  resourceIds: string[] | undefined,
+export type TeamFacets = {
+  "": {
+    id: string,
+    createdAt: string,
+    updatedAt: string,
+    deletedAt?: string,
+    accessCode: string,
+    contestId: string,
+    isOpen: boolean,
+    isLocked: boolean,
+    name: string,
+    publicKey: string,
+  },
+  "members": {
+    memberIds: string[],
+  },
+  "!": {
+    isOpen: boolean,
+    publicKey: string,
+  }
 }
 
-export type TaskResource = {
-  id: string,
-  taskId: string,
-  rank: number,
-  title: string,
-  description: string,
-  url: string,
-  html: string,
+export type TeamMemberFacets = {
+  "": {
+    teamId: string,
+    userId: string,
+    joinedAt: string,
+    isCreator: boolean,
+  }
 }
 
-export type ContestPeriod = {
-  id: string,
-  title: string,
-  dayNumber: number,
-  chainElectionAt: string,
-  mainChainId: string,
+export type ChainFacets = {
+  "": {
+    id: string,
+    createdAt: string,
+    updatedAt: string,
+    contestId: string,
+    ownerId: string | null,
+    parentId: string | null,
+    statusId: string,
+    title: string,
+    newProtocolHash: string,
+    currentGameKey: string,
+    currentRound: number,
+    nbVotesApprove: number,
+    nbVotesReject: number,
+    nbVotesUnknown: number,
+  },
+  "details": {
+    description: string,
+    interfaceText: string,
+    implementationText: string,
+    protocolHash: string,
+  }
 }
 
-export type Chain = {
-  id: string,
-  createdAt: string,
-  updatedAt: string,
-  contestId: string,
-  ownerId: string | null,
-  parentId: string | null,
-  statusId: string,
-  title: string,
-  description: string,
-  interfaceText: string,
-  implementationText: string,
-  protocolHash: string,
-  newProtocolHash: string,
-  currentGameKey: string,
-  currentRound: number,
-  nbVotesApprove: number,
-  nbVotesReject: number,
-  nbVotesUnknown: number,
+export type PreEntityMap<Facets> = {
+  [id: string]: Facets
 }
 
-export type Game = {
+export type PreEntities = {
+  users: PreEntityMap<UserFacets>,
+  contests: PreEntityMap<ContestFacets>,
+  tasks: PreEntityMap<TaskFacets>,
+  taskResources: PreEntityMap<TaskResourceFacets>,
+  teams: PreEntityMap<TeamFacets>,
+  teamMembers: PreEntityMap<TeamMemberFacets>,
+  chains: PreEntityMap<ChainFacets>,
+}
+
+export type PreGame = {
   key: string,
   createdAt: string,
   updatedAt: string,
@@ -150,4 +138,23 @@ export type Game = {
   lastBlock: string,
   currentRound: number,
   nbCyclesPerRound: number,
+}
+
+export type PreGameInfo = {
+  game: PreGame,
+  blocks: Immutable.List<BlockInfo>,
+}
+
+export type BackendState = {
+  backend: {
+    generation: number,
+    lastError: string | undefined,
+    tasks: object[],
+  },
+  eventSource: {
+    key: string,
+    channels: string[],
+  },
+  entities: PreEntities,
+  games: Immutable.Map<string, PreGameInfo>,
 }

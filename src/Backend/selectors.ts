@@ -1,16 +1,35 @@
 
 import * as moment from 'moment';
 
-import {Entity, User, Contest, ContestPeriod, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game} from '../types';
+import {Entity, User, Contest, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game} from '../types';
 
-import {BackendState as State, Entities} from './types';
-import {nullEntity, projectEntity, thunkEntity} from './entities';
+import {BackendState as State, PreEntities} from './types';
+
+type Collection = keyof PreEntities
+export const selectors = {
+  users: getUser,
+  tasks: getTask,
+  taskResources: getTaskResource,
+  contests: getContest,
+  teams: getTeam,
+  teamMembers: getTeamMember,
+  chains: getChain,
+}
+
+type Selector<K extends Collection> = (typeof selectors)[K]
+type CollectionEntity<K extends Collection> = ReturnType<Selector<K>>
+type CollectionFacets<K extends Collection> = PreEntities[K][string]
+type CollectionEntityType<K extends Collection> = CollectionEntity<K> extends Entity<infer T> ? T : any;
+
+function nullEntity<K extends Collection>(): EntityImpl<K> {
+  return new EntityImpl<K>(null);
+}
+function thunkEntity<K extends Collection>(id: string): EntityImpl<K> {
+  return new EntityImpl<K>(id);
+}
 
 var cache : Map<string, any> = new Map();
 var cacheGeneration : number = -1;
-
-type ValueOf<K extends keyof Entities> = Entities[K][string] extends Entity<infer T> ? T : any
-
 function maybeClearCache(state: State) {
   if (cacheGeneration !== state.backend.generation) {
     cache = new Map();
@@ -18,95 +37,132 @@ function maybeClearCache(state: State) {
   }
 }
 
-function visitEntity<K extends keyof Entities, T>(state: State, collection: K, id: string | null, func: (value: ValueOf<K>) => T): Entity<T> {
+function visitEntity<K extends Collection>(
+  state: State,
+  collection: K,
+  id: string | null,
+  load: (entity: EntityImpl<K>, facets: CollectionFacets<K>) => void
+): CollectionEntity<K> {
   maybeClearCache(state);
   const cacheKey = `${collection}_${id}`;
   if (cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
-  const result: Entity<T> = id === null ? nullEntity() : thunkEntity(id);
-  cache.set(cacheKey, result);
-  const entity = get(state, collection, id) as any; // Entity<ValueOf<K>>
-  result.assign(projectEntity(entity, func));
-  return result;
+  const entity: EntityImpl<K> = id === null ? nullEntity() : thunkEntity(id);
+  // (<any>entity)._k = collection;
+  cache.set(cacheKey, entity);
+  if (id !== null) {
+    const facets = state.entities[collection][id];
+    if (facets !== undefined) {
+      entity.facets = facets;
+      entity.isLoading = true;
+      entity._value = undefined;
+      load(entity, facets);
+      entity.isLoading = false;
+      if (entity._value !== undefined) {
+        entity.isLoaded = true;
+      } else {
+        entity.isFailed = true;
+      }
+    }
+  }
+  return <CollectionEntity<K>>entity;
 }
 
-function get<K extends keyof Entities>(state: State, collection: K, id: string | null): Entities[K][string] {
-  if (id === null) return nullEntity<User>();
-  const entities = state.entities[collection];
-  if (id in entities) {
-    return entities[id]
-  } else {
-    return thunkEntity<User>(id);
+class EntityImpl<K extends Collection> {
+  constructor(id: string | null) {
+    this._id = id;
+    this.isNull = id === null;
+    this.isLoading = false;
+    this.isLoaded = false;
+    this.isFailed = false;
   }
+  _id: string | null;
+  _value: CollectionEntityType<K> | undefined;
+  facets: CollectionFacets<K> | undefined;
+  get id(): string {
+    if (this._id === null) {
+      throw new Error("entity has no id");
+    }
+    return this._id;
+  }
+  get value(): CollectionEntityType<K> {
+    if (this._value === undefined) {
+      throw new Error("entity has no value");
+    }
+    return this._value;
+  }
+  isNull: boolean;
+  isLoading: boolean;
+  isLoaded: boolean;
+  isFailed: boolean;
 }
 
 export function getUser (state: State, id: string | null): Entity<User> {
-  return get(state, 'users', id);
+  return visitEntity(state, 'users', id, (entity, facets) => {
+    const user = facets[''];
+    entity._value = <User>user;
+  });
 }
 
 export function getTask(state: State, id: string | null): Entity<Task> {
-  return visitEntity(state, 'tasks', id, task => {
-    const resources = task.resourceIds
-      ? task.resourceIds.map(resourceId => getTaskResource(state, resourceId))
+  return visitEntity(state, 'tasks', id, (entity, facets) => {
+    const task = facets[''];
+    const resources = facets.resources
+      ? facets.resources.resourceIds.map(resourceId => getTaskResource(state, resourceId))
       : undefined;
-    return <Task>{...task, resources};
+    entity._value = <Task>{...task, resources};
   });
 }
 
 export function getTaskResource(state: State, id: string | null): Entity<TaskResource> {
-  return visitEntity(state, 'taskResources', id, (resource) => {
+  return visitEntity(state, 'taskResources', id, (entity, facets) => {
+    const resource = facets[''];
     if (resource.html !== "") {
-      return <TaskResource>{...resource, html: resource.html, url: undefined};
+      entity._value = <TaskResource>{...resource, html: resource.html, url: undefined};
+    } else if (resource.url !== "") {
+      entity._value = <TaskResource>{...resource, url: resource.url, html: undefined};
+    } else {
+      entity._value = <TaskResource>{...resource, html: undefined, url: undefined};
     }
-    if (resource.url !== "") {
-      return <TaskResource>{...resource, url: resource.url, html: undefined};
-    }
-    return <TaskResource>{...resource, html: undefined, url: undefined};
-  })
-}
-
-export function getContest (state: State, id: string | null): Entity<Contest> {
-  return visitEntity(state, 'contests', id, (contest) => {
-    const task = getTask(state, contest.taskId);
-    //const currentPeriod = getContestPeriod(state, contest.currentPeriodId);
-    const currentPeriod = nullEntity<ContestPeriod>(); // XXX
-    const startsAt = moment(contest.startsAt);
-    const endsAt = moment(contest.endsAt);
-    const registrationClosesAt = moment(contest.registrationClosesAt);
-    const teams = contest.teamIds ? contest.teamIds.map(teamId => getTeam(state, teamId)) : undefined;
-    return <Contest>{...contest, task, currentPeriod, startsAt, endsAt, registrationClosesAt, teams};
   });
 }
 
-export function getContestPeriod (state: State, id: string | null): Entity<ContestPeriod> {
-  return visitEntity(state, 'contestPeriods', id, (period) => {
-    const mainChain = getChain(state, period.mainChainId);
-    const chainElectionAt = moment(period.chainElectionAt);
-    return <ContestPeriod>{...period, mainChain, chainElectionAt};
+export function getContest (state: State, id: string | null): Entity<Contest> {
+  return visitEntity(state, 'contests', id, (entity, facets) => {
+    const contest = facets[''];
+    const task = getTask(state, contest.taskId);
+    const startsAt = moment(contest.startsAt);
+    const endsAt = moment(contest.endsAt);
+    const registrationClosesAt = moment(contest.registrationClosesAt);
+    const teams = facets.teams ? facets.teams.teamIds.map(teamId => getTeam(state, teamId)) : undefined;
+    entity._value = <Contest>{...contest, task, startsAt, endsAt, registrationClosesAt, teams};
   });
 }
 
 export function getTeam (state: State, id: string | null): Entity<Team> {
-  return visitEntity(state, 'teams', id, (team) => {
-    const members = team.memberIds
-      ? team.memberIds.map(memberId => getTeamMember(state, memberId))
+  return visitEntity(state, 'teams', id, (entity, facets) => {
+    const team = facets[''];
+    const members = facets.members
+      ? facets.members.memberIds.map(memberId => getTeamMember(state, memberId))
       : undefined;
-    return <Team>{...team, members};
+    entity._value = <Team>{...team, members};
   });
 }
 
 export function getTeamMember (state: State, id: string | null): Entity<TeamMember> {
-  return visitEntity(state, 'teamMembers', id, (member) => {
+  return visitEntity(state, 'teamMembers', id, (entity, facets) => {
+    const member = facets[''];
     const team = getTeam(state, member.teamId);
     const user = getUser(state,  member.userId);
     const joinedAt = moment(member.joinedAt);
-    return <TeamMember>{...member, team, user, joinedAt};
+    entity._value = <TeamMember>{...member, team, user, joinedAt};
   });
 }
 
 export function getChain (state: State, id: string | null): Entity<Chain> {
-  return visitEntity(state, 'chains', id, (chain) => {
+  return visitEntity(state, 'chains', id, (entity, facets) => {
+    const {'': chain, details} = facets;
     const createdAt = moment(chain.createdAt);
     const updatedAt = moment(chain.updatedAt);
     const contest = getContest(state, chain.contestId);
@@ -114,11 +170,11 @@ export function getChain (state: State, id: string | null): Entity<Chain> {
     const parent = getChain(state, chain.parentId);
     const status : ChainStatus = getChainStatus(chain.statusId);
     const game = getGame(state, chain.currentGameKey);
-    return <Chain>{...chain, createdAt, updatedAt, contest, owner, parent, status, game};
+    entity._value = <Chain>{...chain, createdAt, updatedAt, contest, owner, parent, status, game, ...details};
   });
 }
 
-function getGame(state: State, gameKey: string): Game | null {
+export function getGame(state: State, gameKey: string): Game | null {
   maybeClearCache(state);
   const gameInfo = state.games.get(gameKey);
   if (gameInfo === undefined) {
@@ -141,7 +197,7 @@ function getGame(state: State, gameKey: string): Game | null {
   };
 }
 
-function getChainStatus(statusId: string) : ChainStatus {
+export function getChainStatus(statusId: string) : ChainStatus {
   switch (statusId) {
     case "1": return "private test";
     case "2": return "public test";

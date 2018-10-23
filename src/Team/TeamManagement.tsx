@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, EntityState, Contest, Team} from '../types';
+import {Entity, Contest, Team} from '../types';
 import {Spinner} from '../components';
 import {selectors} from '../Backend';
 import CreateJoinScreen from './CreateJoinScreen';
@@ -24,9 +24,7 @@ function mapStateToProps (state: State): StoreProps {
   const {contestId, teamId} = state;
   const contest = selectors.getContest(state, contestId);
   const team = selectors.getTeam(state, teamId);
-  const loading =
-    contest.state === EntityState.Loading ||
-    team.state === EntityState.Loading;
+  const loading = contest.isLoading || team.isLoading;
   return {loading, contestId, contest, team};
 }
 
@@ -50,7 +48,7 @@ class TeamManagementPage extends React.PureComponent<Props> {
 
           {loading && <Spinner/>}
 
-          {team.state === EntityState.Null &&
+          {team.isNull &&
             <CreateJoinScreen infos={contestInfos}
               onCreate={this.handleCreateTeam} onJoin={this.handleJoinTeam} />}
 

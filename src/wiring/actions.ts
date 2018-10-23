@@ -1,8 +1,7 @@
 
 import {Route} from '../router';
 import {Block} from '../types';
-import {EntitiesUpdate, EntityChange} from '../Backend';
-import {Game} from '../Backend/types';
+import {PreGame} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
 
@@ -31,8 +30,8 @@ export const actionCreators = {
   backendTaskStarted: (task: object) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task}),
   backendTaskFailed: (task: object, error: string) => createAction(ActionTypes.BACKEND_TASK_FAILED, {task, error}),
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),
-  backendEntitiesLoaded: (entities: EntitiesUpdate) => createAction(ActionTypes.BACKEND_ENTITIES_LOADED, {entities}),
-  pushLocalChanges: (items: EntityChange[]) => createAction(ActionTypes.PUSH_LOCAL_CHANGES, {items}),
+  backendEntitiesLoaded: (entities: {[key: string]: object}) => createAction(ActionTypes.BACKEND_ENTITIES_LOADED, {entities}),
+  pushLocalChanges: (items: {collection: string, id: string, changes: object}[]) => createAction(ActionTypes.PUSH_LOCAL_CHANGES, {items}),
 
   // eventsource
   eventSourceKeyChanged: (key: string) => createAction(ActionTypes.EVENTSOURCE_KEY_CHANGED, {key}),
@@ -61,7 +60,7 @@ export const actionCreators = {
 
   // chain list
   chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
-  gameLoaded: (gameKey: string, game: Game, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
+  gameLoaded: (gameKey: string, game: PreGame, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
 
   // chain actions
   forkChain: (chainId: string) => createAction(ActionTypes.FORK_CHAIN, {chainId}),
