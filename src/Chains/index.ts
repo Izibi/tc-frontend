@@ -7,8 +7,9 @@ import {call, put, select, takeLatest, fork} from 'redux-saga/effects';
 import {Entity, Chain, Block} from '../types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
-import {monitorBackendTask, loadContestTeam, loadContestChains, loadGameHead, forkChain, deleteChain, loadBlock} from '../Backend';
-import {selectors} from '../Backend';
+import {
+  monitorBackendTask, selectors, loadContestTeam, loadContestChains, loadContest,
+  loadGameHead, forkChain, deleteChain, loadBlock} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -98,7 +99,12 @@ export function chainsReducer (state: State, action: Actions): State {
 }
 
 function* chainsPageSaga (params: Params) : Saga {
+  /* Fork the chain list saga to catch the first 'chain list scrolled' event
+     and load the games that are visible. */
   yield fork(chainListSaga, params);
+  yield call(monitorBackendTask, function* () {
+    yield call(commonStartupSaga, params.contestId);
+  });
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
       yield call(monitorBackendTask, function* () {
@@ -119,15 +125,6 @@ function* chainsPageSaga (params: Params) : Saga {
       });
     }
   );
-  yield call(monitorBackendTask, function* () {
-    const {teamId} = yield call(loadContestTeam, params.contestId);
-    yield put(actionCreators.teamChanged(teamId));
-    const {chainIds} = yield call(loadContestChains, params.contestId, {});
-    yield put(actionCreators.chainListChanged(chainIds));
-    /* yield call(loadContestTeams, params.contestId); */
-    /* TODO: if params.blockHash is undefined, find the hash of the last block
-             in the selected chain, and put it in the store. */
-  });
 }
 
 function* blockPageSaga (params: Params) : IterableIterator<Effect> {
@@ -135,10 +132,12 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
     yield call(navigate, "ChainsPage", {contestId: params.contestId, chainId: params.chainId});
     return;
   }
+  /* Fork the chain list saga to catch the first 'chain list scrolled' event
+     and load the games that are visible. */
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
+    yield call(commonStartupSaga, params.contestId);
     if (!params.chainId) return;
-    let refresh: boolean = true;
     let chainId: string = params.chainId;
     if (params.blockHash) {
       let blockHash : string = params.blockHash;
@@ -147,14 +146,9 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
         let chain: Entity<Chain>;
         chain = yield select((state: State) => selectors.getChain(state, chainId));
         if (!chain.isLoaded) {
-          console.log('Chain is not loaded, refreshing.');
-          yield call(blockPageRefresh, params);
-          refresh = false;
-          chain = yield select((state: State) => selectors.getChain(state, chainId));
-          if (!chain.isLoaded) {
-            console.log('Chain is still loaded, bailing out.');
-            return;
-          }
+          // TODO: load the specific chain requested?
+          console.log('Chain is not loaded, bailing out.');
+          return;
         }
         if (!chain.value.game) {
           console.log('Chain found, but the game is not loaded.  Bailing out.');
@@ -177,22 +171,14 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
       // - need a creation timestamp
       // - computer per-player nb. commands, nb. changes, score
     }
-    if (refresh) {
-      yield call(blockPageRefresh, params);
-    }
   });
-}
-function* blockPageRefresh(params: Params): Saga {
-  const {teamId} = yield call(loadContestTeam, params.contestId);
-  yield put(actionCreators.teamChanged(teamId));
-  const {chainIds} = yield call(loadContestChains, params.contestId, {});
-  yield put(actionCreators.chainListChanged(chainIds));
 }
 
 function* chainListSaga (params: Params) : Saga {
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED,
     function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
       const {first, last} = action.payload;
+      console.log('scrolled', first, last);
       const chains: Entity<Chain>[] = yield select((state : State) =>
         state.chainIds.slice(first, last + 1).map(id => selectors.getChain(state, id)));
       /* Update subscriptions to the visible games. */
@@ -232,3 +218,28 @@ function* chainListSaga (params: Params) : Saga {
     }
   });
 }
+
+function* commonStartupSaga(contestId: string): Saga {
+  if (!(yield select(isContestLoaded))) {
+    // Load the contest and list of teams.
+    yield call(loadContest, contestId);
+  }
+  if (!(yield select(isTeamLoaded))) {
+    // Load our team and members.
+    const {teamId} = yield call(loadContestTeam, contestId);
+    yield put(actionCreators.teamChanged(teamId));
+  }
+  const {chainIds} = yield call(loadContestChains, contestId, {/* FILTERS */});
+  yield put(actionCreators.chainListChanged(chainIds));
+  function isContestLoaded (state: State) {
+    return selectors.getContest(state, contestId).isLoaded;
+  }
+  function isTeamLoaded (state: State) {
+    return selectors.getTeam(state, state.teamId).isLoaded;
+  }
+}
+
+/*
+  const {firstIndex, lastIndex} = yield select((state: State) => state.chainList);
+  yield put(actionCreators.chainListScrolled(firstIndex, lastIndex));
+*/
