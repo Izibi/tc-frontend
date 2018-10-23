@@ -46,7 +46,6 @@ function mapStateToProps (state: State, _props: object): StoreProps {
     if (blockHash === 'last') {
       if (chain.value.game) {
         blockHash = chain.value.game.lastBlock;
-        console.log('mapStateToProps, last block', blockHash);
       } else {
         blockHash = "";
         console.log('game not loaded, cannot display last block ');
