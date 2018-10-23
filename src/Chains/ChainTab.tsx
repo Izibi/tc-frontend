@@ -116,7 +116,7 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
     this.setState({newChainName: event.currentTarget.value});
   };
   handleRestartGame = (event: React.MouseEvent<HTMLElement>) => {
-    console.log('restart game');
+    this.props.dispatch(actionCreators.restartChain(this.props.chain.id));
   };
   /*handleStartingMapChange = () => {
   };*/

@@ -10,7 +10,7 @@ import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '
 import {Rule, navigate} from '../router';
 import {
   monitorBackendTask, selectors, loadContestTeam, loadContestChains, loadContest,
-  loadGameHead, forkChain, deleteChain, loadBlock} from '../Backend';
+  loadGameHead, forkChain, deleteChain, restartChain, loadBlock} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -128,6 +128,13 @@ function* chainsPageSaga (params: Params) : Saga {
         /* The chain being deleted was (probably) the current chain, so clear
            the selection by navigating to the list of chains. */
         yield call(navigate, "ChainsPage", {contestId: params.contestId});
+      });
+    }
+  );
+  yield takeLatest(ActionTypes.RESTART_CHAIN,
+    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
+      yield call(monitorBackendTask, function* () {
+        yield call(restartChain, action.payload.chainId);
       });
     }
   );

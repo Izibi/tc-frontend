@@ -473,6 +473,10 @@ export function* deleteChain (chainId: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Delete`, null);
 }
 
+export function* restartChain (chainId: string): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Restart`, null);
+}
+
 export function* loadBlock (hash: string): Saga {
   const resp: Response = yield call(fetch, `${process.env.BLOCKSTORE_URL}/${hash}/block.json`);
   const data: object = yield call([resp, resp.json]);
