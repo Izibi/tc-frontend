@@ -71,8 +71,10 @@ export function chainsReducer (state: State, action: Actions): State {
     case ActionTypes.CHAIN_LIST_CHANGED: {
       let {chainIds} = action.payload;
       let chainId = state.chainId;
-      if (-1 === chainIds.indexOf(chainId) && chainIds.length > 0) {
-        chainId = chainIds[0];
+      if (chainId === 'unknown' || selectors.getChain(state, chainId).isNull) {
+        if (-1 === chainIds.indexOf(chainId) && chainIds.length > 0) {
+          chainId = chainIds[0];
+        }
       }
       return {...state, chainIds, chainId};
     }
