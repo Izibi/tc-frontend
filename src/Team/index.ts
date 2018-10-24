@@ -4,7 +4,7 @@ import {call, put, takeEvery, takeLatest} from 'redux-saga/effects';
 
 import {State, Actions, ActionTypes, actionCreators, AppToaster} from '../app';
 import {Rule} from '../router';
-import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, updateTeam, changeTeamAccessCode, optimisticChange} from '../Backend';
+import {monitorBackendTask, loadContestTeam, createTeam, joinTeam, leaveTeam, updateTeam, changeTeamAccessCode, optimisticChange, loadContest} from '../Backend';
 
 import {TeamManagementParams} from './types';
 import TeamManagementPage from './TeamManagement';
@@ -40,6 +40,7 @@ function* teamManagementSaga (params: TeamManagementParams) : IterableIterator<E
   yield call(monitorBackendTask, function* () {
     const {teamId} = yield call(loadContestTeam, params.contestId);
     yield put(actionCreators.teamChanged(teamId));
+    yield call(loadContest, params.contestId);
   });
   yield takeEvery(ActionTypes.CREATE_TEAM, function* (action: Actions) {
     if (action.type !== ActionTypes.CREATE_TEAM) return; //@ts
