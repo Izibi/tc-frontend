@@ -274,8 +274,8 @@ function* loadChainGame(chain: Entity<Chain>): Saga {
     const gameKey = chain.value.currentGameKey;
     if (gameKey !== "") {
       try {
-        const {game, blocks} = yield call(loadGameHead, gameKey);
-        yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+        const {game, blocks, players} = yield call(loadGameHead, gameKey);
+        yield put(actionCreators.gameLoaded(gameKey, game, blocks, players));
         // TODO: load more pages if needed
       } catch (ex) {
         console.log("failed to load game?", gameKey);

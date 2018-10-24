@@ -38,7 +38,7 @@ class AuthenticatedUserPage extends React.PureComponent<Props> {
         <ul className="contestList">
           {contests.map((contest, index) =>
             contest.isLoaded
-              ? <ContestItem value={contest.value} reloading={contest.isLoading} />
+              ? <ContestItem key={contest.id} value={contest.value} reloading={contest.isLoading} />
               : null)}
         </ul>
     } else {

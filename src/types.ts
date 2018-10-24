@@ -116,6 +116,19 @@ export type Game = {
   lastBlock: string,
   nbCyclesPerRound: number,
   blocks: Immutable.List<BlockInfo>,
+  nbPlayers: number,
+  nbRounds: number,
+}
+
+export type PrePlayer = {
+  rank: number,
+  teamId: string,
+  botId: number,
+}
+export type Player = {
+  rank: number,
+  team: Entity<Team>,
+  botId: number,
 }
 
 export type BlockInfo = {

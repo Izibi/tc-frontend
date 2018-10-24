@@ -146,6 +146,8 @@ export type PreGame = {
   lastBlock: string,
   currentRound: number,
   nbCyclesPerRound: number,
+  nbPlayers: number,
+  nbRounds: number,
 }
 
 export type PreGameInfo = {

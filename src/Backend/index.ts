@@ -84,7 +84,7 @@ export function backendReducer (state: State, action: Actions): State {
     }
 
     case ActionTypes.GAME_LOADED: {
-      const {gameKey, game, blocks: newBlocks} = action.payload;
+      const {gameKey, game, blocks: newBlocks, players} = action.payload;
       const prevGI : PreGameInfo | undefined = state.games.get(gameKey);
       let blocks : Immutable.List<BlockInfo> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
       if (newBlocks !== null) {
@@ -95,6 +95,7 @@ export function backendReducer (state: State, action: Actions): State {
       state = flushSelectorCache({
         ...state,
         games: state.games.set(gameKey, {game, blocks}),
+        players
       });
       break;
     }
@@ -193,8 +194,8 @@ export function* saga(): Saga {
               const block: Block = yield call(loadBlock, blockHash);
               yield put(actionCreators.blockLoaded(blockHash, block));
             }
-            const {game, blocks} = yield call(loadGameHead, gameKey);
-            yield put(actionCreators.gameLoaded(gameKey, game, blocks));
+            const {game, blocks, players} = yield call(loadGameHead, gameKey);
+            yield put(actionCreators.gameLoaded(gameKey, game, blocks, players));
           }
           continue;
         }

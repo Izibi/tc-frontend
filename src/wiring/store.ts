@@ -10,7 +10,7 @@ import {landingReducer} from '../Landing';
 import {teamReducer} from '../Team';
 import {taskReducer} from '../Task';
 import {chainsReducer} from '../Chains';
-import {Block, ChainFilters} from '../types';
+import {Block, ChainFilters, PrePlayer} from '../types';
 
 export type State =
   ErrorsState &
@@ -31,6 +31,7 @@ export type State =
     },
     chainFilters: ChainFilters,
     blocks: Immutable.Map<string, Block>,
+    players: PrePlayer[],
   }
 
 export const initialState : State = {
@@ -56,6 +57,7 @@ export const initialState : State = {
     status: "main",
   },
   blocks: Immutable.Map(),
+  players: [],
 
 };
 

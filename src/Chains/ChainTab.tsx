@@ -46,7 +46,7 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
               </div>
               <div>
                 {"Game key "}
-                <input type="text" className="bp3-input gameKey" value={chain.currentGameKey} onClick={this.handleGameKeyClick}/>
+                <input type="text" className="bp3-input gameKey" value={chain.currentGameKey} readOnly onClick={this.handleGameKeyClick}/>
               </div>
             </div>
           </div>

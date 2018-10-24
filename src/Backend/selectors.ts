@@ -192,6 +192,8 @@ export function getGame(state: State, gameKey: string): Game | null {
     firstBlock: game.firstBlock,
     lastBlock: game.lastBlock,
     nbCyclesPerRound: game.nbCyclesPerRound,
+    nbPlayers: game.nbPlayers,
+    nbRounds: game.nbRounds,
     blocks,
   };
 }

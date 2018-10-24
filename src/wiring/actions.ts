@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {Block} from '../types';
+import {Block, PrePlayer} from '../types';
 import {PreGame, Collection, OptimisticChange} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
@@ -59,7 +59,7 @@ export const actionCreators = {
 
   // chain list
   chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
-  gameLoaded: (gameKey: string, game: PreGame, blocks: Block[] | null) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks}),
+  gameLoaded: (gameKey: string, game: PreGame, blocks: Block[] | null, players: PrePlayer[]) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks, players}),
 
   // chain actions
   forkChain: (chainId: string, title: string) => createAction(ActionTypes.FORK_CHAIN, {chainId, title}),
