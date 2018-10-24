@@ -71,13 +71,9 @@ export function chainsReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.CHAIN_LIST_CHANGED: {
       let {chainIds} = action.payload;
-      let chainId = state.chainId;
-      if (chainId === 'unknown' || selectors.getChain(state, chainId).isNull) {
-        if (-1 === chainIds.indexOf(chainId) && chainIds.length > 0) {
-          chainId = chainIds[0];
-        }
-      }
-      return {...state, chainIds, chainId};
+      state = {...state, chainIds}
+      state.chainId = getVisibleChainId(state);
+      return state;
     }
     case ActionTypes.CHAIN_LIST_SCROLLED: {
       const {first, last} = action.payload;
@@ -253,7 +249,7 @@ function* refreshChainList(contestId: string): Saga {
   yield put(actionCreators.chainListChanged(chainIds));
   const {chainId, isLoaded} : {chainId: string | null, isLoaded: boolean}
     = yield select((state: State) => {
-      const {chainId} = state;
+      const chainId = getVisibleChainId(state);
       const {isLoaded} = selectors.getChain(state, state.chainId);
       return {chainId, isLoaded};
     });
@@ -283,6 +279,17 @@ function* loadChainGame(chain: Entity<Chain>): Saga {
       }
     }
   }
+}
+
+function getVisibleChainId(state: State): string {
+  let chainId = state.chainId;
+  if (chainId === 'unknown' || selectors.getChain(state, chainId).isNull) {
+    const chainIds = state.chainIds;
+    if (-1 === chainIds.indexOf(chainId) && chainIds.length > 0) {
+      chainId = chainIds[0];
+    }
+  }
+  return chainId;
 }
 
 function getVisibleChains (state : State): Entity<Chain>[] {
