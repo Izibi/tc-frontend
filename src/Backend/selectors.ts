@@ -145,7 +145,11 @@ export function getTeam (state: State, id: string | null): Entity<Team> {
     const members = facets.members
       ? facets.members.memberIds.map(memberId => getTeamMember(state, memberId))
       : undefined;
-    entity._value = <Team>{...team, members, ...facets['!']};
+    let accessCode : string | undefined;
+    if (facets.member) {
+      accessCode = facets.member.accessCode;
+    }
+    entity._value = <Team>{...team, members, accessCode, ...facets['!']};
   });
 }
 

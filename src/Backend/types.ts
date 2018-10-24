@@ -70,12 +70,14 @@ export type TeamFacets = {
     createdAt: string,
     updatedAt: string,
     deletedAt?: string,
-    accessCode: string,
     contestId: string,
     isOpen: boolean,
     isLocked: boolean,
     name: string,
     publicKey: string,
+  },
+  "member": {
+    accessCode: string,
   },
   "members": {
     memberIds: string[],

@@ -26,7 +26,7 @@ export type Team = {
   id: string,
   name: string,
   deletedAt?: string,
-  accessCode: string,
+  accessCode: string | undefined,
   isOpen: boolean /* can new users join the team? */,
   isLocked: boolean /* contest started, team cannot be changed */,
   members: Entity<TeamMember>[] | undefined,
