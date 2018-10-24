@@ -58,7 +58,8 @@ export const routes : Rule<any>[] = [
       {...state,
         contestId: params.contestId,
         chainId: params.chainId,
-        blockHash: params.blockHash
+        blockHash: params.blockHash,
+        players: [], // HACK
       }),
     component: ChainsPage,
     saga: blockPageSaga,
