@@ -95,8 +95,12 @@ export function backendReducer (state: State, action: Actions): State {
       state = flushSelectorCache({
         ...state,
         games: state.games.set(gameKey, {game, blocks}),
-        players
       });
+      // HACK: set players if matching game key
+      const chain = selectors.getChain(state, state.chainId);
+      if (chain.isLoaded && chain.value.currentGameKey === gameKey) {
+        state = {...state, players};
+      }
       break;
     }
 
