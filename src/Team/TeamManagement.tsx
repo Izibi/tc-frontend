@@ -33,13 +33,13 @@ class TeamManagementPage extends React.PureComponent<Props> {
     const {loading, contest, team, dispatch} = this.props;
     const contestInfos = contest.isLoaded ?
       <div>
-        <p>{"You may participate individually, or as a team of 1 to 3"}</p>
-        <p>
+        <p>{"You may participate individually, or as a team of 1 to 5"}</p>
+        {false && <p>
           {"Teams can be created or modified until the "}
           {contest.value.registrationClosesAt.format('L')}
           {" at "}
           {contest.value.registrationClosesAt.format('LT')}
-        </p>
+        </p>}
       </div> : null;
     return (
       <div>
