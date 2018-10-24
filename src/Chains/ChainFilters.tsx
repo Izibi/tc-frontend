@@ -52,9 +52,10 @@ class ChainFilterControls extends React.PureComponent<ChainFiltersProps> {
     );
   }
   handleStatusChange = (value: string, active: boolean) => {
-    /* If we want to allow toggling the filter off:
-       this.props.onChange({status: {$set: active ? value : ""}}); */
-    this.props.onChange({status: {$set: value}});
+    /* If we want to allow toggling the filter off: */
+       this.props.onChange({status: {$set: active ? value : ""}});
+    /* otherwise:
+    this.props.onChange({status: {$set: value}}); */
   };
 }
 
