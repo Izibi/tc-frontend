@@ -31,7 +31,7 @@ type StoreProps = {
   isOwner: boolean,
   // selected block:
   blockHash: string,
-  blockData: BlockData | undefined,
+  blockData: BlockData,
 }
 
 type Props = StoreProps & DispatchProp
@@ -111,7 +111,7 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
               {tab === 'chain' && chain.isLoaded &&
                 <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
-              {tab === 'block' && blockData &&
+              {tab === 'block' &&
                 <BlockTab data={blockData} game={chain.isLoaded ? chain.value.game : null} />}
             </div>
           </div>

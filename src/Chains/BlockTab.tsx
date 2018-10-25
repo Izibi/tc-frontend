@@ -7,17 +7,20 @@ type BlockTabProps = {
   data: BlockData,
   game: Game | null,
 }
+type BlockTabState = {
+  task: string,
+  block: string,
+}
 
-class BlockTab extends React.PureComponent<BlockTabProps> {
+class BlockTab extends React.PureComponent<BlockTabProps, BlockTabState> {
+  state = {task: "", block: ""};
   render () {
-    const {data: {hash, block, scores}, game} = this.props;
-    if (!block || !(block.type === 'setup' || block.type === 'command')) {
-      return null;
-    }
-    const viewUrl = `${process.env.BLOCKSTORE_URL}/${block.task}/view.html#h=${hash}`;
+    const {data: {scores}, game} = this.props;
+    const {task, block} = this.state;
+    const viewerUrl = `${process.env.BLOCKSTORE_URL}/${task}/view.html#h=${block}`;
     return (
       <div className="flexRow">
-        <iframe style={{width: '400px', height: '400px', 'border': '0'}} src={viewUrl} />
+        <iframe style={{width: '400px', height: '400px', 'border': '0'}} src={viewerUrl} />
         <div style={{margin: '0 10px', flex: '1 1 auto'}}>
           <div className="panel">
             <div className="panelHeader">{"Block ranking"}</div>
@@ -43,6 +46,21 @@ class BlockTab extends React.PureComponent<BlockTabProps> {
         </div>
       </div>
      );
+  }
+  static getDerivedStateFromProps(props: BlockTabProps, state: BlockTabState) {
+    /* Latch on to the most recent task and block hashes, to avoid unnecessary
+       unloading of the viewer's iframe. */
+    const {hash, block} = props.data;
+    if (block && 'task' in block && block.task !== state.task) {
+      return {task: block.task, block: hash};
+    }
+    /* Viewers must be prepared to receive a hash for a block from a different
+       game (viewer for game A is displayed, user clicks on block b for game B
+       that we haven't loaded yet, viewer URL will be task A / block b). */
+    if (hash !== state.block) {
+      return {block: hash};
+    }
+    return null;
   }
 }
 
