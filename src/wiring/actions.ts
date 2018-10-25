@@ -77,6 +77,8 @@ export const actionCreators = {
 
   // games
   gameLoaded: (gameKey: string, game: PreGame, blocks: BlockIndexEntry[] | null, players: PrePlayer[], scores: string | undefined) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks, players, scores}),
+  gameIndexPageLoaded: (gameKey: string, blocks: BlockIndexEntry[] | null, players: PrePlayer[], scores: string | undefined) => createAction(ActionTypes.GAME_INDEX_PAGE_LOADED, {gameKey, blocks}),
+
 
 };
 

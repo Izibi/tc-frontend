@@ -101,6 +101,21 @@ export function backendReducer (state: State, action: Actions): State {
       }});
       return flushSelectorCache(state);
     }
+    case ActionTypes.GAME_INDEX_PAGE_LOADED: {
+      const {gameKey, blocks: newBlocks} = action.payload;
+      const prevGI : PreGameInfo | undefined = state.backend.games.get(gameKey);
+      let blocks : Immutable.List<BlockIndexEntry> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
+      if (newBlocks !== null) {
+        for (let block of newBlocks) {
+          blocks = blocks.set(block.sequence, block);
+        }
+      }
+      state = update(state, {backend: {
+        games: {$apply: (games: Immutable.Map<string, PreGameInfo>) =>
+            games.update(gameKey, gi => update(gi, {blocks: {$set: blocks}}))}
+      }});
+      return flushSelectorCache(state);
+    }
 
     case ActionTypes.BLOCK_LOADED: {
       const {hash, block} = action.payload;

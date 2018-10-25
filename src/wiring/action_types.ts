@@ -41,6 +41,7 @@ export const RESTART_CHAIN = "[chains] restart chain";
 export const CHAIN_FILTERS_CHANGED = "[chains] filters changed";
 
 export const GAME_LOADED = "[game] loaded";
+export const GAME_INDEX_PAGE_LOADED = "[game] index page loaded";
 export const BLOCK_LOADED = "[block] loaded";
 export const BLOCK_SCORES_LOADED = "[block] scores loaded";
 

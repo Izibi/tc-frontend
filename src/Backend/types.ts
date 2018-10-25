@@ -138,6 +138,7 @@ export type PreEntities = {
 
 export type GameHead = {
   game: PreGame,
+  page: number,
   blocks: BlockIndexEntry[] | null,
   players: PrePlayer[],
   scores: string | undefined,
