@@ -38,6 +38,7 @@ export const CHAIN_DELETED = "[chains] chain deleted";
 export const FORK_CHAIN = "[chains] fork chain";
 export const DELETE_CHAIN = "[chains] delete chain";
 export const RESTART_CHAIN = "[chains] restart chain";
+export const CHANGE_CHAIN_STATUS = "[chains] change chain status";
 export const CHAIN_FILTERS_CHANGED = "[chains] filters changed";
 
 export const GAME_LOADED = "[game] loaded";

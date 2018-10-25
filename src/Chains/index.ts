@@ -11,8 +11,13 @@ import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '
 import {Rule, navigate} from '../router';
 import {difference} from '../utils';
 import {
-  monitorBackendTask, selectors, loadContestTeam, loadContest, loadContestChains,
-  loadChain, loadGameHead, loadGamePage, forkChain, deleteChain, restartChain, loadBlock, loadBlockScores} from '../Backend';
+  monitorBackendTask, selectors, optimisticChange,
+  loadContestTeam, loadContest, loadContestChains, loadChain,
+  loadGameHead, loadGamePage,
+  forkChain, deleteChain, restartChain, updateChain,
+  loadBlock, loadBlockScores
+} from '../Backend';
+import {getChainStatusId} from '../Backend/selectors';
 
 import ChainsPage from './ChainsPage';
 
@@ -153,6 +158,15 @@ function* chainsPageSaga (params: Params) : Saga {
         const chain = yield select(getChain, chainId);
         yield call(loadChainGame, chain);
       });
+    }
+  );
+  yield takeLatest(ActionTypes.CHANGE_CHAIN_STATUS,
+    function* (action: ActionsOfType<typeof ActionTypes.CHANGE_CHAIN_STATUS>): Saga {
+      const {chainId, status} = action.payload;
+      const statusId = getChainStatusId(status);
+      yield call(monitorBackendTask, function* (): Saga {
+        yield call(updateChain, chainId, {statusId});
+      }, [optimisticChange('chains', chainId, {statusId})]);
     }
   );
 }

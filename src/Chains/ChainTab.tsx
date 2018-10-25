@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import {Button, ControlGroup/*, Radio, RadioGroup*/} from "@blueprintjs/core";
+import {Button, ControlGroup, HTMLSelect/*, Radio, RadioGroup*/} from "@blueprintjs/core";
 import AceEditor from 'react-ace';
 import 'brace';
 import 'brace/mode/ocaml';
@@ -8,7 +8,19 @@ import 'brace/theme/github';
 import 'brace/worker/javascript';
 
 import {actionCreators, DispatchProp} from '../app';
-import {Chain} from '../types';
+import {Chain, ChainStatus} from '../types';
+
+const modifiableStatuses = ["private test", "public test", "candidate"];
+const statusOptions: {value: ChainStatus, label: string}[] = [
+  {value: "private test", label: "private test"},
+  {value: "public test", label: "public test"},
+  {value: "candidate", label: "candidate"},
+  /* admin only:
+  {value: "main", label: "main"},
+  {value: "past", label: "past"},
+  {value: "invalid", label: "invalid"},
+  */
+];
 
 type ChainTabProps = {
   chain: Chain,
@@ -62,6 +74,8 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
               <Button icon='trash' text="Delete" onClick={this.handleDeleteChain}
                 disabled={!isOwner || chain.status !== "private test"}/>
               <Button icon='fast-backward' text="Restart" onClick={this.handleRestartGame} disabled={!isOwner} />
+              {-1 !== modifiableStatuses.indexOf(chain.status) &&
+                <HTMLSelect value={chain.status} onChange={this.handleStatusChange} options={statusOptions} disabled={!isOwner} />}
             </div>
           </div>
         </div>
@@ -123,6 +137,9 @@ class ChainTab extends React.PureComponent<ChainTabProps, LocalState> {
     if (confirm("Are you sure you want to restart this chain?")) {
       this.props.dispatch(actionCreators.restartChain(this.props.chain.id));
     }
+  };
+  handleStatusChange = (event: React.FormEvent<HTMLSelectElement>) => {
+    this.props.dispatch(actionCreators.changeChainStatus(this.props.chain.id, event.currentTarget.value as ChainStatus));
   };
   /*handleStartingMapChange = () => {
   };*/

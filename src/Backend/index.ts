@@ -485,10 +485,6 @@ export function* loadChain (chainId: string): Saga {
   return yield call(backendGet, `Chains/${chainId}`);
 }
 
-export function* updateChain (chainId: string, props: object): Saga {
-  return yield call(backendPost, `Chains/${chainId}/Update`, props);
-}
-
 export function* forkChain (chainId: string, title: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Fork`, {title});
 }
@@ -499,6 +495,10 @@ export function* deleteChain (chainId: string): Saga {
 
 export function* restartChain (chainId: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Restart`, null);
+}
+
+export function* updateChain (chainId: string, arg: {statusId?: string}): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Update`, arg);
 }
 
 export function* loadBlock (hash: string): Saga {

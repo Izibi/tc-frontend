@@ -119,6 +119,9 @@ export type ChainFacets = {
     interfaceText: string,
     implementationText: string,
     protocolHash: string,
+  },
+  "!": {
+    statusId?: string,
   }
 }
 

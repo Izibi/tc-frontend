@@ -220,6 +220,18 @@ export function getChainStatus(statusId: string) : ChainStatus {
   }
 }
 
+export function getChainStatusId(status: ChainStatus): string {
+  switch (status) {
+    case "private test": return "1";
+    case "public test": return "2";
+    case "candidate": return "3";
+    case "main": return "4";
+    case "past": return "5";
+    case "invalid": return "6";
+    default: return "invalid";
+  }
+}
+
 function nullMoment(s: string | null): moment.Moment | null {
   return s === null ? null : moment(s);
 }

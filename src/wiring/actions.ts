@@ -1,6 +1,6 @@
 
 import {Route} from '../router';
-import {Block, ScoreBoard, BlockIndexEntry} from '../types';
+import {Block, ScoreBoard, BlockIndexEntry, ChainStatus} from '../types';
 import {PreGame, PrePlayer, Collection, OptimisticChange} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
@@ -65,6 +65,7 @@ export const actionCreators = {
   forkChain: (chainId: string, title: string) => createAction(ActionTypes.FORK_CHAIN, {chainId, title}),
   deleteChain: (chainId: string) => createAction(ActionTypes.DELETE_CHAIN, {chainId}),
   restartChain: (chainId: string) => createAction(ActionTypes.RESTART_CHAIN, {chainId}),
+  changeChainStatus: (chainId: string, status: ChainStatus) => createAction(ActionTypes.CHANGE_CHAIN_STATUS, {chainId, status}),
 
   // chain events
   chainCreated: (chainId: string) => createAction(ActionTypes.CHAIN_CREATED, {chainId}),
