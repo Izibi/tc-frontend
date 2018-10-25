@@ -12,7 +12,7 @@ import {Rule, navigate} from '../router';
 import {difference} from '../utils';
 import {
   monitorBackendTask, selectors, loadContestTeam, loadContest, loadContestChains,
-  loadChain, loadGameHead, forkChain, deleteChain, restartChain, loadBlock, loadBlockScores} from '../Backend';
+  loadChain, loadGameHead, loadGamePage, forkChain, deleteChain, restartChain, loadBlock, loadBlockScores} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -216,28 +216,8 @@ function* chainListSaga (params: Params) : Saga {
       yield call(refreshChainList, params.contestId);
     });
   });
-  yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED, function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
-    const {visibleChains, visibleIds, newChains}: {visibleChains: Entity<Chain>[], visibleIds: string[], newChains: Entity<Chain>[]} =
-      yield select((state: State) => {
-        const {firstVisible, lastVisible, visibleIds: oldIds} = state.chainList;
-        const visibleIds = state.chainIds.slice(firstVisible, lastVisible + 1);
-        const newIds = difference(visibleIds, oldIds);
-        const visibleChains = visibleIds.map(id => selectors.getChain(state, id));
-        const newChains = newIds.map(id => selectors.getChain(state, id));
-        return {visibleChains, visibleIds, newChains};
-      });
-    /* Update subscriptions to the visible games. */
-    const channels = [`contest:${params.contestId}`];
-    for (let chain of visibleChains) {
-      visibleIds.push(chain.id);
-      if (chain.isLoaded && chain.value.currentGameKey !== "") {
-        channels.push(`game:${chain.value.currentGameKey}`)
-      }
-    }
-    yield put(actionCreators.eventSourceSubsChanged(channels));
-    /* Load the games on the newly visible chains. */
-    yield call(loadChainGames, newChains);
-    yield put(actionCreators.chainListUpdateDone(visibleIds));
+  yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED, function* () : Saga {
+    yield call(updateSubscriptions);
   });
   yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
     yield call(refreshChainList, params.contestId);
@@ -248,6 +228,35 @@ function* chainListSaga (params: Params) : Saga {
       yield call(navigate, "ChainsPage", {contestId: params.contestId});
     }
   });
+  yield call(updateSubscriptions);
+  function* updateSubscriptions() {
+    const {visibleChains, visibleIds, newChains, selectedChain}: {visibleChains: Entity<Chain>[], visibleIds: string[], newChains: Entity<Chain>[], selectedChain: Entity<Chain>} =
+      yield select((state: State) => {
+        const {firstVisible, lastVisible, visibleIds: oldIds} = state.chainList;
+        const visibleIds = state.chainIds.slice(firstVisible, lastVisible + 1);
+        const newIds = difference(visibleIds, oldIds);
+        const visibleChains = visibleIds.map(id => selectors.getChain(state, id));
+        const newChains = newIds.map(id => selectors.getChain(state, id));
+        const selectedChain = selectors.getChain(state, params.chainId || null);
+        return {visibleChains, visibleIds, newChains, selectedChain};
+      });
+    /* Update subscriptions to the visible games plus the selected chain. */
+    const channels = [`contest:${params.contestId}`];
+    function addChainGameKey(chain: Entity<Chain>) {
+      if (chain.isLoaded && chain.value.currentGameKey !== "") {
+        channels.push(`game:${chain.value.currentGameKey}`)
+      }
+    }
+    for (let chain of visibleChains) {
+      visibleIds.push(chain.id);
+      addChainGameKey(chain);
+    }
+    addChainGameKey(selectedChain);
+    yield put(actionCreators.eventSourceSubsChanged(channels));
+    /* Load the games on the newly visible chains. */
+    yield call(loadChainGames, newChains);
+    yield put(actionCreators.chainListUpdateDone(visibleIds));
+  }
 }
 
 function* commonStartupSaga(contestId: string): Saga {
