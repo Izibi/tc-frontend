@@ -27,6 +27,7 @@ export const actionCreators = {
   clearError: () => createAction(ActionTypes.CLEAR_ERROR, {}),
 
   // backend
+  backendLoggedOut: () => createAction(ActionTypes.BACKEND_LOGGED_OUT, {}),
   backendTaskStarted: (task: object, optimisticChanges: OptimisticChange<Collection>[]) => createAction(ActionTypes.BACKEND_TASK_STARTED, {task, optimisticChanges}),
   backendTaskFailed: (task: object, error: string) => createAction(ActionTypes.BACKEND_TASK_FAILED, {task, error}),
   backendTaskDone: (task: object) => createAction(ActionTypes.BACKEND_TASK_DONE, {task}),

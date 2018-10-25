@@ -1,6 +1,7 @@
 
 import {Effect} from 'redux-saga';
 import {call, put, select} from 'redux-saga/effects';
+import update from 'immutability-helper';
 
 import {Actions, ActionTypes, State, actionCreators} from '../app';
 import {Rule, navigate} from '../router';
@@ -33,7 +34,10 @@ export function landingReducer (state: State, action: Actions): State {
   switch (action.type) {
     case ActionTypes.USER_LOGGED_IN: {
       const {userId} = action.payload;
-      return {...state, userId};
+      return update(state, {
+        userId: {$set: userId},
+        backend: {userLoggedOut: {$set: false}},
+      });
     }
     case ActionTypes.USER_LOGGED_OUT: {
       return {...state,

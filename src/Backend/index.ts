@@ -16,6 +16,8 @@ export {BackendState} from "./types";
 export {default as BackendFeedback} from "./Feedback";
 export const selectors = _selectors;
 
+export class LoggedOutError extends Error {}
+
 const initialEntities = {
   users: {},
   contests: {},
@@ -28,6 +30,7 @@ const initialEntities = {
 
 export const backendInit : BackendState = {
   backend: {
+    loggedOut: false,
     generation: 0,
     lastError: undefined,
     tasks: [],
@@ -152,6 +155,10 @@ export function backendReducer (state: State, action: Actions): State {
     case ActionTypes.EVENTSOURCE_SUBS_CHANGED: {
       const {channels} = action.payload;
       return {...state, eventSource: {...state.eventSource, channels}};
+    }
+
+    case ActionTypes.BACKEND_LOGGED_OUT: {
+      return update(state, {backend: {loggedOut: {$set: true}}});
     }
 
   }
@@ -388,9 +395,10 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
     try {
       return yield call(saga);
     } catch (ex) {
+      if (ex instanceof LoggedOutError) {
+        AppToaster.show({message: "Your session has expired, please reload the page."});
+      }
       AppToaster.show({message: ex.toString()});
-      /* TODO: if an error happened before getting an error-free response from
-         the backend, revert to the saved entities. */
       yield put(actionCreators.backendTaskFailed(taskRef, ex.toString()));
     } finally {
       yield put(actionCreators.backendTaskDone(taskRef));
@@ -401,8 +409,9 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
 function* backendGet (path: string, options?: {cache: boolean}) {
   const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`, options || {});
   if (response.error) {
-    /* TODO: if the error message is "you don't exist", we should display an
-       overlay with a Login button to let the user re-authenticate. */
+    if (response.error === "you don't exist") {
+      throw new LoggedOutError();
+    }
     throw new Error(response.error);
   }
   if (response.entities) {
@@ -414,6 +423,9 @@ function* backendGet (path: string, options?: {cache: boolean}) {
 function* backendPost (path: string, body: object | null) {
   const response = yield call(postJson, `${process.env.BACKEND_URL}/${path}`, body);
   if (response.error) {
+    if (response.error === "you don't exist") {
+      throw new LoggedOutError();
+    }
     throw new Error(response.error);
   }
   if (response.entities) {

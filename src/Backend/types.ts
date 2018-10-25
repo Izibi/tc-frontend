@@ -177,6 +177,7 @@ export type PrePlayer = {
 
 export type BackendState = {
   backend: {
+    loggedOut: boolean,
     generation: number,
     lastError: string | undefined,
     tasks: object[],

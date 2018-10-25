@@ -7,6 +7,7 @@ export const REACT_ERROR = "[errors] react";
 export const SAGA_ERROR = "[errors] saga";
 export const CLEAR_ERROR = "[errors] clear";
 
+export const BACKEND_LOGGED_OUT = "[backend] logged out";
 export const BACKEND_TASK_DONE = "[backend] task done";
 export const BACKEND_TASK_FAILED = "[backend] task failed";
 export const BACKEND_TASK_STARTED = "[backend] task started";
