@@ -9,6 +9,7 @@ import {Entity, Chain, ChainFilters, BlockData, Block, ScoreBoard} from '../type
 import {GameHead} from '../Backend/types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
+import {difference} from '../utils';
 import {
   monitorBackendTask, selectors, loadContestTeam, loadContest, loadContestChains,
   loadChain, loadGameHead, forkChain, deleteChain, restartChain, loadBlock, loadBlockScores} from '../Backend';
@@ -78,7 +79,17 @@ export function chainsReducer (state: State, action: Actions): State {
     }
     case ActionTypes.CHAIN_LIST_SCROLLED: {
       const {first, last} = action.payload;
-      state = {...state, chainList: {firstVisible: first, lastVisible: last}};
+      state = update(state, {chainList: {
+        firstVisible: {$set: first},
+        lastVisible: {$set: last},
+      }});
+      break;
+    }
+    case ActionTypes.CHAIN_LIST_UPDATE_DONE: {
+      const {chainIds} = action.payload;
+      state = update(state, {chainList: {
+        visibleIds: {$set: chainIds},
+      }});
       break;
     }
     case ActionTypes.DELETE_CHAIN: {
@@ -206,17 +217,27 @@ function* chainListSaga (params: Params) : Saga {
     });
   });
   yield takeLatest(ActionTypes.CHAIN_LIST_SCROLLED, function* (action: ActionsOfType<typeof ActionTypes.CHAIN_LIST_SCROLLED>) : Saga {
-    const chains: Entity<Chain>[] = yield select(getVisibleChains);
+    const {visibleChains, visibleIds, newChains}: {visibleChains: Entity<Chain>[], visibleIds: string[], newChains: Entity<Chain>[]} =
+      yield select((state: State) => {
+        const {firstVisible, lastVisible, visibleIds: oldIds} = state.chainList;
+        const visibleIds = state.chainIds.slice(firstVisible, lastVisible + 1);
+        const newIds = difference(visibleIds, oldIds);
+        const visibleChains = visibleIds.map(id => selectors.getChain(state, id));
+        const newChains = newIds.map(id => selectors.getChain(state, id));
+        return {visibleChains, visibleIds, newChains};
+      });
     /* Update subscriptions to the visible games. */
     const channels = [`contest:${params.contestId}`];
-    for (let chain of chains) {
+    for (let chain of visibleChains) {
+      visibleIds.push(chain.id);
       if (chain.isLoaded && chain.value.currentGameKey !== "") {
         channels.push(`game:${chain.value.currentGameKey}`)
       }
     }
     yield put(actionCreators.eventSourceSubsChanged(channels));
-    /* Load the games on the visible chains. */
-    yield call(loadChainGames, chains);
+    /* Load the games on the newly visible chains. */
+    yield call(loadChainGames, newChains);
+    yield put(actionCreators.chainListUpdateDone(visibleIds));
   });
   yield takeLatest(ActionTypes.CHAIN_CREATED, function*(): Saga {
     yield call(refreshChainList, params.contestId);
@@ -262,12 +283,20 @@ function* refreshChainList(contestId: string): Saga {
     yield fork(loadChain, chainId);
   }
   const chains: Entity<Chain>[] = yield select(getVisibleChains);
-  yield call(loadChainGames, chains);
+  yield call(loadChainGamesIfNeeded, chains);
 }
 
 function* loadChainGames(chains: Entity<Chain>[]): Saga {
   for (let chain of chains) {
     yield call(loadChainGame, chain);
+  }
+}
+
+function* loadChainGamesIfNeeded(chains: Entity<Chain>[]): Saga {
+  for (let chain of chains) {
+    if (chain.isLoaded && chain.value.game === null) {
+      yield call(loadChainGame, chain);
+    }
   }
 }
 

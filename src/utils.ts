@@ -8,6 +8,16 @@ export function without<T> (items: T[], item: T) {
   return items;
 }
 
+export function difference(xs: string[], ys: string[]): string[] {
+  const result = [];
+  for (let x of xs) {
+    if (ys.indexOf(x) === -1) {
+      result.push(x);
+    }
+  }
+  return result;
+}
+
 export async function jsonGet (path: string) : Promise<object> {
   const response = await fetch(
     `${process.env.MOUNT_PATH}${path}`,

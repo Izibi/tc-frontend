@@ -6,7 +6,7 @@ import update from 'immutability-helper';
 import * as qs from 'querystring';
 
 import {Saga, actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
-import {without} from "../utils";
+import {without, difference} from "../utils";
 
 import {ChainFilters, BlockData, Block, BlockIndexEntry, ScoreBoard, PlayerRanking} from '../types';
 import {BackendState, PreEntities, PreGameInfo, OptimisticChange, Collection} from "./types";
@@ -220,16 +220,6 @@ export function* saga(): Saga {
     }
   });
 
-}
-
-function difference(xs: string[], ys: string[]): string[] {
-  const result = [];
-  for (let x of xs) {
-    if (ys.indexOf(x) === -1) {
-      result.push(x);
-    }
-  }
-  return result;
 }
 
 function inc(n: number) { return n + 1; }

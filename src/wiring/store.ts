@@ -26,6 +26,7 @@ export type State =
     chainList: {
       firstVisible: number,
       lastVisible: number,
+      visibleIds: string[],
     },
     chainFilters: ChainFilters,
   }
@@ -48,6 +49,7 @@ export const initialState : State = {
   chainList: {
     firstVisible: 0,
     lastVisible: -1,
+    visibleIds: [],
   },
   chainFilters: {
     status: "main",

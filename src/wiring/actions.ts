@@ -43,7 +43,6 @@ export const actionCreators = {
   contestListChanged: (contestIds: string[]) => createAction(ActionTypes.CONTEST_LIST_CHANGED, {contestIds}),
   contestChanged: (contestId: string) => createAction(ActionTypes.CONTEST_CHANGED, {contestId}),
   teamChanged: (teamId: string) => createAction(ActionTypes.TEAM_CHANGED, {teamId}),
-  chainListChanged: (chainIds: string[]) => createAction(ActionTypes.CHAIN_LIST_CHANGED, {chainIds}),
 
   // team management
   createTeam: (contestId: string, teamName: string) => createAction(ActionTypes.CREATE_TEAM, {contestId, teamName}),
@@ -58,7 +57,9 @@ export const actionCreators = {
   implementationTextChanged: (text: string) => createAction(ActionTypes.IMPLEMENTATION_TEXT_CHANGED, {text}),
 
   // chain list
+  chainListChanged: (chainIds: string[]) => createAction(ActionTypes.CHAIN_LIST_CHANGED, {chainIds}),
   chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
+  chainListUpdateDone: (chainIds: string[]) => createAction(ActionTypes.CHAIN_LIST_UPDATE_DONE, {chainIds}),
 
   // chain actions
   forkChain: (chainId: string, title: string) => createAction(ActionTypes.FORK_CHAIN, {chainId, title}),

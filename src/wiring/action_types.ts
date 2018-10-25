@@ -18,7 +18,10 @@ export const USER_LOGGED_IN = "[login] user logged in";
 export const CONTEST_LIST_CHANGED = "[model] contest list changed";
 export const CONTEST_CHANGED = "[model] contest changed";
 export const TEAM_CHANGED = "[model] team changed";
+
 export const CHAIN_LIST_CHANGED = "[model] chain list changed";
+export const CHAIN_LIST_SCROLLED = "[chains] list scrolled";
+export const CHAIN_LIST_UPDATE_DONE = "[chains] list update done";
 
 export const CREATE_TEAM = "[team] create";
 export const JOIN_TEAM = "[team] join";
@@ -30,7 +33,6 @@ export const CHANGE_TEAM_KEY = "[team] change key";
 export const INTERFACE_TEXT_CHANGED = "[protocol] interface changed";
 export const IMPLEMENTATION_TEXT_CHANGED = "[buffer] implementation changed";
 
-export const CHAIN_LIST_SCROLLED = "[chains] list scrolled";
 export const CHAIN_CREATED = "[chains] chain created";
 export const CHAIN_DELETED = "[chains] chain deleted";
 export const FORK_CHAIN = "[chains] fork chain";
