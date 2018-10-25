@@ -5,7 +5,7 @@ import {call, fork, put, select, take, takeEvery, takeLatest} from "redux-saga/e
 import update from 'immutability-helper';
 import * as qs from 'querystring';
 
-import {Saga, actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
+import {Saga, actionCreators, Actions, ActionTypes, AppToaster, State} from "../app";
 import {without, difference} from "../utils";
 
 import {ChainFilters, BlockData, Block, BlockIndexEntry, ScoreBoard, PlayerRanking} from '../types';
@@ -172,78 +172,92 @@ type Message = {
 
 type ApiResponse<T> = {result?: T} | {error: string, details?: string}
 
+class DisconnectedError extends Error {}
+
 export function* saga(): Saga {
   yield takeLatest(ActionTypes.USER_LOGGED_IN, function* (): Saga {
-    const resp : ApiResponse<string> = yield call(postJson, `${process.env.BACKEND_URL}/Events`, null);
-    if ('error' in resp) {
-      console.log('failed to create event stream', resp);
-      return;
-    }
-    const streamKey = resp.result;
-    let channels : string[] = [];
-    yield takeLatest(ActionTypes.CONTEST_CHANGED, function* (action: ActionsOfType<typeof ActionTypes.CONTEST_CHANGED>): Saga {
-      console.log('CONTEST CHANGED', action.payload.contestId);
-      // TODO: unsubscribe all
-    });
-    yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
-    function* syncSubscriptions (): Saga {
-      const newChannels = yield select((state: State) => state.eventSource.channels);
-      const subscribe = difference(newChannels, channels);
-      const unsubscribe = difference(channels, newChannels);
-      const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
-      if ('error' in resp) {
-        console.log("Error updating subscriptions:", resp);
-        return;
-      }
-      if (resp.result === true) {
-        channels = newChannels;
-      }
-    }
-    const events = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
     while (true) {
-      let event : Message | END = yield take(events);
-      // console.log('event', event);
-      if ('type' in event && event.type === END.type) {
-        // console.log('event stream has ended');
-        break; // XXX should re-open the event stream?
-      }
-      if ('channel' in event) {
-        // XXX do not leak channel to client?
-        // event.channel == 'team'
-        // event.channel == 'contest'
-        if (/^contest:/.test(event.channel)) {
-          let md = /chain (.*) created/.exec(event.payload);
-          if (md) {
-            yield put(actionCreators.chainCreated(md[1]));
-            continue;
-          }
-          md = /chain (.*) deleted/.exec(event.payload);
-          if (md) {
-            yield put(actionCreators.chainDeleted(md[1]));
-            continue;
-          }
-        } else {
-          let md = /^game:(.*)$/.exec(event.channel);
-          if (md !== null) {
-            const gameKey = md[1];
-            // event.payload === "block …"
-            md = /^block (.*)$/.exec(event.payload);
-            if (md != null) {
-              const blockHash: string = md[1];
-              const block: Block = yield call(loadBlock, blockHash);
-              yield put(actionCreators.blockLoaded(blockHash, block));
-            }
-            const {game, blocks, players, scores} = yield call(loadGameHead, gameKey);
-            yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
-          }
+      try {
+        yield call(connectEventStream);
+      } catch (ex) {
+        if (ex instanceof DisconnectedError) {
+          AppToaster.show({message: "Disconnected from server, attempting to recover."});
           continue;
         }
+        AppToaster.show({message: "Fatal event stream error, please reload the page."});
+        return;
       }
     }
   });
-
 }
 
+function* connectEventStream(): Saga {
+  const resp : ApiResponse<string> = yield call(postJson, `${process.env.BACKEND_URL}/Events`, null);
+  if ('error' in resp) {
+    console.log('failed to create event stream', resp);
+    return;
+  }
+  const streamKey = resp.result;
+  let channels : string[] = [];
+  const events = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
+  function* syncSubscriptions (): Saga {
+    const newChannels = yield select((state: State) => state.eventSource.channels);
+    const subscribe = difference(newChannels, channels);
+    const unsubscribe = difference(channels, newChannels);
+    const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
+    if ('error' in resp) {
+      if (resp.error === 'disconnected') {
+        throw new DisconnectedError();
+      }
+      throw new Error(resp.error);
+    }
+    if (resp.result === true) {
+      channels = newChannels;
+    }
+  }
+  yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
+  yield call(syncSubscriptions);
+  while (true) {
+    let event : Message | END = yield take(events);
+    // console.log('event', event);
+    if ('type' in event && event.type === END.type) {
+      throw new DisconnectedError();
+    }
+    if ('channel' in event) {
+      // XXX do not leak channel to client?
+      // event.channel == 'team'
+      // event.channel == 'contest'
+      if (/^contest:/.test(event.channel)) {
+        let md = /chain (.*) created/.exec(event.payload);
+        if (md) {
+          yield put(actionCreators.chainCreated(md[1]));
+          continue;
+        }
+        md = /chain (.*) deleted/.exec(event.payload);
+        if (md) {
+          yield put(actionCreators.chainDeleted(md[1]));
+          continue;
+        }
+      } else {
+        let md = /^game:(.*)$/.exec(event.channel);
+        if (md !== null) {
+          const gameKey = md[1];
+          // event.payload === "block …"
+          md = /^block (.*)$/.exec(event.payload);
+          if (md != null) {
+            const blockHash: string = md[1];
+            const block: Block = yield call(loadBlock, blockHash);
+            yield put(actionCreators.blockLoaded(blockHash, block));
+          }
+          const {game, blocks, players, scores} = yield call(loadGameHead, gameKey);
+          yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
+        }
+        continue;
+      }
+    }
+  }
+
+}
 function inc(n: number) { return n + 1; }
 function flushSelectorCache(state: State): State {
   return update(state, {
@@ -301,7 +315,6 @@ function fetchJson (url: string, options: {cache?: boolean}) {
     if (!options.cache) {
       init.cache = "no-cache";
     }
-    console.log(url, init);
     fetch(url, init).then(function (req) {
       const ct = req.headers.get('Content-Type') || '';
       if (!/^application\/json/.test(ct)) {
@@ -389,8 +402,6 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
   };
   yield put(actionCreators.clearError());
   yield put(actionCreators.backendTaskStarted(taskRef, optimisticChanges || []));
-  /* TODO: save entities, enabling the saga to make eager updates while being
-     able to revert if the backend returns an error. */
   taskRef.task = yield fork(function* () {
     try {
       return yield call(saga);
