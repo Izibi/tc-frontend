@@ -161,13 +161,13 @@ export function* saga(): Saga {
     let channels : string[] = [];
     yield takeLatest(ActionTypes.CONTEST_CHANGED, function* (action: ActionsOfType<typeof ActionTypes.CONTEST_CHANGED>): Saga {
       console.log('CONTEST CHANGED', action.payload.contestId);
+      // TODO: unsubscribe all
     });
     yield takeEvery(ActionTypes.EVENTSOURCE_SUBS_CHANGED, syncSubscriptions);
     function* syncSubscriptions (): Saga {
       const newChannels = yield select((state: State) => state.eventSource.channels);
       const subscribe = difference(newChannels, channels);
       const unsubscribe = difference(channels, newChannels);
-      console.log(channels, '->', newChannels, '+', subscribe, '-', unsubscribe);
       const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
       if ('error' in resp) {
         console.log("Error updating subscriptions:", resp);
@@ -180,9 +180,9 @@ export function* saga(): Saga {
     const events = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
     while (true) {
       let event : Message | END = yield take(events);
-      console.log('event', event);
+      // console.log('event', event);
       if ('type' in event && event.type === END.type) {
-        console.log('event stream has ended');
+        // console.log('event stream has ended');
         break; // XXX should re-open the event stream?
       }
       if ('channel' in event) {
@@ -393,6 +393,8 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
 function* backendGet (path: string) {
   const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`);
   if (response.error) {
+    /* TODO: if the error message is "you don't exist", we should display an
+       overlay with a Login button to let the user re-authenticate. */
     throw new Error(response.error);
   }
   if (response.entities) {

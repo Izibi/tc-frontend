@@ -59,7 +59,6 @@ export function navigate (ruleName: string, params: object = {}, replace: boolea
 }
 
 export function reload () {
-  console.log('core / reload');
   handleCurrentRoute();
 }
 
@@ -86,9 +85,7 @@ function getRouteOfPath (pathname: string): Route<object> | null {
 
 function handleCurrentRoute () {
   dropPrefix(window.location.pathname).then(function (pathname) {
-    console.log('pathname', pathname);
     const route = getRouteOfPath(pathname);
-    console.log('route', route);
     if (route) {
       store.dispatch(actionCreators.routeChanged(route));
     }
@@ -98,7 +95,6 @@ function handleCurrentRoute () {
 }
 
 export function startRouter (newStore: Store<State, AnyAction>, rules: Rule<object>[]) {
-  console.log('routing for prefix', prefix);
   store = newStore;
   matchers = rules.map(rule => {
     if ('test' in rule) {
@@ -123,14 +119,12 @@ export function startRouter (newStore: Store<State, AnyAction>, rules: Rule<obje
 
 
 export function* saga () {
-  console.log('router saga');
   yield all([
     takeLatest(ActionTypes.ROUTE_CHANGED, routeChangedSaga),
   ]);
 };
 
 export function* routeChangedSaga (action: any) {
-  console.log('took', action);
   const {route} = action.payload;
   if (route.rule.saga) {
     try {

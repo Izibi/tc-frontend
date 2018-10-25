@@ -9,7 +9,6 @@ export default function* () {
   // yield setContext(props);
   try {
     yield all([
-      call(function () { console.log('sagas are running'); }),
       call(require('../router').saga),
       call(require('../Backend').saga),
       call(reloadOnUserLogin),
