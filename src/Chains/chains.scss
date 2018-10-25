@@ -127,6 +127,23 @@
     .flexRow {
       margin: 0 -10px;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      padding: 10px;
+    }
+    tbody tr:nth-child(even) {
+      background-color: $mainBgColor;
+    }
+    td {
+      padding: 3px 10px;
+    }
+    td .playerColor {
+      font-weight: bold;
+      padding: 3px 0;
+    }
     td.num {
       text-align: center;
     }
