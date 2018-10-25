@@ -1,7 +1,7 @@
 
 import * as moment from 'moment';
 
-import {Entity, User, Contest, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game} from '../types';
+import {Entity, User, Contest, Task, TaskResource, Team, TeamMember, Chain, ChainStatus, Game, BlockData} from '../types';
 
 import {BackendState as State, Collection, PreEntities} from './types';
 
@@ -51,7 +51,7 @@ function visitEntity<K extends Collection>(
   // (<any>entity)._k = collection;
   cache.set(cacheKey, entity);
   if (id !== null) {
-    const facets = state.entities[collection][id];
+    const facets = state.backend.entities[collection][id];
     if (facets !== undefined) {
       entity.facets = facets;
       entity.isLoading = true;
@@ -179,11 +179,11 @@ export function getChain (state: State, id: string | null): Entity<Chain> {
 
 export function getGame(state: State, gameKey: string): Game | null {
   maybeClearCache(state);
-  const gameInfo = state.games.get(gameKey);
+  const gameInfo = state.backend.games.get(gameKey);
   if (gameInfo === undefined) {
     return null;
   }
-  const {game, blocks} = gameInfo;
+  const {game, blocks, players} = gameInfo;
   return {
     key: game.key,
     createdAt: moment(game.createdAt),
@@ -199,7 +199,13 @@ export function getGame(state: State, gameKey: string): Game | null {
     nbPlayers: game.nbPlayers,
     nbRounds: game.nbRounds,
     blocks,
+    players: players.map(({rank, teamId, botId}) =>
+        ({rank, team: getTeam(state, teamId), botId})),
   };
+}
+
+export function getBlockData(state: State, hash: string): BlockData {
+  return state.backend.blocks.get(hash, {hash});
 }
 
 export function getChainStatus(statusId: string) : ChainStatus {

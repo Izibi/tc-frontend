@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as classnames from 'classnames';
 
 import {Link} from '../router';
-import {BlockInfo, Chain, Entity} from '../types';
+import {BlockIndexEntry, Chain, Entity} from '../types';
 
 type ChainItemProps = {
   item: Entity<Chain>,
@@ -33,7 +33,7 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
       const nBlocks = 16;
       const maxRound = chain.game.currentRound;
       for (let i = 0; i < nBlocks; i++) {
-        const block : BlockInfo = chain.game.blocks.get(maxSeq - i);
+        const block : BlockIndexEntry = chain.game.blocks.get(maxSeq - i);
         if (block && maxRound - i >= 0) {
           const classes = ["chainBlock", "pixelated", `block-${maxRound - i}`, `seq-${maxSeq - i}`];
           const imgUrl = `${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`;

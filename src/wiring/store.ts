@@ -1,6 +1,4 @@
 
-import * as Immutable from 'immutable';
-
 import {Actions} from '../app';
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
@@ -10,7 +8,7 @@ import {landingReducer} from '../Landing';
 import {teamReducer} from '../Team';
 import {taskReducer} from '../Task';
 import {chainsReducer} from '../Chains';
-import {Block, ChainFilters, PrePlayer} from '../types';
+import {ChainFilters} from '../types';
 
 export type State =
   ErrorsState &
@@ -22,7 +20,7 @@ export type State =
     contestId: string /* id of current contest or 'unknown' */,
     teamId: string | null /* id of user's team or null or 'unknown' */,
     chainId: string /* id of selected chain or 'unknown' */,
-    blockHash: string /* hash of selected block or 'unknonw' */,
+    blockHash: string /* hash of selected block or 'unknown' or 'last' */,
     taskResourceIndex: number /* index of resource selected in task tab */,
     chainIds: string[] /* list of chains to display */,
     chainList: {
@@ -30,8 +28,6 @@ export type State =
       lastVisible: number,
     },
     chainFilters: ChainFilters,
-    blocks: Immutable.Map<string, Block>,
-    players: PrePlayer[],
   }
 
 export const initialState : State = {
@@ -56,8 +52,6 @@ export const initialState : State = {
   chainFilters: {
     status: "main",
   },
-  blocks: Immutable.Map(),
-  players: [],
 
 };
 

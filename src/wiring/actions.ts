@@ -1,7 +1,7 @@
 
 import {Route} from '../router';
-import {Block, PrePlayer} from '../types';
-import {PreGame, Collection, OptimisticChange} from '../Backend/types';
+import {Block, ScoreBoard, BlockIndexEntry} from '../types';
+import {PreGame, PrePlayer, Collection, OptimisticChange} from '../Backend/types';
 
 import * as ActionTypes from './action_types';
 
@@ -59,7 +59,6 @@ export const actionCreators = {
 
   // chain list
   chainListScrolled: (first: number, last: number) => createAction(ActionTypes.CHAIN_LIST_SCROLLED, {first, last}),
-  gameLoaded: (gameKey: string, game: PreGame, blocks: Block[] | null, players: PrePlayer[]) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks, players}),
 
   // chain actions
   forkChain: (chainId: string, title: string) => createAction(ActionTypes.FORK_CHAIN, {chainId, title}),
@@ -73,6 +72,10 @@ export const actionCreators = {
 
   // blocks
   blockLoaded: (hash: string, block: Block) => createAction(ActionTypes.BLOCK_LOADED, {hash, block}),
+  blockScoresLoaded: (hash: string, scores: ScoreBoard) => createAction(ActionTypes.BLOCK_SCORES_LOADED, {hash, scores}),
+
+  // games
+  gameLoaded: (gameKey: string, game: PreGame, blocks: BlockIndexEntry[] | null, players: PrePlayer[], scores: string | undefined) => createAction(ActionTypes.GAME_LOADED, {gameKey, game, blocks, players, scores}),
 
 };
 

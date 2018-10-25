@@ -80,6 +80,10 @@ export type ContestPeriod = {
 export type ChainStatus =
   "private test" | "public test" | "candidate" | "main" | "past" | "invalid";
 
+export type ChainFilters = {
+  status: "" | "main" | "private_test" | "public_test" | "candidate" | "past",
+}
+
 export type Chain = {
   id: string,
   createdAt: Moment,
@@ -115,41 +119,54 @@ export type Game = {
   firstBlock: string,
   lastBlock: string,
   nbCyclesPerRound: number,
-  blocks: Immutable.List<BlockInfo>,
   nbPlayers: number,
   nbRounds: number,
+  blocks: Immutable.List<BlockIndexEntry> /* seq -> hash */,
+  players: Player[] | undefined,
 }
 
-export type PrePlayer = {
-  rank: number,
-  teamId: string,
-  botId: number,
+export type BlockIndexEntry = {
+  hash: string,
+  type: string,
+  sequence: number,
 }
+
 export type Player = {
   rank: number,
   team: Entity<Team>,
   botId: number,
 }
 
-export type BlockInfo = {
+/* Data loaded for a specific block. */
+export type BlockData = {
   hash: string,
-  type: "root" | "task" | "protocol" | "setup" | "command",
-  sequence: number,
+  block?: Block,
+  scores?: ScoreBoard,
 }
 
+export type Block = BlockBase & (RootBlock | TaskBlock | ProtocolBlock | SetupBlock | CommandBlock)
+
 type BlockBase = {
-  hash: string /* added when we load the block */,
-  type: string,
+  type: BlockType,
   parent: string,
   sequence: number,
 }
+
+export type BlockType =
+  "root" | "task" | "protocol" | "setup" | "command"
+
 type RootBlock = {type: "root"}
 type TaskBlock = {type: "task", identifier: string}
 type ProtocolBlock = {type: "protocol", task: string, interface: string, implementation: string}
 type SetupBlock = {type: "setup", task: string, protocol: string, params: string}
 type CommandBlock = {type: "command", task: string, protocol: string}
-export type Block = BlockBase & (RootBlock | TaskBlock | ProtocolBlock | SetupBlock | CommandBlock)
 
-export type ChainFilters = {
-  status: "" | "main" | "private_test" | "public_test" | "candidate" | "past",
+export type ScoreBoard = {
+  maxScore: number,
+  rankings: PlayerRanking[],
+}
+
+export type PlayerRanking = {
+  score: number,
+  rank: number,
 }

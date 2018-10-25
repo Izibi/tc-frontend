@@ -5,12 +5,13 @@ import update from 'immutability-helper';
 
 //import {spawnWorker} from '../worker';
 
-import {Entity, Chain, Block} from '../types';
+import {Entity, Chain, ChainFilters, BlockData, Block, ScoreBoard} from '../types';
+import {GameHead} from '../Backend/types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
 import {
   monitorBackendTask, selectors, loadContestTeam, loadContest, loadContestChains,
-  loadChain, loadGameHead, forkChain, deleteChain, restartChain, loadBlock} from '../Backend';
+  loadChain, loadGameHead, forkChain, deleteChain, restartChain, loadBlock, loadBlockScores} from '../Backend';
 
 import ChainsPage from './ChainsPage';
 
@@ -89,15 +90,14 @@ export function chainsReducer (state: State, action: Actions): State {
       }
       break;
     }
-    case ActionTypes.BLOCK_LOADED: {
-      const {hash, block} = action.payload;
-      state = {...state, blocks: state.blocks.set(hash, block)};
-      break;
-    }
     case ActionTypes.CHAIN_FILTERS_CHANGED: {
       const {changes} = action.payload;
       state = update(state, {chainFilters: changes});
       break;
+    }
+    case ActionTypes.INTERFACE_TEXT_CHANGED: {
+      // TODO: save action.payload.text in store + set unsaved protocol flag
+      break
     }
   }
   return state;
@@ -108,11 +108,10 @@ function* chainsPageSaga (params: Params) : Saga {
      and load the games that are visible. */
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
+    yield call(commonStartupSaga, params.contestId, params.chainId);
     if (params.chainId) {
-      /* Load chain details in parallel with chain list & blocks.*/
-      yield fork(loadChain, params.chainId)
+      yield fork(loadChain, params.chainId);
     }
-    yield call(commonStartupSaga, params.contestId);
   });
   yield takeLatest(ActionTypes.FORK_CHAIN,
     function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
@@ -140,7 +139,7 @@ function* chainsPageSaga (params: Params) : Saga {
       yield call(monitorBackendTask, function* () {
         const chainId = action.payload.chainId;
         yield call(restartChain, chainId);
-        const chain = yield select((state: State) => selectors.getChain(state, chainId));
+        const chain = yield select(getChain, chainId);
         yield call(loadChainGame, chain);
       });
     }
@@ -156,36 +155,42 @@ function* blockPageSaga (params: Params) : IterableIterator<Effect> {
      and load the games that are visible. */
   yield fork(chainListSaga, params);
   yield call(monitorBackendTask, function* () {
-    yield call(commonStartupSaga, params.contestId);
+    yield fork(commonStartupSaga, params.contestId, params.chainId);
     if (!params.chainId) return;
     let chainId: string = params.chainId;
+    let chain: Entity<Chain> = yield select(getChain, chainId);;
+    if (!chain.isLoaded) {
+      yield call(loadChain, params.chainId);
+      chain = yield select(getChain, chainId);
+    }
+    if (chain.isLoaded && !chain.value.game) {
+      yield call(loadChainGame, chain);
+      chain = yield select(getChain, chainId);
+    }
     if (params.blockHash) {
       let blockHash : string = params.blockHash;
       if (blockHash === 'last') {
         // console.log('Looking for last block on chain', chainId);
-        let chain: Entity<Chain>;
-        chain = yield select((state: State) => selectors.getChain(state, chainId));
         if (!chain.isLoaded) {
-          // TODO: load the specific chain requested?
-          console.log('Chain is not loaded, bailing out.');
+          console.log('Chain failed to load, bailing out.');
           return;
         }
         if (!chain.value.game) {
-          console.log('Chain found, but the game is not loaded.  Bailing out.');
-          // do we need to load it?
+          console.log('Game is not loaded, bailing out.');
           return;
         }
         blockHash = chain.value.game.lastBlock;
         // console.log('The last block hash is', blockHash);
       }
       /* Ensure the block is loaded. */
-      let maybeBlock: Block | undefined;
-      yield select((state: State) => {
-        maybeBlock = state.blocks.get(blockHash as string);
-      });
-      if (!maybeBlock) {
-        const block = yield call(loadBlock, blockHash);
+      const blockData: BlockData = yield select(selectors.getBlockData, blockHash);
+      if (!blockData.block) {
+        const block: Block = yield call(loadBlock, blockHash);
         yield put(actionCreators.blockLoaded(blockHash, block));
+      }
+      if (!blockData.scores) {
+        const scores: ScoreBoard = yield call(loadBlockScores, blockHash);
+        yield put(actionCreators.blockScoresLoaded(blockHash, scores));
       }
       // const {round, nb_players} = state;
       // - need a creation timestamp
@@ -244,8 +249,8 @@ function* commonStartupSaga(contestId: string): Saga {
 }
 
 function* refreshChainList(contestId: string): Saga {
-  const filters = yield select((state: State) => state.chainFilters);
-  const {chainIds} = yield call(loadContestChains, contestId, filters);
+  const filters: ChainFilters = yield select((state: State) => state.chainFilters);
+  const {chainIds}: {chainIds: string[]} = yield call(loadContestChains, contestId, filters);
   yield put(actionCreators.chainListChanged(chainIds));
   const {chainId, isLoaded} : {chainId: string | null, isLoaded: boolean}
     = yield select((state: State) => {
@@ -271,8 +276,8 @@ function* loadChainGame(chain: Entity<Chain>): Saga {
     const gameKey = chain.value.currentGameKey;
     if (gameKey !== "") {
       try {
-        const {game, blocks, players} = yield call(loadGameHead, gameKey);
-        yield put(actionCreators.gameLoaded(gameKey, game, blocks, players));
+        const {game, blocks, players, scores}: GameHead = yield call(loadGameHead, gameKey);
+        yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
         // TODO: load more pages if needed
       } catch (ex) {
         console.log("failed to load game?", gameKey);
@@ -292,8 +297,12 @@ function getVisibleChainId(state: State): string {
   return chainId;
 }
 
-function getVisibleChains (state : State): Entity<Chain>[] {
+function getVisibleChains (state: State): Entity<Chain>[] {
   const {firstVisible, lastVisible} = state.chainList;
   const chainIds = state.chainIds.slice(firstVisible, lastVisible + 1);
   return chainIds.map(id => selectors.getChain(state, id));
+}
+
+function getChain(state: State, chainId: string): Entity<Chain> {
+  return selectors.getChain(state, chainId);
 }

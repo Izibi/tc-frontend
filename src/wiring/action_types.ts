@@ -40,6 +40,7 @@ export const CHAIN_FILTERS_CHANGED = "[chains] filters changed";
 
 export const GAME_LOADED = "[game] loaded";
 export const BLOCK_LOADED = "[block] loaded";
+export const BLOCK_SCORES_LOADED = "[block] scores loaded";
 
 export const EVENTSOURCE_KEY_CHANGED = "[EventSource] key changed";
 export const EVENTSOURCE_SUBS_CHANGED = "[EventSource] subscriptions changed";

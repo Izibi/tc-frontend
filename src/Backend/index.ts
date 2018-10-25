@@ -8,7 +8,7 @@ import * as qs from 'querystring';
 import {Saga, actionCreators, Actions, ActionTypes, ActionsOfType, AppToaster, State} from "../app";
 import {without} from "../utils";
 
-import {Block, BlockInfo, ChainFilters} from '../types';
+import {ChainFilters, BlockData, Block, BlockIndexEntry, ScoreBoard, PlayerRanking} from '../types';
 import {BackendState, PreEntities, PreGameInfo, OptimisticChange, Collection} from "./types";
 import * as _selectors from "./selectors";
 
@@ -32,14 +32,15 @@ export const backendInit : BackendState = {
     lastError: undefined,
     tasks: [],
     pristineEntities: initialEntities,
+    entities: initialEntities,
     optimisticChanges: [],
+    games: Immutable.Map(),
+    blocks: Immutable.Map(),
   },
   eventSource: {
     key: "",
     channels: [],
   },
-  entities: initialEntities,
-  games: Immutable.Map()
 };
 
 export function backendReducer (state: State, action: Actions): State {
@@ -84,24 +85,36 @@ export function backendReducer (state: State, action: Actions): State {
     }
 
     case ActionTypes.GAME_LOADED: {
-      const {gameKey, game, blocks: newBlocks, players} = action.payload;
-      const prevGI : PreGameInfo | undefined = state.games.get(gameKey);
-      let blocks : Immutable.List<BlockInfo> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
+      const {gameKey, game, blocks: newBlocks, players, scores} = action.payload;
+      const prevGI : PreGameInfo | undefined = state.backend.games.get(gameKey);
+      let blocks : Immutable.List<BlockIndexEntry> = prevGI === undefined ? Immutable.List() : prevGI.blocks;
       if (newBlocks !== null) {
         for (let block of newBlocks) {
           blocks = blocks.set(block.sequence, block);
         }
       }
-      state = flushSelectorCache({
-        ...state,
-        games: state.games.set(gameKey, {game, blocks}),
-      });
-      // HACK: set players if matching game key
-      const chain = selectors.getChain(state, state.chainId);
-      if (chain.isLoaded && chain.value.currentGameKey === gameKey) {
-        state = {...state, players};
-      }
-      break;
+      state = update(state, {backend: {
+        games: {$apply: (games: Immutable.Map<string, PreGameInfo>) =>
+            games.set(gameKey, {game, blocks, players})},
+        blocks: setOrUpdateBlockData(game.lastBlock,
+              {scores: {$set: scores ? parseScores(scores) : undefined}}),
+      }});
+      return flushSelectorCache(state);
+    }
+
+    case ActionTypes.BLOCK_LOADED: {
+      const {hash, block} = action.payload;
+      state = update(state, {backend: {
+        blocks: setOrUpdateBlockData(hash, {block: {$set: block}}),
+      }});
+      return flushSelectorCache(state);
+    }
+    case ActionTypes.BLOCK_SCORES_LOADED: {
+      const {hash, scores} = action.payload;
+      state = update(state, {backend: {
+        blocks: setOrUpdateBlockData(hash, {scores: {$set: scores}}),
+      }});
+      return flushSelectorCache(state);
     }
 
     case ActionTypes.CONTEST_LIST_CHANGED: {
@@ -198,8 +211,8 @@ export function* saga(): Saga {
               const block: Block = yield call(loadBlock, blockHash);
               yield put(actionCreators.blockLoaded(blockHash, block));
             }
-            const {game, blocks, players} = yield call(loadGameHead, gameKey);
-            yield put(actionCreators.gameLoaded(gameKey, game, blocks, players));
+            const {game, blocks, players, scores} = yield call(loadGameHead, gameKey);
+            yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
           }
           continue;
         }
@@ -222,8 +235,10 @@ function difference(xs: string[], ys: string[]): string[] {
 function inc(n: number) { return n + 1; }
 function flushSelectorCache(state: State): State {
   return update(state, {
-    backend: {generation: {$apply: inc}},
-    entities: {$set: applyOptimisticChanges(state.backend.pristineEntities, state.backend.optimisticChanges)}
+    backend: {
+      generation: {$apply: inc},
+      entities: {$set: applyOptimisticChanges(state.backend.pristineEntities, state.backend.optimisticChanges)}
+    },
   });
 }
 
@@ -460,6 +475,10 @@ export function* loadChain (chainId: string): Saga {
   return yield call(backendGet, `Chains/${chainId}`);
 }
 
+export function* updateChain (chainId: string, props: object): Saga {
+  return yield call(backendPost, `Chains/${chainId}/Update`, props);
+}
+
 export function* forkChain (chainId: string, title: string): Saga {
   return yield call(backendPost, `Chains/${chainId}/Fork`, {title});
 }
@@ -474,6 +493,31 @@ export function* restartChain (chainId: string): Saga {
 
 export function* loadBlock (hash: string): Saga {
   const resp: Response = yield call(fetch, `${process.env.BLOCKSTORE_URL}/${hash}/block.json`);
-  const data: object = yield call([resp, resp.json]);
-  return {hash, ...data};
+  const block: Block = yield call([resp, resp.json]);
+  return block;
+}
+
+export function* loadBlockScores (hash: string): Saga {
+  const resp = yield call(fetch, `${process.env.BLOCKSTORE_URL}/${hash}/scores.txt`);
+  return parseScores(yield call([resp, resp.text]));
+}
+
+function parseScores(str: string): ScoreBoard {
+  const lines = str.split("\n");
+  const [nbPlayers, maxScore] = lines[0].split(" ").map(s => parseInt(s));
+  const rankings = new Array<PlayerRanking>(nbPlayers)
+  for (let i = 0; i < nbPlayers; i++) {
+    const [score, rank] = lines[1 + i].split(" ").map(s => parseInt(s));
+    rankings[i] = {score, rank};
+  }
+  return {maxScore, rankings};
+}
+
+function setOrUpdateBlockData (hash: string, changes: object) {
+  return {
+    $apply: (blocks: Immutable.Map<string, BlockData>) =>
+      blocks.has(hash)
+        ? blocks.update(hash, bd => update(bd, changes))
+        : blocks.set(hash, update(<BlockData>{hash}, changes))
+  };
 }

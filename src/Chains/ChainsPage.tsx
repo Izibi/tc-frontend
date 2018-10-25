@@ -5,7 +5,7 @@ import {connect} from 'react-redux';
 
 import {State, DispatchProp, actionCreators} from '../app';
 import {Header as ContestHeader} from '../Contest';
-import {Entity, Chain, Block, Contest, ChainFilters, Player} from '../types';
+import {Entity, Chain, BlockData, Contest, ChainFilters} from '../types';
 import {Link, navigate} from '../router';
 import {selectors} from '../Backend';
 import ChainFilterControls from './ChainFilters';
@@ -17,18 +17,21 @@ type StoreProps = {
   here: string,
   teamId: string | null,
   contestId: string,
-  chainId: string,
-  blockHash: string,
-  block: Block | undefined,
-  chains: Entity<Chain>[],
-  filters: ChainFilters,
   contest: Entity<Contest>,
-  chain: Entity<Chain>,
-  isOwner: boolean,
+  // chain filters
+  filters: ChainFilters,
+  // list of chains displayed:
+  chains: Entity<Chain>[],
+  // displayed index range in chains:
   firstVisible: number,
   lastVisible: number,
-  players: Player[] | undefined,
-  nbPlayers: number | undefined,
+  // selected chain:
+  chainId: string,
+  chain: Entity<Chain>,
+  isOwner: boolean,
+  // selected block:
+  blockHash: string,
+  blockData: BlockData | undefined,
 }
 
 type Props = StoreProps & DispatchProp
@@ -41,8 +44,6 @@ function mapStateToProps (state: State, _props: object): StoreProps {
   const chain = selectors.getChain(state, chainId);
   const contest = selectors.getContest(state, contestId);
   let isOwner = false;
-  let players : Player[] | undefined;
-  let nbPlayers : number | undefined;
   if (chain.isLoaded) {
     if (teamId !== null && chain.value.ownerId === teamId) {
       isOwner = true;
@@ -52,27 +53,22 @@ function mapStateToProps (state: State, _props: object): StoreProps {
         blockHash = chain.value.game.lastBlock;
       } else {
         blockHash = "";
-        console.log('game not loaded, cannot display last block ');
+        console.log('game not loaded, cannot display last block');
       }
     }
-    if (chain.value.game) {
-      nbPlayers = chain.value.game.nbPlayers;
-    }
-    if (state.players) {
-      players = state.players.map(({rank, teamId, botId}) =>
-        ({rank, team: selectors.getTeam(state, teamId), botId}));  /* XXX allocation */
-    }
   }
-  const block = blockHash ? state.blocks.get(blockHash) : undefined;
+  const blockData = selectors.getBlockData(state, blockHash);
   return {
-    here, contestId, teamId, chainId, blockHash, block, chains, contest, chain,
-    isOwner, firstVisible, lastVisible, filters: chainFilters, players, nbPlayers
+    here, teamId, contestId, contest,
+    filters: chainFilters, chains, firstVisible, lastVisible,
+    chainId, chain, isOwner,
+    blockHash, blockData,
   };
 }
 
 class ChainsPage extends React.PureComponent<Props> {
   render () {
-    const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, block, filters, players, nbPlayers} = this.props;
+    const {here, teamId, contestId, chainId, chains, contest, chain, isOwner, blockData, filters} = this.props;
     if (teamId === null) {
       return (
         <div className="chainsPage">
@@ -115,7 +111,8 @@ class ChainsPage extends React.PureComponent<Props> {
             <div>
               {tab === 'chain' && chain.isLoaded &&
                 <ChainTab chain={chain.value} isOwner={isOwner} dispatch={this.props.dispatch} />}
-              {tab === 'block' && <BlockTab block={block} players={players} nbPlayers={nbPlayers} />}
+              {tab === 'block' && blockData &&
+                <BlockTab data={blockData} game={chain.isLoaded ? chain.value.game : null} />}
             </div>
           </div>
           </div>

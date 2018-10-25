@@ -1,7 +1,7 @@
 
 import * as Immutable from 'immutable';
 
-import {BlockInfo} from '../types';
+import {BlockIndexEntry, BlockData} from '../types';
 
 /* Types of entities as they are received from the backend. */
 
@@ -136,6 +136,19 @@ export type PreEntities = {
   chains: PreEntityMap<ChainFacets>,
 }
 
+export type GameHead = {
+  game: PreGame,
+  blocks: BlockIndexEntry[] | null,
+  players: PrePlayer[],
+  scores: string | undefined,
+}
+
+export type PreGameInfo = {
+  game: PreGame,
+  players: PrePlayer[],
+  blocks: Immutable.List<BlockIndexEntry>,
+}
+
 export type PreGame = {
   key: string,
   createdAt: string,
@@ -152,9 +165,10 @@ export type PreGame = {
   nbRounds: number,
 }
 
-export type PreGameInfo = {
-  game: PreGame,
-  blocks: Immutable.List<BlockInfo>,
+export type PrePlayer = {
+  rank: number,
+  teamId: string,
+  botId: number,
 }
 
 export type BackendState = {
@@ -162,13 +176,14 @@ export type BackendState = {
     generation: number,
     lastError: string | undefined,
     tasks: object[],
+    entities: PreEntities,
     pristineEntities: PreEntities,
     optimisticChanges: OptimisticChange<Collection>[],
+    games: Immutable.Map<string, PreGameInfo>,
+    blocks: Immutable.Map<string, BlockData>,
   },
   eventSource: {
     key: string,
     channels: string[],
   },
-  entities: PreEntities,
-  games: Immutable.Map<string, PreGameInfo>,
 }
