@@ -17,7 +17,7 @@ class BlockTab extends React.PureComponent<BlockTabProps, BlockTabState> {
   render () {
     const {data: {scores}, game} = this.props;
     const {task, block} = this.state;
-    const viewerUrl = `${process.env.BLOCKSTORE_URL}/${task}/view.html?t=1#h=${block}`;
+    const viewerUrl = `${process.env.BLOCKSTORE_URL}/${task}/view.html?t=${process.env.CACHE_BUSTER}#h=${block}`;
     return (
       <div className="flexRow">
         {task &&
