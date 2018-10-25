@@ -37,8 +37,9 @@ class ChainItem extends React.PureComponent<ChainItemProps> {
         if (block && maxRound - i >= 0) {
           const classes = ["chainBlock", "pixelated", `block-${maxRound - i}`, `seq-${maxSeq - i}`];
           const imgUrl = `${process.env.BLOCKSTORE_URL}/${block.hash}/map.png`;
+          const hash = i === 0 ? "last" : block.hash;
           blocks[nBlocks - i - 1] = (
-            <Link key={i} to="BlockPage" params={{contestId: chain.contest.id, chainId: chain.id, blockHash: block.hash}} >
+            <Link key={i} to="BlockPage" params={{contestId: chain.contest.id, chainId: chain.id, blockHash: hash}} >
               <img className={classnames(classes)} src={imgUrl} title={`${maxRound - i}`} />
             </Link>
           );
