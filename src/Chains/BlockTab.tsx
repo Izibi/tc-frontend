@@ -14,7 +14,7 @@ class BlockTab extends React.PureComponent<BlockTabProps> {
     if (!block || !(block.type === 'setup' || block.type === 'command')) {
       return null;
     }
-    const viewUrl = `${process.env.BLOCKSTORE_URL}/${block.task}/view.html?h=${hash}`;
+    const viewUrl = `${process.env.BLOCKSTORE_URL}/${block.task}/view.html#h=${hash}`;
     return (
       <div className="flexRow">
         <iframe style={{width: '400px', height: '400px', 'border': '0'}} src={viewUrl} />
