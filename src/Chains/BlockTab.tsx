@@ -20,7 +20,8 @@ class BlockTab extends React.PureComponent<BlockTabProps, BlockTabState> {
     const viewerUrl = `${process.env.BLOCKSTORE_URL}/${task}/view.html#h=${block}`;
     return (
       <div className="flexRow">
-        <iframe style={{width: '400px', height: '400px', 'border': '0'}} src={viewerUrl} />
+        {task &&
+          <iframe style={{width: '400px', height: '400px', 'border': '0'}} src={viewerUrl} />}
         <div style={{margin: '0 10px', flex: '1 1 auto'}}>
           <div className="panel">
             <div className="panelHeader">{"Block ranking"}</div>
