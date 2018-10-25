@@ -119,19 +119,19 @@ export function chainsReducer (state: State, action: Actions): State {
   return state;
 }
 
-function* chainsPageSaga (params: Params) : Saga {
+function* chainsPageSaga (params: Params): Saga {
   /* Fork the chain list saga to catch the first 'chain list scrolled' event
      and load the games that are visible. */
   yield fork(chainListSaga, params);
-  yield call(monitorBackendTask, function* () {
+  yield call(monitorBackendTask, function* (): Saga {
     yield call(commonStartupSaga, params.contestId, params.chainId);
     if (params.chainId) {
       yield fork(loadChain, params.chainId);
     }
   });
   yield takeLatest(ActionTypes.FORK_CHAIN,
-    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
-      yield call(monitorBackendTask, function* () {
+    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>): Saga {
+      yield call(monitorBackendTask, function* (): Saga {
         const {chainId, title} = action.payload;
         const newChainId: string = yield call(forkChain, chainId, title);
         yield call(navigate, "ChainPage", {contestId: params.contestId, chainId: newChainId});
@@ -139,8 +139,8 @@ function* chainsPageSaga (params: Params) : Saga {
     }
   );
   yield takeLatest(ActionTypes.DELETE_CHAIN,
-    function* (action: ActionsOfType<typeof ActionTypes.DELETE_CHAIN>) : Saga {
-      yield call(monitorBackendTask, function* () {
+    function* (action: ActionsOfType<typeof ActionTypes.DELETE_CHAIN>): Saga {
+      yield call(monitorBackendTask, function* (): Saga {
         /* The action's reducer eagerly removed the id from the list. */
         yield call(deleteChain, action.payload.chainId);
         /* An event posted to the team's channel will reload the chain list. */
@@ -151,8 +151,8 @@ function* chainsPageSaga (params: Params) : Saga {
     }
   );
   yield takeLatest(ActionTypes.RESTART_CHAIN,
-    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>) : Saga {
-      yield call(monitorBackendTask, function* () {
+    function* (action: ActionsOfType<typeof ActionTypes.FORK_CHAIN>): Saga {
+      yield call(monitorBackendTask, function* (): Saga {
         const chainId = action.payload.chainId;
         yield call(restartChain, chainId);
         const chain = yield select(getChain, chainId);
