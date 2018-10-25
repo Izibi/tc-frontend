@@ -269,14 +269,17 @@ function splitEntityKey(key: string) : {collection: string, facet: string, id: s
   return {collection, facet: facet || "", id};
 }
 
-function fetchJson (url: string) {
+function fetchJson (url: string, options: {cache?: boolean}) {
   const controller = new AbortController();
   const promise = new Promise(function (resolve, reject) {
     const init : RequestInit = {
-      cache: "no-cache",
       credentials: "include",
       signal: controller.signal,
     };
+    if (!options.cache) {
+      init.cache = "no-cache";
+    }
+    console.log(url, init);
     fetch(url, init).then(function (req) {
       const ct = req.headers.get('Content-Type') || '';
       if (!/^application\/json/.test(ct)) {
@@ -380,8 +383,8 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
   });
 }
 
-function* backendGet (path: string) {
-  const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`);
+function* backendGet (path: string, options?: {cache: boolean}) {
+  const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`, options || {});
   if (response.error) {
     /* TODO: if the error message is "you don't exist", we should display an
        overlay with a Login button to let the user re-authenticate. */
@@ -455,11 +458,11 @@ export function* loadContestChains (contestId: string, filters: ChainFilters): S
 }
 
 export function* loadGameHead (gameKey: string): Saga {
-  return yield call(backendGet, `Games/${gameKey}`);
+  return yield call(backendGet, `Games/${gameKey}`, {cache: true});
 }
 
 export function* loadGamePage (gameKey: string, page: number): Saga {
-  return yield call(backendGet, `Games/${gameKey}/Index/${page}`);
+  return yield call(backendGet, `Games/${gameKey}/Index/${page}`, {cache: true});
 }
 
 export function* loadChain (chainId: string): Saga {
