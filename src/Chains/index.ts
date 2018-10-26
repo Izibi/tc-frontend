@@ -6,7 +6,7 @@ import update from 'immutability-helper';
 //import {spawnWorker} from '../worker';
 
 import {Entity, Chain, ChainFilters, BlockData, Block, ScoreBoard} from '../types';
-import {GameHead} from '../Backend/types';
+import {GameHead, GamePage} from '../Backend/types';
 import {Actions, State, actionCreators, ActionTypes, ActionsOfType, Saga} from '../app';
 import {Rule, navigate} from '../router';
 import {difference} from '../utils';
@@ -304,7 +304,8 @@ function* loadChainGame(chain: Entity<Chain>): Saga {
         const {game, blocks, players, scores, page}: GameHead = yield call(loadGameHead, gameKey);
         yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
         if (page > 0) {
-          yield call(loadGamePage, gameKey, page - 1);
+          const {blocks}: GamePage = yield call(loadGamePage, gameKey, page - 1);
+          yield put(actionCreators.gameIndexPageLoaded(gameKey, blocks));
         }
       } catch (ex) {
         console.log("failed to load game?", gameKey);

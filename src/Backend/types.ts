@@ -147,6 +147,11 @@ export type GameHead = {
   scores: string | undefined,
 }
 
+export type GamePage = {
+  page: number,
+  blocks: BlockIndexEntry[],
+}
+
 export type PreGameInfo = {
   game: PreGame,
   players: PrePlayer[],
