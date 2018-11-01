@@ -9,7 +9,7 @@ import {Saga, actionCreators, Actions, ActionTypes, AppToaster, State} from "../
 import {without, difference} from "../utils";
 
 import {ChainFilters, BlockData, Block, BlockIndexEntry, ScoreBoard, PlayerRanking} from '../types';
-import {BackendState, PreEntities, PreGameInfo, OptimisticChange, Collection} from "./types";
+import {BackendState, PreEntities, PreGameInfo, OptimisticChange, Collection, GameHead} from "./types";
 import * as _selectors from "./selectors";
 
 export {BackendState} from "./types";
@@ -170,7 +170,7 @@ type Message = {
   payload: string,
 }
 
-type ApiResponse<T> = {result?: T} | {error: string, details?: string}
+type ApiResponse<T> = {result?: T, entities?: PreEntities} | {error: string, details?: string}
 
 class DisconnectedError extends Error {}
 
@@ -199,12 +199,12 @@ function* connectEventStream(): Saga {
   }
   const streamKey = resp.result;
   let channels : string[] = [];
-  const events = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
+  const events: Channel<object> = yield call(channelOfEventSource, `${process.env.BACKEND_URL}/Events/${streamKey}`);
   function* syncSubscriptions (): Saga {
     const newChannels = yield select((state: State) => state.eventSource.channels);
     const subscribe = difference(newChannels, channels);
     const unsubscribe = difference(channels, newChannels);
-    const resp = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
+    const resp: ApiResponse<boolean> = yield call(postJson, `${process.env.BACKEND_URL}/Events/${streamKey}`, {subscribe, unsubscribe});
     if ('error' in resp) {
       if (resp.error === 'disconnected') {
         throw new DisconnectedError();
@@ -249,7 +249,7 @@ function* connectEventStream(): Saga {
             const block: Block = yield call(loadBlock, blockHash);
             yield put(actionCreators.blockLoaded(blockHash, block));
           }
-          const {game, blocks, players, scores} = yield call(loadGameHead, gameKey);
+          const {game, blocks, players, scores}: GameHead = yield call(loadGameHead, gameKey);
           yield put(actionCreators.gameLoaded(gameKey, game, blocks, players, scores));
         }
         continue;
@@ -417,29 +417,29 @@ export function* monitorBackendTask (saga: any, optimisticChanges?: any): Saga {
   });
 }
 
-function* backendGet (path: string, options?: {cache: boolean}) {
-  const response = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`, options || {});
-  if (response.error) {
+function* backendGet<T> (path: string, options?: {cache: boolean}): Saga {
+  const response: ApiResponse<T> = yield call(fetchJson, `${process.env.BACKEND_URL}/${path}`, options || {});
+  if ('error' in response) {
     if (response.error === "you don't exist") {
       throw new LoggedOutError();
     }
     throw new Error(response.error);
   }
-  if (response.entities) {
+  if (response.entities !== undefined) {
     yield put(actionCreators.backendEntitiesLoaded(response.entities));
   }
   return response.result;
 }
 
-function* backendPost (path: string, body: object | null) {
-  const response = yield call(postJson, `${process.env.BACKEND_URL}/${path}`, body);
-  if (response.error) {
+function* backendPost<T> (path: string, body: object | null): Saga {
+  const response: ApiResponse<T> = yield call(postJson, `${process.env.BACKEND_URL}/${path}`, body);
+  if ('error' in response) {
     if (response.error === "you don't exist") {
       throw new LoggedOutError();
     }
     throw new Error(response.error);
   }
-  if (response.entities) {
+  if (response.entities !== undefined) {
     yield put(actionCreators.backendEntitiesLoaded(response.entities));
   }
   return response.result;
