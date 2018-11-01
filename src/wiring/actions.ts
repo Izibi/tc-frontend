@@ -3,6 +3,7 @@ import {Route} from '../router';
 import {Block, ScoreBoard, BlockIndexEntry, ChainStatus} from '../types';
 import {PreGame, PrePlayer, Collection, OptimisticChange} from '../Backend/types';
 
+import {State} from './store';
 import * as ActionTypes from './action_types';
 
 export interface Action<T extends string, P> {
@@ -17,6 +18,7 @@ export function createAction<T extends string, P>(type: T, payload: P) : Action<
 export const actionCreators = {
 
   init: () => createAction(ActionTypes.INIT, {}),
+  load: (state: State) => createAction(ActionTypes.LOAD, {state}),
 
   // router
   routeChanged: (route: Route<object>) => createAction(ActionTypes.ROUTE_CHANGED, {route}),

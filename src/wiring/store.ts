@@ -1,5 +1,5 @@
 
-import {Actions} from '../app';
+import {Actions, ActionTypes} from '../app';
 import {ErrorsState, errorsReducer} from '../errors';
 import {RouterState, routerReducer} from '../router';
 import {BackendState, backendReducer, backendInit} from '../Backend';
@@ -57,9 +57,17 @@ export const initialState : State = {
 
 };
 
+function coreReducer(state: State, action: Actions): State {
+  if (action.type === ActionTypes.LOAD) {
+    return action.payload.state;
+  }
+  return state;
+}
+
 export function reducer (state: State | undefined, action: Actions) : State {
   let newState : State = state === undefined ? initialState : state;
   try {
+    newState = coreReducer(newState, action);
     newState = errorsReducer(newState, action);
     newState = routerReducer(newState, action);
     newState = backendReducer(newState, action);

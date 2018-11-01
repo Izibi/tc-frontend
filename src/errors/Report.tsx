@@ -1,27 +1,31 @@
 
 import * as React from 'react';
-import {Dispatch} from 'redux';
 import {connect} from 'react-redux';
 import {Dialog} from '@blueprintjs/core';
 
-import {actionCreators} from '../app';
-import {ErrorsState, AppError} from './types';
+import {actionCreators, State, DispatchProp} from '../app';
+import {AppError} from './types';
 
-type Props = {error: AppError} & {dispatch: Dispatch}
+type OuterProps = {error: AppError}
+type StoreProps = {dump: string}
+type Props = OuterProps & StoreProps & DispatchProp
 
-function mapStateToProps (_state : ErrorsState) : {} {
-  return {};
+function mapStateToProps (state: State): StoreProps {
+  return {
+    dump: (btoa(JSON.stringify(state)).match(/.{1,76}/g)||[]).join('\n')
+  };
 }
 
 class Report extends React.PureComponent<Props> {
   render() {
-    const appError = this.props.error;
+    const {error: appError, dump} = this.props;
     return (
       <Dialog icon='error' isOpen={true} onClose={this.handleClearError} title={'Error'}>
         <div className='bp3-dialog-body' style={{overflowX: 'scroll'}}>
           <p style={{fontWeight: 'bold'}}>
-            {"Something went wrong…"}
+            {"Something went wrong, please send us the text below to help us understand the problem."}
           </p>
+          <textarea cols={80} rows={12} style={{fontSize: "8px"}} value={dump} readOnly/>
           <p>{'Source: '}{appError.source}</p>
           {appError.source === 'react' && appError.info &&
             <pre>{'Stack: '}{appError.info.componentStack}</pre>}

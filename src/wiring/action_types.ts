@@ -1,5 +1,6 @@
 
 export const INIT = "INIT";
+export const LOAD = "LOAD";
 
 export const ROUTE_CHANGED = "[router] route changed";
 
